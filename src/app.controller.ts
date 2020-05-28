@@ -1,12 +1,29 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Body, Query, Req, Res, Post } from '@nestjs/common';
+import { Response } from 'express';
 import { AppService } from './app.service';
-
+var csrf = require('csurf');
+var csrfProtection = csrf({ cookie: true });
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Get('login')
+  checkLogin(@Req() req, @Res() res: Response): void {
+    return this.appService.checkLogin(req, res);
+  }
+
+  @Post('login')
+  doLogin(@Req() req, @Res() res: Response): void {
+    return this.appService.doLogin(req, res);
+  }
+
+  @Get('consent')
+  checkConsent(@Req() req, @Res() res: Response): void {
+    return this.appService.checkConsent(req, res);
+  }
+
+  @Post('consent')
+  doConsent(@Req() req, @Res() res: Response): void {
+    return this.appService.doConsent(req, res);
   }
 }

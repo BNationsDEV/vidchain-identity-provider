@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VIDchain Login</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+  <div id="login-app" class="formLogin">
+    <img id="logo" class ="logo" src="logo_Vid_CHAIN_vertical.png"></img>
+    <div  class="formSquare">
+      <br>
+    <!-- <h2>{{subTitle}}</h2> -->
+    <div>
+        <input type="hidden" name="_csrf" value={{csrfToken}}>
+        <input type="hidden" name="challenge" value={{challenge}}>
+        <button class="scanButton" v-on:click="sendSIOPClientUriBackend">Log in using VIDchain</button>
+        <img id="qrImage" class="qrImage"></img>
+        <!-- <label for="fname">EMAIL:</label>
+        <input type="email" id="email" name="email" placeholder="email@foobar.com">
+        <p>"foo@bar.com"</p>
+        <br><br>
+        <label for="lname">Password:</label>
+        <input type="password" id="password" name="password">
+        <p>foobar</p> -->
+        <br><br>
+        <input type="checkbox" id="remember" name="remember" value="1">
+        <label for="remember">Remember me</label>
+        <br>
+        <!-- <input type="submit" id="accept" name="submit" value="Log in">
+        <input type="submit" id="reject" name="submit" value="Deny access"> -->
+         <h1>{{ error }}</h1>
+        </div>
+    </div>
+  </div>
+  <img id="qrImage"></img>
+  <script>
+    const app = new Vue({
+      el: '#login-app',
+      data: {
+        validationResult: '',
+        socket: null,
+        clientUriRedirect: ''
+      },
+      methods: {
+        openUri() {
+          window.open(this.myUrl, "_self");
+        },
+        resetImg() {
+          var img = document.getElementById('qrImage');
+          img.src = '';
+        },
+        resetVars() {
+          this.error = '';
+          this.validationResult = '';
+          this.resetImg();
+        },
+        sendSIOPClientUriBackend() {
+          // this.resetVars();
+          // const data = {
+          //   clientUriRedirect: this.clientUriRedirect
+          // };
+          // this.socket.emit('signIn', data);
+          
+        },
+        displayQr(qrResponse) {
+          var img = document.getElementById('qrImage')
+          img.src = qrResponse.imageQr
+        }
+      },
+      created() {
+        this.socket = io('http://localhost:3000')
+        this.socket.on('signIn', (msg) => {
+          this.receiveMessage(msg);
+        });
+        this.socket.on('printQR', (qrResponse) => {
+          this.displayQr(qrResponse);
+        });
+        // var img = document.getElementById('qrImage');
+        // img.src = require("@/output-onlinepngtools.png");
+      },
+    });
+
+  </script>
+
+  <style scoped>
+    .formSquare {
+        background-color: #00bf71;
+        border-radius: 20px;
+        color: #ffff;
+        width: 40%;
+        height: 60%;
+        margin-left: 30%;
+        text-align: center;
+        justify-content: center;
+    }
+    .formLogin {
+      background: #ffff;
+      padding: 1rem 1.25rem;
+      color: #00bf71;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      margin-left: -10px;
+      margin-top: -10px;
+      text-align: center;
+      justify-content: center;
+    }
+    .logo{
+      width: 25%;
+      height: 30%;
+    }
+    .scanButton {
+      display: block;
+      cursor: pointer;
+      outline: none;
+      border: none;
+      background-color: #ffff;
+      width: 400px;
+      height: 70px;
+      border-radius: 30px;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color:  #00bf71;
+      background-size: 100% 100%;
+      box-shadow: 0 0 0 7px var(--light) inset;
+      margin-bottom: 15px;
+      margin-left: 15%;
+    }
+    .qrImage{
+      width: 55%;
+      height: 55%;
+      align-self: center;
+      margin-top: 5%;
+    }
+    .back {
+      background-color: #00bf71;
+    }
+    .remember{
+      margin-top: 55%;
+    }
+  </style>
+</body>
+
+</html>

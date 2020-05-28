@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VIDchain Login</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+    <div id="login-app" class="formLogin">
+      <img id="logo" class ="logo" src="logo_Vid_CHAIN_vertical.png"></img>
+      <div  class="formSquare">
+        <br>
+      <!-- <h2>{{subTitle}}</h2> -->
+      <div>
+        <input type="hidden" name="_csrf" value={{csrfToken}}>
+        <input type="hidden" name="challenge" value={{challenge}}>
+        <img id="logo"></img>
+        <h3> Hi {{user}}, application <strong>{{client.client_name}} {{client.client_id}}</strong> wants access resources on your behalf and to:</h3>
+        <input type="checkbox" id={{requested_scope}} value={{requested_scope}} name="grant_scope">
+        <label for={{requested_scope}}>{{requested_scope}}</label>
+
+        <p>Do you want to be asked next time when this application wants to access your data? The application will
+            not be able to ask for more permissions without your consent.</p>
+
+        <input type="checkbox" id="remember" name="remember" value="1">
+        <label for="remember">Do not ask me again</label>
+        <br>
+        <input class="acceptButton" type="submit" id="accept" name="submit" value="Allow access">
+        <input class="denyButton" type="submit" id="reject" name="submit" value="Deny access"> 
+        <a href=client.policy_uri>Policy </a> <br>
+        <a href=client.tos_uri>Terms of Service </a> <br>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const app = new Vue({
+      el: '#login-app',
+      data: {
+        title: 'An application requests access to your data!',
+        validationResult: '',
+        socket: null,
+        clientUriRedirect: '',
+      },
+      methods: {
+        openUri() {
+          window.open(this.myUrl, "_self");
+        },
+
+      },
+      created() {
+        if(client.logo_uri){
+            var img = document.getElementById('logo')
+            img.src = client.logo_uri
+        }
+      }
+    });
+
+  </script>
+
+  <style scoped>
+    .formSquare {
+        background-color: #00bf71;
+        border-radius: 20px;
+        color: #ffff;
+        width: 40%;
+        height: 60%;
+        margin-left: 30%;
+        text-align: center;
+        justify-content: center;
+    }
+    .formLogin {
+      background: #ffff;
+      padding: 1rem 1.25rem;
+      color: #00bf71;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      margin-left: -10px;
+      margin-top: -10px;
+      text-align: center;
+      justify-content: center;
+    }
+    .logo{
+      width: 25%;
+      height: 30%;
+    }
+    .acceptButton {
+      display: block;
+      cursor: pointer;
+      outline: none;
+      border: none;
+      background-color: #ffff;
+      width: 35%;
+      height: 70px;
+      border-radius: 30px;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color:  #00bf71;
+      background-size: 100% 100%;
+      box-shadow: 0 0 0 7px var(--light) inset;
+      margin: 0 auto;
+      margin-top: 10%;
+    }
+    .denyButton {
+      display: block;
+      cursor: pointer;
+      text-decoration: underline;
+      outline: none;
+      border: none;
+      background-color: #00bf71;
+      width: 35%;
+      height: 30px;
+      border-radius: 30px;
+      font-size: 1.0rem;
+      font-weight: 300;
+      color:  #000000;
+      background-size: 100% 100%;
+      box-shadow: 0 0 0 7px var(--light) inset;
+      margin: 0 auto;
+      margin-top: 2%;
+      margin-bottom: 5%;
+    }
+    .qrImage{
+      width: 55%;
+      height: 55%;
+      align-self: center;
+      margin-top: 5%;
+    }
+    .back {
+      background-color: #00bf71;
+    }
+    .remember{
+      margin-top: 55%;
+    }
+  </style>
+</body>
+
+</html>

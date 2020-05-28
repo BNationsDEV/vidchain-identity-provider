@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "esModuleInterop": true,
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -9,7 +10,15 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
-    "incremental": true
+    "incremental": true,
+    "paths": {
+      "@lib/did-siop": [
+        "libs/lib-did-siop/src"
+      ],
+      "@lib/did-siop/*": [
+        "libs/lib-did-siop/src/*"
+      ],
+    }
   },
   "exclude": ["node_modules", "dist"]
 }
