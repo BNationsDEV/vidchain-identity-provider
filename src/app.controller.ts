@@ -13,8 +13,8 @@ export class AppController {
   }
 
   @Post('login')
-  doLogin(@Req() req, @Res() res: Response): void {
-    return this.appService.doLogin(req, res);
+  async doLogin(@Req() req, @Res() res: Response): Promise<void> {
+    return await this.appService.doLogin(req, res);
   }
 
   @Get('consent')

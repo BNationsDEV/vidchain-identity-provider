@@ -7,6 +7,7 @@
   <title>VIDchain Login</title>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js"></script>
 </head>
 
 <body>
@@ -20,16 +21,16 @@
         <input type="hidden" name="challenge" value={{challenge}}>
         <img id="logo"></img>
         <h3> Hi {{user}}, application <strong>{{client.client_name}} {{client.client_id}}</strong> wants access resources on your behalf and to:</h3>
-        <input type="checkbox" id={{requested_scope}} value={{requested_scope}} name="grant_scope">
+        <input type="checkbox" id={{requested_scope}} value={{requested_scope}} name="grant_scope" v-bind:value="requested_scope">
         <label for={{requested_scope}}>{{requested_scope}}</label>
 
         <p>Do you want to be asked next time when this application wants to access your data? The application will
             not be able to ask for more permissions without your consent.</p>
 
-        <input type="checkbox" id="remember" name="remember" value="1">
+        <input type="checkbox" id="remember" name="remember" v-bind:value="remember" value="1">
         <label for="remember">Do not ask me again</label>
         <br>
-        <input class="acceptButton" type="submit" id="accept" name="submit" value="Allow access">
+        <button class="acceptButton" v-on:click="consent">Allow Access</button>
         <input class="denyButton" type="submit" id="reject" name="submit" value="Deny access"> 
         <a href=client.policy_uri>Policy </a> <br>
         <a href=client.tos_uri>Terms of Service </a> <br>
@@ -45,10 +46,22 @@
         validationResult: '',
         socket: null,
         clientUriRedirect: '',
+        remember:false,
+        requested_scope: []
       },
       methods: {
-        openUri() {
-          window.open(this.myUrl, "_self");
+        consent() {
+          let urlParams = new URLSearchParams(window.location.search);
+          let consent_challenge = urlParams.get('consent_challenge');
+          const body = {
+            challenge: consent_challenge,
+            remember: this.remember,
+            grant_scope: this.requested_scope
+          };
+          console.log(body);
+          axios.post('http://127.0.0.1:3000/consent', body)
+            .then ((res)=> window.location = res.data)
+            .catch ((error)=> console.log(error))
         },
 
       },

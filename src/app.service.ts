@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { Res, Req,Request } from '@nestjs/common';
 import { Response } from 'express';
-
 import * as hydra from './services/hydra';
+import { LoginResponse } from './siop/dtos/SIOP';
 @Injectable()
 export class AppService {
+  constructor() {}
 
   checkLogin(@Request() req, @Res() res: Response) {
     const query = req.query;
     // The challenge is used to fetch information about the login request from ORY Hydra.
     var challenge = query.login_challenge;
-    
     hydra.getLoginRequest(challenge)
     // This will be called if the HTTP request was successful
       .then(function (response) {
@@ -42,44 +42,53 @@ export class AppService {
       });
   }
 
-  doLogin(@Req() req, @Res() res: Response) {
+  async doLogin(@Req() req, @Res() res: Response) {
     var body = req.body;
+
     var challenge = body.challenge;
+    console.log("go to accept");
+    console.log(challenge);
     // Let's see if the user decided to accept or reject the consent request..
-    if (body.submit === 'Deny access') {
-      console.log("DENY");
-      // Looks like the consent request was denied by the user
-      return hydra.rejectLoginRequest(challenge, {
-        error: 'access_denied',
-        error_description: 'The resource owner denied the request'
-      })
-        .then(function (response) {
-          // All we need to do now is to redirect the browser back to hydra!
-          res.redirect(response.redirect_to);
-        })
-        // This will handle any error that happens when making HTTP calls to hydra
-        .catch(function (error) {
-          console.log("error calling hydra");
-        });
-    }
+    // if (body.submit === 'Deny access') {
+    //   console.log("DENY");
+    //   // Looks like the consent request was denied by the user
+    //   return hydra.rejectLoginRequest(challenge, {
+    //     error: 'access_denied',
+    //     error_description: 'The resource owner denied the request'
+    //   })
+    //     .then(function (response) {
+    //       // All we need to do now is to redirect the browser back to hydra!
+    //       res.redirect(response.redirect_to);
+    //     })
+    //     // This will handle any error that happens when making HTTP calls to hydra
+    //     .catch(function (error) {
+    //       console.log("error calling hydra");
+    //     });
+    // }
   
-    // Let's check if the user provided valid credentials. Of course, you'd use a database or some third-party service
-    // for this!
-    if (!(body.email === 'foo@bar.com' && body.password === 'foobar')) {
-      // Looks like the user provided invalid credentials, let's show the ui again...
-      console.log("Incorrect");
-      res.render('index', {
-        csrfToken: req.cookies._csrf,
-        challenge: challenge,
-        error: 'The username / password combination is not correct'
-      });
-      return;
-    }
+    // // Let's check if the user provided valid credentials. Of course, you'd use a database or some third-party service
+    // // for this!
+    // if (!(body.email === 'foo@bar.com' && body.password === 'foobar')) {
+    //   // Looks like the user provided invalid credentials, let's show the ui again...
+    //   console.log("Incorrect");
+    //   res.render('index', {
+    //     csrfToken: req.cookies._csrf,
+    //     challenge: challenge,
+    //     error: 'The username / password combination is not correct'
+    //   });
+    //   return;
+    // }
   
     // Seems like the user authenticated! Let's tell hydra...
+    const bodyToDisplay = {
+      subject: body.did,
+      remember: Boolean(body.remember),
+      remember_for: 360
+    }
+    console.log(bodyToDisplay);
     hydra.acceptLoginRequest(challenge, {
       // Subject is an alias for user ID. A subject can be a random string, a UUID, an email address, ....
-      subject: 'foo@bar.com',
+      subject: body.did,
   
       // This tells hydra to remember the browser and automatically authenticate the user in future requests. This will
       // set the "skip" parameter in the other route to true on subsequent requests!
@@ -97,11 +106,12 @@ export class AppService {
         console.log("go to redirect");
         console.log(response.redirect_to);
         // All we need to do now is to redirect the user back to hydra!
-        res.redirect(response.redirect_to);
+        res.send(response.redirect_to);
       })
       // This will handle any error that happens when making HTTP calls to hydra
       .catch(function (error) {
         console.log("error");
+        console.log(error);
       });
   }
 
@@ -221,7 +231,9 @@ export class AppService {
         })
           .then(function (response) {
             // All we need to do now is to redirect the user back to hydra!
-            res.redirect(response.redirect_to);
+            console.log("consent to redirect");
+            console.log(response.redirect_to);
+            res.send(response.redirect_to);
           })
       })
       // This will handle any error that happens when making HTTP calls to hydra
