@@ -26,7 +26,7 @@ import { VerifiedJwt, JWTVerifyOptions, JWTHeader } from "./JWT";
 
 import * as JWK from "./util/JWK";
 
-const EbsiDidResolver = require("ebsi-did-resolver");
+const EbsiDidResolver = require("@validated-id/vid-did-resolver");
 
 export default class EbsiDidAuth {
   /**
@@ -41,7 +41,9 @@ export default class EbsiDidAuth {
     const { jwt, nonce } = await EbsiDidAuth.createDidAuthRequest(
       didAuthRequestCall
     );
+    console.log("uri created");
     const responseUri = `openid://&scope=${DIAUTHScope.OPENID_DIDAUTHN}?response_type=${DIAUTHResponseType.ID_TOKEN}&client_id=${didAuthRequestCall.redirectUri}&request=${jwt}`;
+    console.log(responseUri);
     // returns a URI with Request JWT embedded
     return { uri: responseUri, nonce, jwt };
   }
@@ -59,17 +61,19 @@ export default class EbsiDidAuth {
       throw new Error(DIDAUTH_ERRORS.KEY_SIGNATURE_URI_ERROR);
     if (!didAuthRequestCall.authZToken)
       throw new Error(DIDAUTH_ERRORS.AUTHZTOKEN_UNDEFINED);
-
+      console.log("didAuthrequestPayload");
     const payload: DidAuthRequestPayload = this.createDidAuthRequestPayload(
       didAuthRequestCall
     );
-    console.log(payload);
+    console.log("didAuthrequestPayload2");
     // signs payload calling the provided signatureUri
     const jwt = await this.signDidAuthExternal(
       payload,
       didAuthRequestCall.signatureUri,
       didAuthRequestCall.authZToken
     );
+    console.log("jwt");
+    console.log(jwt);
     return { jwt, nonce: payload.nonce };
   }
 
@@ -213,7 +217,6 @@ export default class EbsiDidAuth {
     signatureUri: string,
     authZToken: string
   ): Promise<string> {
-    console.log("go to sign");
     const data = {
       issuer: payload.iss,
       payload,
@@ -221,17 +224,15 @@ export default class EbsiDidAuth {
       expiresIn: expirationTime,
     };
     const response = await doPostCallWithToken(signatureUri, data, authZToken);
-    console.log(response.status);
-    console.log(response.data);
     if (
       !response ||
       !response.status ||
-      response.status !== 200 ||
+      (response.status !== 200 &&
+      response.status !== 201) ||
       !response.data ||
       !response.data.jws
     )
       throw new Error(DIDAUTH_ERRORS.MALFORMED_SIGNATURE_RESPONSE);
-
     return response.data.jws;
   }
 

@@ -58,9 +58,6 @@ async function doPostCallWithToken(
       Authorization: `Bearer ${token}`,
     },
   };
-  console.log(url);
-  console.log(token);
-  console.log(data);
   const response = await axios.post(url, data, config);
   return response;
 }

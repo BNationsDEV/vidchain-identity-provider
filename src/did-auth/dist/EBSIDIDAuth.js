@@ -9,7 +9,7 @@ const crypto_1 = require("crypto");
 const DIDAuth_1 = require("./DIDAuth");
 const Errors_1 = __importDefault(require("./Errors"));
 const Util_1 = require("./util/Util");
-const EbsiDidResolver = require("ebsi-did-resolver");
+const EbsiDidResolver = require("@validated-id/vid-did-resolver");
 class EbsiDidAuth {
     /**
      *

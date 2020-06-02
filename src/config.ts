@@ -3,12 +3,12 @@ const BASE_URL = 'http://localhost:3000'
 const SIOP_PATH = '/siop'
 const RETURN_CALL = '/responses'
 
-const SIGNATURES = "https://api.intebsi.xyz/wallet/v1/signatures"
-const SIGNATURE_VALIDATION = "https://api.intebsi.xyz/wallet/v1/signature-validations";
+const SIGNATURES = "https://walletapi-dev.vidchain.net/api/v1/signatures"
+const SIGNATURE_VALIDATION = "https://walletapi-dev.vidchain.net/api/v1/signature-validations";
 
-//For now factory matters enterprise wallet
-const authZToken = "eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QiLCJraWQiOiJZemxBY0l4RnVqVVd0Rjk4V1lxaGxPUlA2ME1NcF9ZX0hYRl8ySHI3X3E0In0.eyJkaWQiOiJkaWQ6ZWJzaToweEE4MzdGNjI3RURDYTlDNkIyNDQzN0UyOTRGMjFjNjJjNDE0RjZFNGMiLCJhdWQiOiJlYnNpLXdhbGxldCIsIm5vbmNlIjoiNWJjZWFkYWUtYTg1ZC00NjZiLTliNWEtMDc4YjcwM2MzZDIzIiwic3ViIjoiQ09NUEFOWSBBQSBJTkMiLCJpYXQiOjE1OTEwMjk2ODQsImV4cCI6MTYwMDAyOTY4NH0.96CE_auzr_gJTyg8dyhSINpPICkAQ9LvNibl-hq9hUMZ2KTyr-9zBDjSwHYEbRZtbNGAz0LPANy_0PCwrH32og";
-const DID = "did:ebsi:0xA837F627EDCa9C6B24437E294F21c62c414F6E4c"
+//For now hardcoding enterprise wallet
+const authZToken = "eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QiLCJraWQiOiJ2aWRjaGFpbi1hcGkifQ.eyJzdWIiOiJWSURURVNUIElOQy4iLCJkaWQiOiJkaWQ6dmlkOjB4ZTZiNjk2RTJGNEQyYjM2M0EwMjYxNThENTBFM0E4NTlEMTI3MDZlZiIsIm5vbmNlIjoiei0wNDI3ZGMyNTE2ZDAiLCJpYXQiOjE1OTExMDE1NzcsImV4cCI6MTU5MzY5MzU3NywiYXVkIjoidmlkY2hhaW4tYXBpIn0.fS5WRFC2CJ0bCPxVLlDRVcWv4ZyJdfYu1P42xSkH678W7U1EzrlVATusBOSRyC7wRCIdqp_pQ5UQSlS9r7K0Kg";
+const DID = "did:vid:0xe6b696E2F4D2b363A026158D50E3A859D12706ef"
 
 // client_id return call_back
 const CLIENT_ID_URI = BASE_URL + SIOP_PATH + RETURN_CALL
