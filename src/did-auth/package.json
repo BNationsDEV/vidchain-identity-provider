@@ -55,7 +55,7 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "@validated-id/vid-did-resolver": "0.0.3",
+    "@validated-id/vid-did-resolver": "0.0.7",
     "axios": "^0.19.2",
     "did-jwt": "^4.3.2",
     "did-resolver": "^1.1.0",

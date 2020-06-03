@@ -17,7 +17,7 @@
       <br>
     <!-- <h2>{{subTitle}}</h2> -->
     <div>
-        <input type="hidden" name="_csrf" value={{csrfToken}}>
+        <input type="hidden" id="csrf" name="_csrf" value={{csrfToken}}>
         <input type="hidden" name="challenge" value={{challenge}}>
         <button class="scanButton" v-on:click="sendSIOPClientUriBackend">Log in using VIDchain</button>
         <img id="qrImage" class="qrImage"></img>
@@ -79,6 +79,7 @@
           if(response.validationResult){
             //Do Post to login
             const did = response.did 
+
             //const did = "did:ebsi:0x2c8181B9bF7F8f708A7C68DaE04d6d56A87dFBD3"
             const body = {
               challenge: login_challenge,
@@ -92,7 +93,7 @@
         },
       },
       created() {
-        this.socket = io('http://localhost:3000')
+        this.socket = io('http://127.0.0.1:3000')
         this.socket.on('signIn', (msg) => {
           this.receiveMessage(msg);
         });

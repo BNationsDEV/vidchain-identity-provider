@@ -28,7 +28,7 @@ export class SiopProcessor {
     }
     console.log(job.data.sessionId);
     const didAuthRequestCall: DidAuthRequestCall = {
-      redirectUri: "https://acbd87dc2c4a.ngrok.io/siop/responses",
+      redirectUri: "https://519c97e93f4c.ngrok.io/siop/responses",
       signatureUri: SIGNATURES,
       authZToken: authZToken
     };

@@ -19,7 +19,9 @@ class EbsiDidAuth {
         if (!didAuthRequestCall || !didAuthRequestCall.redirectUri)
             throw new Error(Errors_1.default.BAD_PARAMS);
         const { jwt, nonce } = await EbsiDidAuth.createDidAuthRequest(didAuthRequestCall);
+        console.log("uri created");
         const responseUri = `openid://&scope=${DIDAuth_1.DIAUTHScope.OPENID_DIDAUTHN}?response_type=${DIDAuth_1.DIAUTHResponseType.ID_TOKEN}&client_id=${didAuthRequestCall.redirectUri}&request=${jwt}`;
+        console.log(responseUri);
         // returns a URI with Request JWT embedded
         return { uri: responseUri, nonce, jwt };
     }
@@ -34,10 +36,13 @@ class EbsiDidAuth {
             throw new Error(Errors_1.default.KEY_SIGNATURE_URI_ERROR);
         if (!didAuthRequestCall.authZToken)
             throw new Error(Errors_1.default.AUTHZTOKEN_UNDEFINED);
+        console.log("didAuthrequestPayload");
         const payload = this.createDidAuthRequestPayload(didAuthRequestCall);
-        console.log(payload);
+        console.log("didAuthrequestPayload2");
         // signs payload calling the provided signatureUri
         const jwt = await this.signDidAuthExternal(payload, didAuthRequestCall.signatureUri, didAuthRequestCall.authZToken);
+        console.log("jwt");
+        console.log(jwt);
         return { jwt, nonce: payload.nonce };
     }
     /**
@@ -135,7 +140,6 @@ class EbsiDidAuth {
         return response;
     }
     static async signDidAuthExternal(payload, signatureUri, authZToken) {
-        console.log("go to sign");
         const data = {
             issuer: payload.iss,
             payload,
@@ -143,11 +147,10 @@ class EbsiDidAuth {
             expiresIn: DIDAuth_1.expirationTime,
         };
         const response = await Util_1.doPostCallWithToken(signatureUri, data, authZToken);
-        console.log(response.status);
-        console.log(response.data);
         if (!response ||
             !response.status ||
-            response.status !== 200 ||
+            (response.status !== 200 &&
+                response.status !== 201) ||
             !response.data ||
             !response.data.jws)
             throw new Error(Errors_1.default.MALFORMED_SIGNATURE_RESPONSE);

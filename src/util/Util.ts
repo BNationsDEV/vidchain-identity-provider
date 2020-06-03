@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { JWT } from 'jose';
-import { DidAuthResponseCall } from 'src/did-auth/src';
+import { DidAuthResponsePayload } from 'src/did-auth/src';
 
 async function doPostCall(data: any, url: string): Promise<any> {
   try {
@@ -17,9 +17,9 @@ async function doPostCall(data: any, url: string): Promise<any> {
   }
 }
 
-function decodePayload( jwt: string ): DidAuthResponseCall{
+function decodePayload( jwt: string ): DidAuthResponsePayload{
   const { payload } = JWT.decode(jwt, { complete: true });
-  return payload as DidAuthResponseCall;
+  return payload as DidAuthResponsePayload;
 }
 
 function getJwtNonce(jwt: string): string {
@@ -27,7 +27,7 @@ function getJwtNonce(jwt: string): string {
 }
 
 function getUserDid( jwt: string ): string {
-  return decodePayload(jwt).did
+  return decodePayload(jwt).sub_jwk.kid;
 }
 
 export {

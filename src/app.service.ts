@@ -11,6 +11,7 @@ export class AppService {
     const query = req.query;
     // The challenge is used to fetch information about the login request from ORY Hydra.
     var challenge = query.login_challenge;
+    // console.log(req.cookies._csrf);
     hydra.getLoginRequest(challenge)
     // This will be called if the HTTP request was successful
       .then(function (response) {
@@ -46,8 +47,6 @@ export class AppService {
     var body = req.body;
 
     var challenge = body.challenge;
-    console.log("go to accept");
-    console.log(challenge);
     // Let's see if the user decided to accept or reject the consent request..
     // if (body.submit === 'Deny access') {
     //   console.log("DENY");
