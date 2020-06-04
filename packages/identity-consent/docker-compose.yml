@@ -1,0 +1,21 @@
+version: "3.7"
+
+services:
+
+  identity-consent-api:
+    build:
+      dockerfile: ./Dockerfile
+    image: vidchain/identity-consent-api:v0.1
+    container_name: identity-consent-api
+    restart: always
+    logging:
+      options:
+        max-size: "100m"
+        max-file: "50"
+    ports:
+      - 3000:3000
+    networks:
+      - hydra_network
+
+networks:
+  hydra_network:

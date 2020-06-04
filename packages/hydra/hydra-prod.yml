@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+
+  hydra:
+    image: oryd/hydra:latest
+    depends_on:
+      - hydra-migrate
+    ports:
+      - "9000:4444" # Public port
+      - "9001:4445" # Admin port
+    networks:
+      - hydra_network
+    command:
+      serve all
+    environment:
+      - URLS_SELF_ISSUER=https://dev.api.vidchain.net
+      - URLS_CONSENT=https://dev.api.vidchain.net/consent
+      - URLS_LOGIN=https://dev.api.vidchain.net/login
+      - URLS_LOGOUT=https://dev.api.vidchain.net/logout
+      # - OAUTH2_ERROR_URL. This URL can be used to provide an endpoint which will receive error messages from ORY Hydra that should be displayed to the end user.
+      - DSN=postgres://hydra:secret@postgresd:5432/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+      - SECRETS_SYSTEM=T68zLmRJonSNbRUWRlqOFFJWBLXU7yrn
+    restart: unless-stopped
+
+  hydra-migrate:
+    image: oryd/hydra:latest
+    environment:
+      - DSN=postgres://hydra:secret@postgresd:5432/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+    networks:
+      - hydra_network
+    command:
+      migrate sql -e --yes
+    restart: on-failure
+
+networks:
+  hydra_network:

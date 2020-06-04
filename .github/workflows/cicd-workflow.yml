@@ -25,7 +25,7 @@ jobs:
       - name: Start docker
         uses: garygrossgarten/github-action-ssh@release
         with:
-          command: cd deployed-oidc-provider && docker-compose -f dev-hydra.yml up --build -d
+          command: cd deployed-oidc-provider && sh ./docker-compose.sh
           host: dev.api.vidchain.net
           username: root
           privateKey: ${{ secrets.SERVER_SSH_KEY }}
