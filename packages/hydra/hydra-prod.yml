@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 
 services:
 
@@ -35,3 +35,5 @@ services:
 
 networks:
   hydra_network:
+    driver: bridge
+    name: hydra_oidc_network

@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 
 services:
 
@@ -36,18 +36,6 @@ services:
       migrate sql -e --yes
     restart: on-failure
 
-  consent:
-    build: .
-    environment:
-      - HYDRA_ADMIN_URL=http://127.0.0.1:4445
-      - NODE_TLS_REJECT_UNAUTHORIZED=0
-    # image: oryd/hydra-login-consent-node:latest
-    ports:
-      - "9020:3000"
-    networks:
-      - hydra_network
-    restart: unless-stopped
-
   postgresd:
     image: postgres:9.6
     ports:
@@ -61,3 +49,5 @@ services:
 
 networks:
   hydra_network:
+    driver: bridge
+    name: hydra_oidc_network
