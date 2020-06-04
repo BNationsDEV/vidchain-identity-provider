@@ -4,6 +4,7 @@ services:
 
   identity-consent-api:
     build:
+      context: .
       dockerfile: ./Dockerfile
     image: vidchain/identity-consent-api:v0.1
     container_name: identity-consent-api

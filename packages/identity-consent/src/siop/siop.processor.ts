@@ -4,7 +4,7 @@ import { Job, Queue } from 'bull'
 import { EbsiDidAuth, DidAuthRequestCall, DIDAUTH_ERRORS} from '../did-auth/src/index';
 import { SiopUriRequest, SiopResponse, SiopAckRequest, QRResponse, SiopResponseJwt, DidAuthValidationResponse, LoginResponse } from './dtos/SIOP';
 import { doPostCall, getUserDid, getJwtNonce } from 'src/util/Util';
-import { BASE_URL, SIGNATURES, authZToken, SIGNATURE_VALIDATION } from 'src/Config';
+import { BASE_URL, SIGNATURES, authZToken, SIGNATURE_VALIDATION } from '../config';
 import QRCode from 'qrcode';
 import io from 'socket.io-client';
 import Redis from 'ioredis';

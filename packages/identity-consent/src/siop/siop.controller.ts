@@ -3,7 +3,7 @@ import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { SiopResponseJwt, SiopAckResponse, SiopResponse, SiopRequestJwt, DidAuthValidationResponse,  } from './dtos/SIOP';
 import { EbsiDidAuth, DidAuthRequestCall, DIDAUTH_ERRORS} from '../did-auth/src/index';
-import { CLIENT_ID_URI, BASE_URL, SIGNATURE_VALIDATION , authZToken} from 'src/Config';
+import { CLIENT_ID_URI, BASE_URL, SIGNATURE_VALIDATION , authZToken} from '../config';
 import { getUserDid, getJwtNonce } from 'src/util/Util';
 import io from 'socket.io-client';
 import Redis from 'ioredis';

@@ -15,7 +15,7 @@ import {
   import { Observable, of } from 'rxjs';
   import { InjectQueue } from '@nestjs/bull';
   import { Queue } from 'bull';
-  import { CLIENT_ID_URI } from 'src/Config';
+  import { CLIENT_ID_URI } from '../config';
   
   @WebSocketGateway()
   export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
