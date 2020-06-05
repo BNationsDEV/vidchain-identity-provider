@@ -35,7 +35,7 @@ export class SiopProcessor {
     }
     console.log(job.data.sessionId);
     const didAuthRequestCall: DidAuthRequestCall = {
-      redirectUri: BASE_URL + "siop/responses",
+      redirectUri: BASE_URL + "/siop/responses",
       signatureUri: SIGNATURES,
       authZToken: authZToken
     };
