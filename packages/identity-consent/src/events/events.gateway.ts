@@ -17,7 +17,7 @@ import {
   import { Queue } from 'bull';
   import { CLIENT_ID_URI } from '../config';
   
-  @WebSocketGateway({ path: '/socket' })
+  @WebSocketGateway()
   export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
     
     @WebSocketServer() wss: Server;
