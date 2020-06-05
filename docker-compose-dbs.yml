@@ -4,6 +4,7 @@ services:
 
   postgresd:
     image: postgres:9.6
+    container_name: postrgresdb
     ports:
       - "5432:5432"
     networks:
@@ -12,7 +13,7 @@ services:
       - POSTGRES_USER=hydra
       - POSTGRES_PASSWORD=secret
       - POSTGRES_DB=hydra
-      
+
 networks:
   hydra_network:
     driver: bridge
