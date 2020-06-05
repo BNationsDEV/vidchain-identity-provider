@@ -9,7 +9,7 @@ var cookieParser = require('cookie-parser')
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   // app.useWebSocketAdapter(new WsAdapter(app));
-  app.useStaticAssets(join(__dirname, '..', 'views'));
+  app.useStaticAssets(join(__dirname));
   app.setViewEngine('hbs');
   app.enableCors();
   app.use(cookieParser())

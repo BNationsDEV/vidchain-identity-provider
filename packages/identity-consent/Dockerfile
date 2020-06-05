@@ -11,6 +11,7 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 COPY --from=builder node_modules node_modules
 COPY --from=builder dist dist
+COPY --from=builder views views
 COPY package*.json ./
 RUN npm prune --production && \
   mkdir log && \

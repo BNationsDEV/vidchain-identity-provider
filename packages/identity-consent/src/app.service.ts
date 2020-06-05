@@ -39,6 +39,7 @@ export class AppService {
       })
       // This will handle any error that happens when making HTTP calls to hydra
       .catch(function (error) {
+        console.log(error);
         console.log("error check Login");
       });
   }

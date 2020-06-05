@@ -10,10 +10,17 @@ import Redis from 'ioredis';
 
 @Controller('siop')
 export class SiopController {
-  constructor(@InjectQueue('siop') private readonly siopQueue: Queue) {}
+  constructor(@InjectQueue('siop') private readonly siopQueue: Queue) {console.log(process.env.REDIS_URL);}
   private readonly logger = new Logger(SiopController.name);
-  private readonly nonceRedis = new Redis({ keyPrefix: "nonce:" });
-  private readonly jwtRedis = new Redis({ keyPrefix: "jwt:" });
+  private readonly nonceRedis = new Redis({ 
+    port: 6379, // Redis port
+    host: process.env.REDIS_URL,
+    keyPrefix: "nonce:" 
+  });
+  private readonly jwtRedis = new Redis({  
+    port: 6379, // Redis port
+    host: process.env.REDIS_URL, 
+    keyPrefix: "jwt:" });
   private readonly socket = io(BASE_URL);
 
   @Post('responses')

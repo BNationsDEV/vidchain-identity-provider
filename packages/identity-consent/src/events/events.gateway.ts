@@ -40,6 +40,7 @@ import {
     handleSignInEvent(
       @MessageBody() uriRedirect:SiopUriRedirect,
       @ConnectedSocket() client: Socket ): Observable<WsResponse<unknown>> {
+        this.logger.debug(process.env.REDIS_URL);
         this.logger.debug(`SignIn Received from ${client.id}`);
         if (uriRedirect && uriRedirect.clientUriRedirect) {
           this.logger.debug(`Using URI redirect: ${uriRedirect.clientUriRedirect}`)
@@ -50,6 +51,7 @@ import {
           sessionId: uriRedirect.challenge,
           clientUriRedirect: uriRedirect && uriRedirect.clientUriRedirect ? uriRedirect.clientUriRedirect : undefined
         });
+        this.logger.debug(`Sin the queue ${client.id}`);
   
         return of({event: 'signIn', data: `SignIn request received and queued for:  ${uriRedirect.challenge}`})
     }

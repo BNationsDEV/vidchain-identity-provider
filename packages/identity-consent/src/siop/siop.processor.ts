@@ -9,13 +9,20 @@ import QRCode from 'qrcode';
 import io from 'socket.io-client';
 import Redis from 'ioredis';
 
-
 @Processor('siop')
 export class SiopProcessor {
   constructor(@InjectQueue('siopError') private readonly siopErrorQueue: Queue) {}
+
   private readonly logger = new Logger(SiopProcessor.name);
-  private readonly jwtRedis = new Redis({ keyPrefix: "jwt:" });
-  private readonly nonceRedis = new Redis({ keyPrefix: "nonce:" });
+  private readonly nonceRedis = new Redis({ 
+    port: 6379,
+    host: process.env.REDIS_URL,
+    keyPrefix: "nonce:" 
+  });
+  private readonly jwtRedis = new Redis({  
+    port: 6379,
+    host: process.env.REDIS_URL, 
+    keyPrefix: "jwt:" });
   private readonly socket = io(BASE_URL);
 
   @Process('userRequest')
@@ -28,18 +35,13 @@ export class SiopProcessor {
     }
     console.log(job.data.sessionId);
     const didAuthRequestCall: DidAuthRequestCall = {
-      redirectUri: "https://519c97e93f4c.ngrok.io/siop/responses",
+      redirectUri: BASE_URL + "siop/responses",
       signatureUri: SIGNATURES,
       authZToken: authZToken
     };
     console.log(didAuthRequestCall);
     // Creates a URI using the wallet backend that manages entity DID keys
     const { uri, nonce, jwt } = await EbsiDidAuth.createUriRequest(didAuthRequestCall);
-    //----For testing
-    // const uri = "openid://&scope=openid did_authn?response_type=id_token&client_id=http://localhost:300/login&request=eyJhbGciOiJFUzI1NkstUiIsInR5cCI6IkpXVCIsImtpZCI6ImRpZDplYnNpOjB4MmM4MTgxQjliRjdGOGY3MDhBN0M2OERhRTA0ZDZkNTZBODdkRkJEMyNrZXktMSJ9.eyJpYXQiOjE1OTEwMTU4NzAsImV4cCI6MTU5MTAxNjE3MCwiaXNzIjoiZGlkOmVic2k6MHgyYzgxODFCOWJGN0Y4ZjcwOEE3QzY4RGFFMDRkNmQ1NkE4N2RGQkQzIiwic2NvcGUiOiJvcGVuaWQgZGlkX2F1dGhuIiwicmVzcG9uc2VfdHlwZSI6ImlkX3Rva2VuIiwiY2xpZW50X2lkIjoiaHR0cDovL2xvY2FsaG9zdDozMDAvbG9naW4iLCJub25jZSI6IjMwY2YwNmUwLTFjNjYtNGZlMy05Yzk4LWQ4YWQxYTcwZTlkYiJ9.HA45d9dQQfXTJkrLA3glGwect5aTptT0uzaAg_RIl9i7o0NHuCIxDx7PN4UkXVGwCNpOpqkQfzsXC29T6wYqBAE";
-    // const nonce = "0b605cdb-fbbc-48ef-b23a-97a16a280f85";
-    // const jwt = "eyJhbGciOiJFUzI1NkstUiIsInR5cCI6IkpXVCIsImtpZCI6ImRpZDplYnNpOjB4MmM4MTgxQjliRjdGOGY3MDhBN0M2OERhRTA0ZDZkNTZBODdkRkJEMyNrZXktMSJ9.eyJpYXQiOjE1OTEwMTU4NzAsImV4cCI6MTU5MTAxNjE3MCwiaXNzIjoiZGlkOmVic2k6MHgyYzgxODFCOWJGN0Y4ZjcwOEE3QzY4RGFFMDRkNmQ1NkE4N2RGQkQzIiwic2NvcGUiOiJvcGVuaWQgZGlkX2F1dGhuIiwicmVzcG9uc2VfdHlwZSI6ImlkX3Rva2VuIiwiY2xpZW50X2lkIjoiaHR0cDovL2xvY2FsaG9zdDozMDAvbG9naW4iLCJub25jZSI6IjMwY2YwNmUwLTFjNjYtNGZlMy05Yzk4LWQ4YWQxYTcwZTlkYiJ9.HA45d9dQQfXTJkrLA3glGwect5aTptT0uzaAg_RIl9i7o0NHuCIxDx7PN4UkXVGwCNpOpqkQfzsXC29T6wYqBAE";
-    //----End testing
     this.logger.debug(`SIOP Request JWT: ${jwt}`)
     // store siopRequestJwt with the user session id
     this.jwtRedis.set(job.data.sessionId, jwt)
