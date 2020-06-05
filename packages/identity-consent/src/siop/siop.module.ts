@@ -9,8 +9,16 @@ import { SiopProcessor } from './siop.processor';
     EbsiDidAuth,
     BullModule.registerQueue({
       name: 'siop',
+      redis: {
+        host: 'redis',
+        port: 6379,
+      },
     }, {
       name: 'siopError',
+      redis: {
+        host: 'redis',
+        port: 6379,
+      },
     })
   ],
   controllers: [SiopController],

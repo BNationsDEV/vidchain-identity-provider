@@ -6,8 +6,16 @@ import { BullModule } from '@nestjs/bull';
   imports: [
     BullModule.registerQueue({
       name: 'siop',
+      redis: {
+        host: 'redis',
+        port: 6379,
+      },
     }, {
       name: 'siopError',
+      redis: {
+        host: 'redis',
+        port: 6379,
+      },
     })
   ],
   providers: [EventsGateway],
