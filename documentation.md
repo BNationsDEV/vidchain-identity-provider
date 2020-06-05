@@ -4,9 +4,9 @@ docker-compose -f hydra-dev.yml up --build
  # Create the client
  hydra clients create \
     --endpoint https://dev.api.vidchain.net \
-    --id alex \  
-    --secret secret \                                    
-    --grant-types authorization_code,refresh_token \       
+    --id alexbean \
+    --secret secret \
+    --grant-types authorization_code,refresh_token \
     --response-types code,id_token \
     --scope openid,offline \
     --callbacks http://127.0.0.1:9010/callback
@@ -18,8 +18,8 @@ hydra token user \
     --port 9010 \
     --auth-url https://dev.api.vidchain.net/oauth2/auth \
     --token-url https://dev.api.vidchain.net/oauth2/token \
-    --client-id app-bbva2 \
-    --client-secret some-secret \
+    --client-id alexbean \
+    --client-secret secret \
     --scope openid,offline
 
 

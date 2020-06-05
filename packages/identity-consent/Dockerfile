@@ -12,7 +12,7 @@ WORKDIR /usr/src/app
 COPY --from=builder node_modules node_modules
 COPY --from=builder dist dist
 COPY --from=builder views views
-COPY --from=builder images images
+COPY --from=builder public public
 COPY package*.json ./
 RUN npm prune --production && \
   mkdir log && \

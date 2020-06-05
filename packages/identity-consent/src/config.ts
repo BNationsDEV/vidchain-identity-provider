@@ -1,5 +1,6 @@
 const PORT = 3000;
 const BASE_URL = 'https://dev.api.vidchain.net'
+//const BASE_URL = 'http://localhost:3000'
 const SIOP_PATH = '/siop'
 const RETURN_CALL = '/responses'
 
