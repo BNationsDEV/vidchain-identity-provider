@@ -86,14 +86,14 @@
               remember: this.remember,
               did
             };
-            axios.post('http://127.0.0.1:3000/login', body)
+            axios.post('https://dev.api.vidchain.net/login', body)
             .then ((res)=> window.location = res.data)
             .catch ((error)=> console.log(error))
           }
         },
       },
       created() {
-        this.socket = io('http://127.0.0.1:3000')
+        this.socket = io('https://dev.api.vidchain.net')
         this.socket.on('signIn', (msg) => {
           this.receiveMessage(msg);
         });

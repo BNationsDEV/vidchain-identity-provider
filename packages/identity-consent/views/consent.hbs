@@ -59,7 +59,7 @@
             grant_scope: this.requested_scope
           };
           console.log(body);
-          axios.post('http://127.0.0.1:3000/consent', body)
+          axios.post('https://dev.api.vidchain.net/consent', body)
             .then ((res)=> window.location = res.data)
             .catch ((error)=> console.log(error))
         },
