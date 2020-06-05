@@ -12,30 +12,37 @@
 
 <body>
     <div id="login-app" class="formLogin">
-      <img id="logo" class ="logo" src="logo_Vid_CHAIN_vertical.png"></img>
+      <img id="logo" class ="logo" src="/assets/images/logo__Vidchain.png"></img>
       <div  class="formSquare">
-        <br>
-      <!-- <h2>{{subTitle}}</h2> -->
-      <div>
         <input type="hidden" name="_csrf" value={{csrfToken}}>
         <input type="hidden" name="challenge" value={{challenge}}>
         <img id="logo"></img>
+        <!-- <h3> Hi user, application <strong>client.client_name client.client_id</strong> wants access resources on your behalf and to:</h3>
+        <div class="checkboxes">
+          <input type="checkbox" id="requested_scope" value=requested_scope name="grant_scope" v-bind:value="requested_scope">
+          <label for="requested_scope">requested_scope</label>
+        </div> -->
         <h3> Hi {{user}}, application <strong>{{client.client_name}} {{client.client_id}}</strong> wants access resources on your behalf and to:</h3>
-        <input type="checkbox" id={{requested_scope}} value={{requested_scope}} name="grant_scope" v-bind:value="requested_scope">
-        <label for={{requested_scope}}>{{requested_scope}}</label>
-
-        <p>Do you want to be asked next time when this application wants to access your data? The application will
-            not be able to ask for more permissions without your consent.</p>
-
-        <input type="checkbox" id="remember" name="remember" v-bind:value="remember" value="1">
-        <label for="remember">Do not ask me again</label>
-        <br>
+        <div class="checkboxes">
+          <input type="checkbox" id={{requested_scope}} value={{requested_scope}} name="grant_scope" v-bind:value="requested_scope">
+          <label for={{requested_scope}}>{{requested_scope}}</label>
+        </div>
+       
         <button class="acceptButton" v-on:click="consent">Allow Access</button>
         <input class="denyButton" type="submit" id="reject" name="submit" value="Deny access"> 
-        <a href=client.policy_uri>Policy </a> <br>
-        <a href=client.tos_uri>Terms of Service </a> <br>
+        <p>Do you want to be asked next time when this application wants to access your data? The application will
+          not be able to ask for more permissions without your consent.</p>
+        <div class="checkboxes">
+          <input type="checkbox" id="remember" name="remember" v-bind:value="remember" value="1">
+          <label for="remember">Do not ask me again</label>
+        </div>
+        <div class="policy">
+          <a href=client.policy_uri>Policy </a>
+        </div>
+        <div class="policy">
+          <a href=client.tos_uri>Terms of Service </a> <br>
+        </div>
       </div>
-    </div>
   </div>
 
   <script>
@@ -80,13 +87,18 @@
         background-color: #00bf71;
         border-radius: 20px;
         color: #ffff;
-        width: 40%;
-        height: 60%;
-        margin-left: 30%;
-        text-align: center;
-        justify-content: center;
+        width: 45%;
+        height: 65%;
+        align-self: center;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 2%;
     }
     .formLogin {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
       background: #ffff;
       padding: 1rem 1.25rem;
       color: #00bf71;
@@ -95,12 +107,11 @@
       height: 100%;
       margin-left: -10px;
       margin-top: -10px;
-      text-align: center;
-      justify-content: center;
     }
     .logo{
-      width: 25%;
-      height: 30%;
+      width: 20%;
+      height: 25%;
+      align-self: center;
     }
     .acceptButton {
       display: block;
@@ -108,16 +119,25 @@
       outline: none;
       border: none;
       background-color: #ffff;
-      width: 35%;
-      height: 70px;
+      width: 50%;
+      height: auto;
+      padding: 2%;
       border-radius: 30px;
       font-size: 1.5rem;
       font-weight: 600;
       color:  #00bf71;
       background-size: 100% 100%;
       box-shadow: 0 0 0 7px var(--light) inset;
-      margin: 0 auto;
-      margin-top: 10%;
+      align-self: center;
+      margin-top: 5%;
+    }
+    .checkboxes{
+      align-self: center;
+      margin-bottom: 5%;
+    }
+    .policy{
+      align-self: center;
+      margin-bottom: 2%;
     }
     .denyButton {
       display: block;
