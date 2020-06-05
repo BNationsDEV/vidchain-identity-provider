@@ -21,7 +21,7 @@ export class SiopController {
     port: 6379, // Redis port
     host: process.env.REDIS_URL, 
     keyPrefix: "jwt:" });
-  private readonly socket = io(BASE_URL + "/socket");
+  private readonly socket = io(BASE_URL);
 
   @Post('responses')
   async validateSIOPResponse(@Body() siopResponseJwt: SiopResponseJwt): Promise<DidAuthValidationResponse> {

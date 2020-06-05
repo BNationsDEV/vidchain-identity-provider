@@ -93,7 +93,7 @@
         },
       },
       created() {
-        this.socket = io('https://dev.api.vidchain.net/socket')
+        this.socket = io('https://dev.api.vidchain.net')
         this.socket.on('signIn', (msg) => {
           this.receiveMessage(msg);
         });
