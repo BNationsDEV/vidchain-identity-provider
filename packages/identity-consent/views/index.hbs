@@ -12,7 +12,7 @@
 
 <body>
   <div id="login-app" class="formLogin">
-    <img id="logo" class ="logo" src="/assets/images/logo__Vidchain.png"></img>
+    <img id="logo" class ="logo" src="./logo__Vidchain.png"></img>
     <div  class="formSquare">
         <input type="hidden" id="csrf" name="_csrf" value={{csrfToken}}>
         <input type="hidden" name="challenge" value={{challenge}}>
@@ -82,14 +82,14 @@
               remember: this.remember,
               did
             };
-            axios.post('https://dev.api.vidchain.net/login', body)
+            axios.post('/login', body)
             .then ((res)=> window.location = res.data)
             .catch ((error)=> console.log(error))
           }
         },
       },
       created() {
-        this.socket = io('https://dev.api.vidchain.net')
+        this.socket = io('/')
         this.socket.on('signIn', (msg) => {
           this.receiveMessage(msg);
         });

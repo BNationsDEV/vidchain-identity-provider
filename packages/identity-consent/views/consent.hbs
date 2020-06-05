@@ -12,7 +12,7 @@
 
 <body>
     <div id="login-app" class="formLogin">
-      <img id="logo" class ="logo" src="/assets/images/logo__Vidchain.png"></img>
+      <img id="logo" class ="logo" src="/logo__Vidchain.png"></img>
       <div  class="formSquare">
         <input type="hidden" name="_csrf" value={{csrfToken}}>
         <input type="hidden" name="challenge" value={{challenge}}>
@@ -66,7 +66,7 @@
             grant_scope: this.requested_scope
           };
           console.log(body);
-          axios.post('https://dev.api.vidchain.net/consent', body)
+          axios.post('/consent', body)
             .then ((res)=> window.location = res.data)
             .catch ((error)=> console.log(error))
         },
