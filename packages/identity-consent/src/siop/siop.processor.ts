@@ -23,7 +23,7 @@ export class SiopProcessor {
     port: 6379,
     host: process.env.REDIS_URL, 
     keyPrefix: "jwt:" });
-  private readonly socket = io(BASE_URL  + "/socket");
+  private readonly socket = io(BASE_URL);
 
   @Process('userRequest')
   async handleSiopRequest(job: Job): Promise<string> {
