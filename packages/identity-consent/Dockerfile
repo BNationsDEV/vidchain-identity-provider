@@ -13,6 +13,8 @@ COPY --from=builder node_modules node_modules
 COPY --from=builder dist dist
 COPY --from=builder views views
 COPY --from=builder public public
+COPY --from=builder views dist/views
+COPY --from=builder public dist/views
 COPY package*.json ./
 RUN npm prune --production && \
   mkdir log && \

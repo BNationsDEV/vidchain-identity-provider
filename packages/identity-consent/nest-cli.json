@@ -4,7 +4,7 @@
   "compilerOptions": {
     "assets": [
       "../views/**/*",
-      "**/images/**/*"
+      "../public/**/*"
     ]
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Query, Req, Res, Post } from '@nestjs/common';
+import { Controller, Get, Body, Render, Req, Res, Post } from '@nestjs/common';
 import { Response } from 'express';
 import { AppService } from './app.service';
 var csrf = require('csurf');
@@ -26,4 +26,8 @@ export class AppController {
   doConsent(@Req() req, @Res() res: Response): void {
     return this.appService.doConsent(req, res);
   }
+
+  @Get('static')
+  @Render('index.hbs')
+  root() {}
 }
