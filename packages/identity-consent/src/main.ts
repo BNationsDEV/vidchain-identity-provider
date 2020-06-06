@@ -3,14 +3,14 @@ import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import{ PORT } from "./config" 
 import { join } from 'path';
+import * as express from 'express';
 var csrf = require('csurf');
 var cookieParser = require('cookie-parser')
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   //app.useStaticAssets(join(__dirname));
-  app.useStaticAssets(join(__dirname, '..', 'public'));
-  app.setBaseViewsDir(join(__dirname, '..', 'views'));
+  app.use('/public', express.static(join(__dirname, '..', 'public')));
   app.setViewEngine('hbs');
   app.enableCors();
   app.use(cookieParser())
