@@ -12,18 +12,16 @@
 
 <body>
   <div id="login-app" class="formLogin">
+    <input type="hidden" id="csrf" name="_csrf" value={{csrfToken}}>
+    <input type="hidden" name="challenge" value={{challenge}}>
     <img id="logo" class ="logo" src="/static/logo__Vidchain.png"></img>
-    <div  class="formSquare">
-        <input type="hidden" id="csrf" name="_csrf" value={{csrfToken}}>
-        <input type="hidden" name="challenge" value={{challenge}}>
-        <button class="scanButton" v-on:click="sendSIOPClientUriBackend">Log in using VIDchain</button>
+    <h1 class="subtitle">Login to the application</h1>
         <img id="qrImage" class="qrImage"></img>
-        <br><br>
+        <button class="scanButton" v-on:click="sendSIOPClientUriBackend">Continue using Vidchain</button>
         <div class="remember">
           <input type="checkbox" id="remember" name="remember" v-bind:value="remember" value="1">
-           <label for="remember">Remember me</label>
+          <label for="remember"><b>Remember me</b></label>
         </div>
-    </div>
   </div>
   <script>
     const app = new Vue({
@@ -106,33 +104,20 @@
   </script>
 
   <style scoped>
-    .formSquare {
-        background-color: #00bf71;
-        border-radius: 20px;
-        color: #ffff;
-        width: 45%;
-        height: 70%;
-        align-self: center;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
+    .subtitle{
+      align-self: center;
+      color: #00bf71;
     }
     .formLogin {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      background: #ffff;
+      background: #ffffff;
       padding: 1rem 1.25rem;
-      color: #00bf71;
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      margin-left: -10px;
-      margin-top: -10px;
     }
     .logo{
-      width: 20%;
-      height: 25%;
+      max-width: 300px;
+      margin: 1%;
       align-self: center;
     }
     .scanButton {
@@ -140,35 +125,26 @@
       cursor: pointer;
       outline: none;
       border: none;
-      background-color: #ffff;
-      width: 50%;
+      background-color: #00bf71;
       height: auto;
       padding: 2%;
-      border-radius: 30px;
+      border-radius: 20px;
       font-size: 1.5rem;
       font-weight: 600;
-      color:  #00bf71;
+      color:  #ffffff;
       background-size: 100% 100%;
       box-shadow: 0 0 0 7px var(--light) inset;
       align-self: center;
       margin-top: 5%;
-      
     }
     .qrImage{
-      width: 55%;
-      height: auto;
+      max-width: 300px;
       align-self: center;
-      margin-top: 5%;
     }
     .remember{
       align-self: center;
-      justify-content: end;
-    }
-    .back {
-      background-color: #00bf71;
-    }
-    .remember{
-      margin-top: 55%;
+      margin-top: 2%;
+      color: #00bf71;
     }
   </style>
 </body>

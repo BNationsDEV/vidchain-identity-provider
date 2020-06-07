@@ -1,5 +1,12 @@
+// CONFIG PROJECT FILE
+import * as dotenv from "dotenv";
+
+// importing .env variables
+dotenv.config();
+
 const PORT: number = +process.env.PORT || 3000;
-const BASE_URL = process.env.PORT || 'http://localhost:3000'
+console.log(process.env.BASE_URL);
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
 
 const SIOP_PATH = '/siop'
 const RETURN_CALL = '/responses'
