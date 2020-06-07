@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { EbsiDidAuth} from '../did-auth/src/index';
 import { SiopController } from './siop.controller';
 import { SiopProcessor } from './siop.processor';
+import { REDIS_URL, REDIS_PORT } from '../config';
 
 @Module({
   imports: [
@@ -10,14 +11,14 @@ import { SiopProcessor } from './siop.processor';
     BullModule.registerQueue({
       name: 'siop',
       redis: {
-        host: 'redis',
-        port: 6379,
+        host: REDIS_URL,
+        port: REDIS_PORT,
       },
     }, {
       name: 'siopError',
       redis: {
-        host: 'redis',
-        port: 6379,
+        host: REDIS_URL,
+        port: REDIS_PORT,
       },
     })
   ],

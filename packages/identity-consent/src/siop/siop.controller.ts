@@ -3,23 +3,23 @@ import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { SiopResponseJwt, SiopAckResponse, SiopResponse, SiopRequestJwt, DidAuthValidationResponse,  } from './dtos/SIOP';
 import { EbsiDidAuth, DidAuthRequestCall, DIDAUTH_ERRORS} from '../did-auth/src/index';
-import { CLIENT_ID_URI, BASE_URL, SIGNATURE_VALIDATION , authZToken} from '../config';
+import { CLIENT_ID_URI, REDIS_URL, REDIS_PORT , BASE_URL, SIGNATURE_VALIDATION , authZToken} from '../config';
 import { getUserDid, getJwtNonce } from 'src/util/Util';
 import io from 'socket.io-client';
 import Redis from 'ioredis';
 
 @Controller('siop')
 export class SiopController {
-  constructor(@InjectQueue('siop') private readonly siopQueue: Queue) {console.log(process.env.REDIS_URL);}
+  constructor(@InjectQueue('siop') private readonly siopQueue: Queue) {}
   private readonly logger = new Logger(SiopController.name);
   private readonly nonceRedis = new Redis({ 
-    port: 6379, // Redis port
-    host: process.env.REDIS_URL,
+    port: REDIS_PORT,
+    host: REDIS_URL,
     keyPrefix: "nonce:" 
   });
   private readonly jwtRedis = new Redis({  
-    port: 6379, // Redis port
-    host: process.env.REDIS_URL, 
+    port: REDIS_PORT,
+    host: REDIS_URL, 
     keyPrefix: "jwt:" });
   private readonly socket = io(BASE_URL);
 

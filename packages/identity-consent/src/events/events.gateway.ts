@@ -40,7 +40,6 @@ import {
     handleSignInEvent(
       @MessageBody() uriRedirect:SiopUriRedirect,
       @ConnectedSocket() client: Socket ): Observable<WsResponse<unknown>> {
-        this.logger.debug(process.env.REDIS_URL);
         this.logger.debug(`SignIn Received from ${client.id}`);
         if (uriRedirect && uriRedirect.clientUriRedirect) {
           this.logger.debug(`Using URI redirect: ${uriRedirect.clientUriRedirect}`)

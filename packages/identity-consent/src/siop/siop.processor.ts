@@ -4,7 +4,7 @@ import { Job, Queue } from 'bull'
 import { EbsiDidAuth, DidAuthRequestCall, DIDAUTH_ERRORS} from '../did-auth/src/index';
 import { SiopUriRequest, SiopResponse, SiopAckRequest, QRResponse, SiopResponseJwt, DidAuthValidationResponse, LoginResponse } from './dtos/SIOP';
 import { doPostCall, getUserDid, getJwtNonce } from 'src/util/Util';
-import { BASE_URL, SIGNATURES, authZToken, SIGNATURE_VALIDATION } from '../config';
+import { BASE_URL, SIGNATURES, authZToken, SIGNATURE_VALIDATION, REDIS_PORT, REDIS_URL } from '../config';
 import QRCode from 'qrcode';
 import io from 'socket.io-client';
 import Redis from 'ioredis';
@@ -15,13 +15,13 @@ export class SiopProcessor {
 
   private readonly logger = new Logger(SiopProcessor.name);
   private readonly nonceRedis = new Redis({ 
-    port: 6379,
-    host: process.env.REDIS_URL,
+    port: REDIS_PORT,
+    host: REDIS_URL,
     keyPrefix: "nonce:" 
   });
   private readonly jwtRedis = new Redis({  
-    port: 6379,
-    host: process.env.REDIS_URL, 
+    port: REDIS_PORT,
+    host: REDIS_URL, 
     keyPrefix: "jwt:" });
   private readonly socket = io(BASE_URL);
 

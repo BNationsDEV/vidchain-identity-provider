@@ -1,8 +1,8 @@
+import { HYDRA_URL} from '../config';
 var fetch = require('node-fetch')
 var querystring = require('querystring');
 
-//var hydraUrl = "http://127.0.0.1:9001"
-var hydraUrl = "http://hydra:4445";
+var hydraUrl = HYDRA_URL;
 var mockTlsTermination = {}
 
 if (process.env.MOCK_TLS_TERMINATION) {

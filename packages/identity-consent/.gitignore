@@ -3,7 +3,7 @@ dist
 node_modules
 
 src/did-auth/node_modules
-
+.env
 # Logs
 logs
 *.log
