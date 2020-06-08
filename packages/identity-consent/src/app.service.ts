@@ -79,13 +79,6 @@ export class AppService {
     //   return;
     // }
   
-    // Seems like the user authenticated! Let's tell hydra...
-    const bodyToDisplay = {
-      subject: body.did,
-      remember: Boolean(body.remember),
-      remember_for: 360
-    }
-    console.log(bodyToDisplay);
     hydra.acceptLoginRequest(challenge, {
       // Subject is an alias for user ID. A subject can be a random string, a UUID, an email address, ....
       subject: body.did,
@@ -144,10 +137,10 @@ export class AppService {
             session: {
               // This data will be available when introspecting the token. Try to avoid sensitive information here,
               // unless you limit who can introspect tokens.
-              // access_token: { foo: 'bar' },
+              //access_token: { foo: 'bar' },
 
               // This data will be available in the ID token.
-              // id_token: { baz: 'bar' },
+              //id_token: { baz: 'bar' },
             }
           }).then(function (response) {
             // All we need to do now is to redirect the user back to hydra!
@@ -194,11 +187,13 @@ export class AppService {
           console.log("error doconsent");
         });
     }
-
+    console.log("grant scope")
     var grant_scope = body.grant_scope
+    console.log(grant_scope);
     if (!Array.isArray(grant_scope)) {
       grant_scope = [grant_scope]
     }
+    console.log(grant_scope);
 
     // Seems like the user authenticated! Let's tell hydra...
     hydra.getConsentRequest(challenge)
@@ -213,10 +208,10 @@ export class AppService {
           session: {
             // This data will be available when introspecting the token. Try to avoid sensitive information here,
             // unless you limit who can introspect tokens.
-            // access_token: { foo: 'bar' },
+            access_token: { foo: 'bar' },
 
             // This data will be available in the ID token.
-            // id_token: { baz: 'bar' },
+            id_token: { baz: 'bar' },
           },
 
           // ORY Hydra checks if requested audiences are allowed by the client, so we can simply echo this.
