@@ -187,14 +187,10 @@ export class AppService {
           console.log("error doconsent");
         });
     }
-    console.log("grant scope")
     var grant_scope = body.grant_scope
-    console.log(grant_scope);
     if (!Array.isArray(grant_scope)) {
       grant_scope = [grant_scope]
     }
-    console.log(grant_scope);
-
     // Seems like the user authenticated! Let's tell hydra...
     hydra.getConsentRequest(challenge)
     // This will be called if the HTTP request was successful
@@ -208,10 +204,10 @@ export class AppService {
           session: {
             // This data will be available when introspecting the token. Try to avoid sensitive information here,
             // unless you limit who can introspect tokens.
-            access_token: { foo: 'bar' },
+            //access_token: { foo: 'bar' },
 
             // This data will be available in the ID token.
-            id_token: { baz: 'bar' },
+            //id_token: { baz: 'bar' },
           },
 
           // ORY Hydra checks if requested audiences are allowed by the client, so we can simply echo this.

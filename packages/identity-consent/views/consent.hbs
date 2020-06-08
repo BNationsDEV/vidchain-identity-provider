@@ -69,9 +69,9 @@
             grant_scope: this.requested_scope
           };
           console.log(body);
-          //axios.post('/consent', body)
-            //.then ((res)=> window.location = res.data)
-            //.catch ((error)=> console.log(error))
+          axios.post('/consent', body)
+            .then ((res)=> window.location = res.data)
+            .catch ((error)=> console.log(error))
         }, 
         selected(type){
           const grant_type = type.target.value;
