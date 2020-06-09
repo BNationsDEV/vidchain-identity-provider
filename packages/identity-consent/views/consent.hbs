@@ -21,7 +21,7 @@
           <label for="requested_scope">requested_scope</label>
         </div> -->
         <h1 class="title"> Hi, {{user}} </h1>
-        <h3 class="subtitle">The application <strong>{{client.client_name}} {{client.client_id}}</strong> wants access resources on your behalf and to:</h3>
+        <h3 class="subtitle">The application <strong>{{client.client_id}}</strong> wants access resources on your behalf and to:</h3>
         <ul class="checkboxes">
           {{#each requested_scope}}
           <li>
