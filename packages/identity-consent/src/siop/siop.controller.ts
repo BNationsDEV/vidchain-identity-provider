@@ -2,7 +2,7 @@ import { Controller, Post, Body, BadRequestException, Logger, Get, Param } from 
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { SiopResponseJwt, SiopAckResponse, SiopResponse, SiopRequestJwt, DidAuthValidationResponse,  } from './dtos/SIOP';
-import { EbsiDidAuth, DidAuthRequestCall, DIDAUTH_ERRORS} from '../did-auth/src/index';
+import { VidDidAuth, DidAuthRequestCall, DIDAUTH_ERRORS} from '../did-auth/src/index';
 import { CLIENT_ID_URI, REDIS_URL, REDIS_PORT , BASE_URL, SIGNATURE_VALIDATION } from '../config';
 import { getUserDid, getJwtNonce, getAuthToken} from '../util/Util';
 import io from 'socket.io-client';
@@ -32,7 +32,7 @@ export class SiopController {
     this.logger.log(`[RP Backend] Received SIOP Response JWT: ${siopResponseJwt.jwt}`)
     const authZToken = await getAuthToken();
     // validate siop response
-    const verifyDidAuthResponse:DidAuthValidationResponse = await EbsiDidAuth.verifyDidAuthResponse(
+    const verifyDidAuthResponse:DidAuthValidationResponse = await VidDidAuth.verifyDidAuthResponse(
       siopResponseJwt.jwt, 
       SIGNATURE_VALIDATION, 
       authZToken,

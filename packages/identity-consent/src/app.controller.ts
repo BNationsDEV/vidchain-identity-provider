@@ -26,8 +26,4 @@ export class AppController {
   doConsent(@Req() req, @Res() res: Response): void {
     return this.appService.doConsent(req, res);
   }
-
-  @Get('static')
-  @Render('index.hbs')
-  root() {}
 }

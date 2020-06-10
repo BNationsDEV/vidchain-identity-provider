@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv";
 
 import {
-  EbsiDidAuth,
+  VidDidAuth,
   DidAuthRequestCall,
   DidAuthRequestPayload,
   DidAuthResponseCall,
@@ -20,7 +20,7 @@ describe("test DID Auth End to end flow", () => {
     expect.assertions(8);
     const WALLET_API_BASE_URL =
       process.env.WALLET_API_URL || "http://localhost:9000";
-    const RPC_PROVIDER = "https://api.intebsi.xyz/ledger/v1/blockchains/besu";
+    const RPC_PROVIDER = process.env.DID_PROVIDER_RPC_URL || "https://api.intebsi.xyz/ledger/v1/blockchains/besu";
     const RPC_ADDRESS = process.env.DID_REGISTRY_SC_ADDRESS || "0x00000000";
     const testKeyUser: TESTKEY = generateTestKey(DIDAUTH_KEY_TYPE.EC);
     const entityAA = await getEnterpriseAuthZToken("COMPANY E2E INC");
@@ -28,11 +28,11 @@ describe("test DID Auth End to end flow", () => {
     // CREATE A DID-AUTH REQUEST URI
     const didAuthRequestCall: DidAuthRequestCall = {
       redirectUri: "http://localhost:8080/demo/spanish-university",
-      signatureUri: `${WALLET_API_BASE_URL}/wallet/v1/signatures`,
+      signatureUri: `${WALLET_API_BASE_URL}/api/v1/signatures`,
       authZToken: tokenEntity,
     };
     // Create URI using the wallet backend that manages entity DID keys
-    const { uri, nonce } = await EbsiDidAuth.createUriRequest(
+    const { uri, nonce } = await VidDidAuth.createUriRequest(
       didAuthRequestCall
     );
     // Parsing URI parameters to get the Request Object and Redirect URI as client_id
@@ -43,7 +43,7 @@ describe("test DID Auth End to end flow", () => {
     expect(didAuthRequestJwt).toBeDefined();
     expect(nonce).toBeDefined();
     // VERIFY DID-AUTH REQUEST
-    const requestPayload: DidAuthRequestPayload = await EbsiDidAuth.verifyDidAuthRequest(
+    const requestPayload: DidAuthRequestPayload = await VidDidAuth.verifyDidAuthRequest(
       didAuthRequestJwt as string,
       RPC_ADDRESS,
       RPC_PROVIDER
@@ -56,13 +56,13 @@ describe("test DID Auth End to end flow", () => {
       nonce,
       redirectUri: redirectUri as string,
     };
-    const didAuthResponseJwt = await EbsiDidAuth.createDidAuthResponse(
+    const didAuthResponseJwt = await VidDidAuth.createDidAuthResponse(
       didAuthResponseCall
     );
     expect(didAuthResponseJwt).toBeDefined();
-    const response = await EbsiDidAuth.verifyDidAuthResponse(
+    const response = await VidDidAuth.verifyDidAuthResponse(
       didAuthResponseJwt,
-      `${WALLET_API_BASE_URL}/wallet/v1/signature-validations`,
+      `${WALLET_API_BASE_URL}/api/v1/signature-validations`,
       tokenEntity,
       requestPayload.nonce
     );

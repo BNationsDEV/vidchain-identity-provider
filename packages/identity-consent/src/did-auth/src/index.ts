@@ -1,4 +1,4 @@
-import EbsiDidAuth from "./EBSIDIDAuth";
+import VidDidAuth from "./VidDIDAuth";
 import DIDAUTH_ERRORS from "./Errors";
 
 export {
@@ -18,4 +18,4 @@ export { JWTClaims, JWTHeader } from "./JWT";
 
 export { getHexPrivateKey, getDIDFromKey, getNonce } from "./util/Util";
 
-export { EbsiDidAuth, DIDAUTH_ERRORS };
+export { VidDidAuth, DIDAUTH_ERRORS };

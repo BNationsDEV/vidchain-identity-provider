@@ -26,9 +26,9 @@ import { VerifiedJwt, JWTVerifyOptions, JWTHeader } from "./JWT";
 
 import * as JWK from "./util/JWK";
 
-const EbsiDidResolver = require("@validated-id/vid-did-resolver");
+const VidDidResolver = require("@validated-id/vid-did-resolver");
 
-export default class EbsiDidAuth {
+export default class VidDidAuth {
   /**
    *
    * @param siopRequest
@@ -38,12 +38,10 @@ export default class EbsiDidAuth {
   ): Promise<{ uri: string; nonce: string, jwt: string }> {
     if (!didAuthRequestCall || !didAuthRequestCall.redirectUri)
       throw new Error(DIDAUTH_ERRORS.BAD_PARAMS);
-    const { jwt, nonce } = await EbsiDidAuth.createDidAuthRequest(
+    const { jwt, nonce } = await VidDidAuth.createDidAuthRequest(
       didAuthRequestCall
     );
-    console.log("uri created");
     const responseUri = `openid://&scope=${DIAUTHScope.OPENID_DIDAUTHN}?response_type=${DIAUTHResponseType.ID_TOKEN}&client_id=${didAuthRequestCall.redirectUri}&request=${jwt}`;
-    console.log(responseUri);
     // returns a URI with Request JWT embedded
     return { uri: responseUri, nonce, jwt };
   }
@@ -72,8 +70,6 @@ export default class EbsiDidAuth {
       didAuthRequestCall.signatureUri,
       didAuthRequestCall.authZToken
     );
-    console.log("jwt");
-    console.log(jwt);
     return { jwt, nonce: payload.nonce };
   }
 
@@ -92,7 +88,7 @@ export default class EbsiDidAuth {
     const options: JWTVerifyOptions = {
       audience: this.getAudience(didAuthJwt),
       resolver: new Resolver(
-        EbsiDidResolver.getResolver({
+        VidDidResolver.getResolver({
           rpcUrl,
           registry,
         })

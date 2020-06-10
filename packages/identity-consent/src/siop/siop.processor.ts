@@ -1,7 +1,7 @@
 import { Process, Processor, InjectQueue, OnQueueCompleted } from '@nestjs/bull';
 import { Logger, BadRequestException, Body } from '@nestjs/common';
 import { Job, Queue } from 'bull'
-import { EbsiDidAuth, DidAuthRequestCall, DIDAUTH_ERRORS} from '../did-auth/src/index';
+import { VidDidAuth, DidAuthRequestCall, DIDAUTH_ERRORS} from '../did-auth/src/index';
 import { SiopUriRequest, SiopResponse, SiopAckRequest, QRResponse, SiopResponseJwt, DidAuthValidationResponse, LoginResponse } from './dtos/SIOP';
 import { doPostCall, getAuthToken, getUserDid, getJwtNonce } from 'src/util/Util';
 import { BASE_URL, SIGNATURES, SIGNATURE_VALIDATION, REDIS_PORT, REDIS_URL } from '../config';
@@ -41,7 +41,7 @@ export class SiopProcessor {
     };
     console.log(didAuthRequestCall);
     // Creates a URI using the wallet backend that manages entity DID keys
-    const { uri, nonce, jwt } = await EbsiDidAuth.createUriRequest(didAuthRequestCall);
+    const { uri, nonce, jwt } = await VidDidAuth.createUriRequest(didAuthRequestCall);
     this.logger.debug(`SIOP Request JWT: ${jwt}`)
     // store siopRequestJwt with the user session id
     this.jwtRedis.set(job.data.sessionId, jwt)
