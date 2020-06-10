@@ -19,7 +19,6 @@ export class AppService {
         // If hydra was already able to authenticate the user, skip will be true and we do not need to re-authenticate
         // the user.
         if (response.skip) {
-          this.logger.log('User already authenticate');
           return hydra.acceptLoginRequest(challenge, {
             // All we need to do is to confirm that we indeed want to log in the user.
             subject: response.subject
@@ -35,7 +34,6 @@ export class AppService {
       })
       // This will handle any error that happens when making HTTP calls to hydra
       .catch(function (error) {
-        this.logger.log('Error starting the login flow:' + error);
         throw new BadRequestException(ERRORS.HYDRA_LOGIN)
       });
   }
@@ -57,7 +55,6 @@ export class AppService {
         })
         // This will handle any error that happens when making HTTP calls to hydra
         .catch(function (error) {
-          this.logger.log('Error starting the login flow:' + error);
           throw new BadRequestException(ERRORS.HYDRA_POST_LOGIN)
         });
     }

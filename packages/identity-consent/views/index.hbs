@@ -19,7 +19,7 @@
         <img id="qrImage" class="qrImage"></img>
         <button class="scanButton" v-on:click="sendSIOPClientUriBackend">Continue using Vidchain</button>
         <div class="remember">
-          <input type="checkbox" id="remember" name="remember" v-bind:value="remember" value="1">
+          <input type="checkbox" id="remember" name="remember" v-bind:value="remember" v-on:change="rememberSelected()" value="1">
           <label for="remember"><b>Remember me</b></label>
         </div>
   </div>
@@ -61,6 +61,12 @@
           var img = document.getElementById('qrImage')
           img.src = qrResponse.imageQr
         },
+        rememberSelected(){
+          //Checking if already selected, 
+          if ( this.remember ) this.remember = false;
+          //otherwise it was false, so now true
+          else this.remember = true;
+        },
 
         signInResponse(msg) {
           let urlParams = new URLSearchParams(window.location.search);
@@ -75,7 +81,7 @@
             //Do Post to login
             const did = response.did 
 
-            //const did = "did:ebsi:0x2c8181B9bF7F8f708A7C68DaE04d6d56A87dFBD3"
+            console.log(this.remember);
             const body = {
               challenge: login_challenge,
               remember: this.remember,

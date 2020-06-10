@@ -36,7 +36,7 @@
         <p class="subtitle">Do you want to be asked next time when this application wants to access your data? The application will
           not be able to ask for more permissions without your consent.</p>
         <div class="checkboxes">
-          <input type="checkbox" id="remember" name="remember" v-bind:value="remember" value="1">
+          <input type="checkbox" id="remember" name="remember" v-on:change="rememberSelected()" value="1">
           <label for="remember">Do not ask me again</label>
         </div>
         <div class="policy">
@@ -81,7 +81,13 @@
           if ( ~position ) this.requested_scope.splice(position, 1);
           //otherwise add it to the array
           else this.requested_scope.push(grant_type);
-        }
+        },
+        rememberSelected(){
+          //Checking if already selected, 
+          if ( this.remember ) this.remember = false;
+          //otherwise it was false, so now true
+          else this.remember = true;
+        },
 
       },
       created() {
