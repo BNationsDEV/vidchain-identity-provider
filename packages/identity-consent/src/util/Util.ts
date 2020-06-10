@@ -27,7 +27,12 @@ function getJwtNonce(jwt: string): string {
 }
 
 function getUserDid( jwt: string ): string {
-  return decodePayload(jwt).sub_jwk.kid;
+  const didWithSufix = decodePayload(jwt).sub_jwk.kid;
+  return parseUserDid(didWithSufix);
+}
+
+function parseUserDid( did: string ): string {
+  return did.split("#")[0];
 }
 
 export {

@@ -66,7 +66,8 @@
           let urlParams = new URLSearchParams(window.location.search);
           let login_challenge = urlParams.get('login_challenge');
           console.log(`recv: ${msg}`);
-          const response = JSON.parse(msg)
+          const response = JSON.parse(msg);
+          console.log(response);
           this.resetImg();
           this.validationResult = `Your Sign-In validation result is: ${response.validationResult}`;
           //this.did = `Your DID is: ${response.did}`;

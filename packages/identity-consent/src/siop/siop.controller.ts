@@ -47,11 +47,7 @@ export class SiopController {
     }
     // prepare siop response struct to return
     const validationResult:boolean = verifyDidAuthResponse.signatureValidation;
-    // const siopResponse:SiopResponse = { 
-    //   validationResult,
-    //   did: getUserDid(siopResponseJwt.jwt),
-    //   jwt: siopResponseJwt.jwt
-    // }
+
     const siopResponse:SiopResponse = { 
       validationResult,
       did: getUserDid(siopResponseJwt.jwt),

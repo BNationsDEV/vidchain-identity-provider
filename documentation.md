@@ -54,3 +54,6 @@ hydra clients create \
     --scope openid,offline \
     --callbacks http://127.0.0.1:3022/callback
 
+
+
+
