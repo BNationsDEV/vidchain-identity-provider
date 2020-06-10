@@ -61,6 +61,7 @@ export class AppService {
   
     hydra.acceptLoginRequest(challenge, {
       // Subject is an alias for user ID. A subject can be a random string, a UUID, an email address, ....
+      //In our case DID
       subject: body.did,
   
       // This tells hydra to remember the browser and automatically authenticate the user in future requests. This will
@@ -75,16 +76,12 @@ export class AppService {
       // acr: '0',
     })
       .then(function (response) {
-
-        console.log("go to redirect");
-        console.log(response.redirect_to);
         // All we need to do now is to redirect the user back to hydra!
         res.send(response.redirect_to);
       })
       // This will handle any error that happens when making HTTP calls to hydra
       .catch(function (error) {
-        console.log("error");
-        console.log(error);
+        throw new BadRequestException(ERRORS.HYDRA_LOGIN)
       });
   }
 
@@ -92,27 +89,19 @@ export class AppService {
 
   checkConsent(@Request() req, @Res() res: Response) {
     const query = req.query;
-
-    // The challenge is used to fetch information about the consent request from ORY Hydra.
     var challenge = query.consent_challenge;
 
     hydra.getConsentRequest(challenge)
-    // This will be called if the HTTP request was successful
       .then(function (response) {
         // If a user has granted this application the requested scope, hydra will tell us to not show the UI.
         if (response.skip) {
           // You can apply logic here, for example grant another scope, or do whatever...
-          // ...
-
-          // Now it's time to grant the consent request. You could also deny the request if something went terribly wrong
           return hydra.acceptConsentRequest(challenge, {
             // We can grant all scopes that have been requested - hydra already checked for us that no additional scopes
             // are requested accidentally.
             grant_scope: response.requested_scope,
-
             // ORY Hydra checks if requested audiences are allowed by the client, so we can simply echo this.
             grant_access_token_audience: response.requested_access_token_audience,
-
             // The session allows us to set session data for id and access tokens
             session: {
               // This data will be available when introspecting the token. Try to avoid sensitive information here,
@@ -123,7 +112,6 @@ export class AppService {
               //id_token: { baz: 'bar' },
             }
           }).then(function (response) {
-            // All we need to do now is to redirect the user back to hydra!
             res.redirect(response.redirect_to);
           });
         }
@@ -139,9 +127,8 @@ export class AppService {
           client: response.client,
         });
       })
-      // This will handle any error that happens when making HTTP calls to hydra
       .catch(function (error) {
-        console.log("error checkconsent");
+        throw new BadRequestException(ERRORS.HYDRA_CONSENT)
       });
 
   } 
@@ -173,13 +160,11 @@ export class AppService {
     }
     // Seems like the user authenticated! Let's tell hydra...
     hydra.getConsentRequest(challenge)
-    // This will be called if the HTTP request was successful
       .then(function (response) {
         return hydra.acceptConsentRequest(challenge, {
           // We can grant all scopes that have been requested - hydra already checked for us that no additional scopes
           // are requested accidentally.
           grant_scope: grant_scope,
-
           // The session allows us to set session data for id and access tokens
           session: {
             // This data will be available when introspecting the token. Try to avoid sensitive information here,
@@ -189,27 +174,21 @@ export class AppService {
             // This data will be available in the ID token.
             //id_token: { baz: 'bar' },
           },
-
           // ORY Hydra checks if requested audiences are allowed by the client, so we can simply echo this.
           grant_access_token_audience: response.requested_access_token_audience,
-
           // This tells hydra to remember this consent request and allow the same client to request the same
           // scopes from the same user, without showing the UI, in the future.
           remember: Boolean(req.body.remember),
-
           // When this "remember" sesion expires, in seconds. Set this to 0 so it will never expire.
           remember_for: 3600,
         })
           .then(function (response) {
-            // All we need to do now is to redirect the user back to hydra!
-            console.log("consent to redirect");
-            console.log(response.redirect_to);
             res.send(response.redirect_to);
           })
       })
       // This will handle any error that happens when making HTTP calls to hydra
       .catch(function (error) {
-        console.log("error2");
+        throw new BadRequestException(ERRORS.HYDRA_POST_CONSENT)
       });
   }
 }

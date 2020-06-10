@@ -3,8 +3,8 @@ import { Logger, BadRequestException, Body } from '@nestjs/common';
 import { Job, Queue } from 'bull'
 import { EbsiDidAuth, DidAuthRequestCall, DIDAUTH_ERRORS} from '../did-auth/src/index';
 import { SiopUriRequest, SiopResponse, SiopAckRequest, QRResponse, SiopResponseJwt, DidAuthValidationResponse, LoginResponse } from './dtos/SIOP';
-import { doPostCall, getUserDid, getJwtNonce } from 'src/util/Util';
-import { BASE_URL, SIGNATURES, authZToken, SIGNATURE_VALIDATION, REDIS_PORT, REDIS_URL } from '../config';
+import { doPostCall, getAuthToken, getUserDid, getJwtNonce } from 'src/util/Util';
+import { BASE_URL, SIGNATURES, SIGNATURE_VALIDATION, REDIS_PORT, REDIS_URL } from '../config';
 import QRCode from 'qrcode';
 import io from 'socket.io-client';
 import Redis from 'ioredis';
@@ -33,7 +33,7 @@ export class SiopProcessor {
       console.log(DIDAUTH_ERRORS.BAD_PARAMS);
       throw new BadRequestException(DIDAUTH_ERRORS.BAD_PARAMS)
     }
-    console.log(job.data.sessionId);
+    const authZToken = await getAuthToken();
     const didAuthRequestCall: DidAuthRequestCall = {
       redirectUri: BASE_URL + "/siop/responses",
       signatureUri: SIGNATURES,

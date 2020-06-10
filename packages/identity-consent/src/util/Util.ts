@@ -1,6 +1,9 @@
 import axios from 'axios';
 import { JWT } from 'jose';
+import { BadRequestException } from '@nestjs/common';
 import { DidAuthResponsePayload } from 'src/did-auth/src';
+import { SESSIONS, grantType, assertion, scope } from '../config';
+import { ERRORS } from './error';
 
 async function doPostCall(data: any, url: string): Promise<any> {
   try {
@@ -16,6 +19,22 @@ async function doPostCall(data: any, url: string): Promise<any> {
     throw error;
   }
 }
+
+async function getAuthToken(): Promise<any> {
+  try {
+    const url = SESSIONS;
+    const data = {
+      grantType: grantType,
+      assertion: assertion,
+      scope: scope
+    }
+    const response = await axios.post(url, data);
+    return response.data.accessToken;
+  } catch (error) {
+    throw new BadRequestException(ERRORS.SESSION)
+  }
+}
+
 
 function decodePayload( jwt: string ): DidAuthResponsePayload{
   const { payload } = JWT.decode(jwt, { complete: true });
@@ -35,8 +54,17 @@ function parseUserDid( did: string ): string {
   return did.split("#")[0];
 }
 
+function isTokenExpired(jwt) {
+  if (jwt === null || jwt === "") return true;
+  const payload = decodePayload(jwt);
+  if (!payload || !payload.exp) return true;
+  return +payload.exp * 1000 < Date.now();
+}
+
 export {
   doPostCall,
   getUserDid,
-  getJwtNonce
+  getJwtNonce,
+  isTokenExpired,
+  getAuthToken
 };
