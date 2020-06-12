@@ -47,12 +47,13 @@ hydra token user \
 # Example Barcelona
 hydra clients create \
     --endpoint https://dev.api.vidchain.net \
-    --id barcelona-city \
+    --id your_city \
+    --name Your City \
     --secret secret \
     --grant-types authorization_code,refresh_token \
     --response-types code,id_token \
     --scope openid,offline \
-    --callbacks http://127.0.0.1:3022/callback
+    --callbacks https://dev.api.vidchain.net/demo/callback
 
 
 
