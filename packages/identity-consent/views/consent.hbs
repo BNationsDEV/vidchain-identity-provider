@@ -56,30 +56,23 @@
         validationResult: '',
         socket: null,
         clientUriRedirect: '',
-        remember:false
+        remember:false,
+        requested_scope: []
       },
       methods: {
         consent() {
           let urlParams = new URLSearchParams(window.location.search);
           let consent_challenge = urlParams.get('consent_challenge');
-          const requested_scope = this.generateArray();;
           const body = {
             challenge: consent_challenge,
             remember: this.remember,
-            grant_scope: requested_scope
+            grant_scope: this.requested_scope
           };
           console.log(body);
-          //axios.post('/consent', body)
-            //.then ((res)=> window.location = res.data)
-           // .catch ((error)=> console.log(error))
+          axios.post('/consent', body)
+            .then ((res)=> window.location = res.data)
+           .catch ((error)=> console.log(error))
         },
-        generateArray(){
-          console.log("generateArray");
-          const requestedScope = "{{ requested_scope}}";
-          const scopeArray = requestedScope.split(",");
-          console.log(scopeArray);
-          return scopeArray;
-        } 
         selected(type){
           const grant_type = type.target.value;
           //Checking if already exists, 
@@ -92,10 +85,10 @@
 
       },
       created() {
-        //if(client.logo_uri){
-            //var img = document.getElementById('logo')
-            //img.src = client.logo_uri
-        //} 
+        const requestedScope = "{{ requested_scope}}";
+        const scopeArray = requestedScope.split(",");
+        console.log(scopeArray);
+        this.requested_scope = scopeArray;
       }
     });
 
