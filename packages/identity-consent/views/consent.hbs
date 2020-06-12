@@ -21,29 +21,29 @@
           <label for="requested_scope">requested_scope</label>
         </div> -->
         <h1 class="title"> Hi, {{user}} </h1>
-        <h3 class="subtitle">The application <strong>{{client.client_id}}</strong> wants access resources on your behalf and to:</h3>
-        <ul class="checkboxes">
+        <h3 class="subtitle">The application <strong>{{client.client_id}}</strong> wants access to your DID</h3>
+        {{!-- <ul class="checkboxes">
           {{#each requested_scope}}
           <li>
             <input type="checkbox" id={{@index}} value={{this}} name="grant_scope" v-on:change="selected($event)">
             <label for={{this}}>{{this}}</label>
           </li>
           {{/each}}
-        </ul>
+        </ul> --}}
        
         <button class="acceptButton" v-on:click="consent">Allow Access</button>
         <input class="denyButton" type="submit" id="reject" name="submit" value="Deny access"> 
-        <p class="subtitle">Do you want to be asked next time when this application wants to access your data? The application will
+        <p class="subtitle">Do you want to be asked next time when this application wants to access your DID? The application will
           not be able to ask for more permissions without your consent.</p>
         <div class="checkboxes">
-          <input type="checkbox" id="remember" name="remember" v-on:change="rememberSelected()" value="1">
+          <input type="checkbox" id="remember" name="remember" v-bind:value="remember" value="1">
           <label for="remember">Do not ask me again</label>
         </div>
         <div class="policy">
-          <a href={{client.policy_uri}}>Policy </a>
+          <a href=client.policy_uri>Policy </a>
         </div>
         <div class="policy">
-          <a href={{client.tos_uri}}>Terms of Service </a> <br>
+          <a href=client.tos_uri>Terms of Service </a> <br>
         </div>
       </div>
   </div>
@@ -56,23 +56,30 @@
         validationResult: '',
         socket: null,
         clientUriRedirect: '',
-        remember:false,
-        requested_scope: []
+        remember:false
       },
       methods: {
         consent() {
           let urlParams = new URLSearchParams(window.location.search);
           let consent_challenge = urlParams.get('consent_challenge');
+          const requested_scope = this.generateArray();;
           const body = {
             challenge: consent_challenge,
             remember: this.remember,
-            grant_scope: this.requested_scope
+            grant_scope: requested_scope
           };
           console.log(body);
-          axios.post('/consent', body)
-            .then ((res)=> window.location = res.data)
-            .catch ((error)=> console.log(error))
-        }, 
+          //axios.post('/consent', body)
+            //.then ((res)=> window.location = res.data)
+           // .catch ((error)=> console.log(error))
+        },
+        generateArray(){
+          console.log("generateArray");
+          const requestedScope = "{{ requested_scope}}";
+          const scopeArray = requestedScope.split(",");
+          console.log(scopeArray);
+          return scopeArray;
+        } 
         selected(type){
           const grant_type = type.target.value;
           //Checking if already exists, 
@@ -81,13 +88,7 @@
           if ( ~position ) this.requested_scope.splice(position, 1);
           //otherwise add it to the array
           else this.requested_scope.push(grant_type);
-        },
-        rememberSelected(){
-          //Checking if already selected, 
-          if ( this.remember ) this.remember = false;
-          //otherwise it was false, so now true
-          else this.remember = true;
-        },
+        }
 
       },
       created() {
