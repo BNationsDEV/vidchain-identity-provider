@@ -47,12 +47,12 @@ import {
         // queueing the request
         this.siopQueue.add('userRequest', { 
           clientId: CLIENT_ID_URI,
-          sessionId: uriRedirect.challenge,
+          sessionId: client.id,
           clientUriRedirect: uriRedirect && uriRedirect.clientUriRedirect ? uriRedirect.clientUriRedirect : undefined
         });
         this.logger.debug(`Sin the queue ${client.id}`);
   
-        return of({event: 'signIn', data: `SignIn request received and queued for:  ${uriRedirect.challenge}`})
+        return of({event: 'signIn', data: `SignIn request received and queued for:  ${client.id}`})
     }
     
     @SubscribeMessage('sendSIOPRequestJwtToFrontend')

@@ -29,6 +29,7 @@ export class SiopProcessor {
   async handleSiopRequest(job: Job): Promise<string> {
     this.logger.debug('SIOP Request received.')
     this.logger.debug(`Processing job ${job.id} of type ${job.name}`)
+    this.logger.debug("Processing job")
     if (!job || !job.data || !job.data.clientId || !job.data.sessionId) {
       console.log(DIDAUTH_ERRORS.BAD_PARAMS);
       throw new BadRequestException(DIDAUTH_ERRORS.BAD_PARAMS)
