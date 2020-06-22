@@ -41,7 +41,7 @@ export default class VidDidAuth {
     const { jwt, nonce } = await VidDidAuth.createDidAuthRequest(
       didAuthRequestCall
     );
-    const responseUri = `openid://&scope=${DIAUTHScope.OPENID_DIDAUTHN}?response_type=${DIAUTHResponseType.ID_TOKEN}&client_id=${didAuthRequestCall.redirectUri}&request=${jwt}`;
+    const responseUri = `openid://&scope=${DIAUTHScope.OPENID_DIDAUTHN}?response_type=${DIAUTHResponseType.ID_TOKEN}&client_id=${didAuthRequestCall.redirectUri}&requestUri=${didAuthRequestCall.requestUri}`;
     // returns a URI with Request JWT embedded
     return { uri: responseUri, nonce, jwt };
   }

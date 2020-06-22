@@ -65,7 +65,6 @@ import {
     handleSignInResponseEvent(@MessageBody() message: MessageSendSignInResponse): void {
       this.logger.log(`SIOP Response Validation:     ${JSON.stringify(message.siopResponse)}`)
       const clientId = message.clientId;
-      this.logger.log(`Send to:     ${clientId}`)
       this.wss.to(clientId).emit('signInResponse', JSON.stringify(message.siopResponse));
     }
   }

@@ -50,6 +50,7 @@ export interface DidAuthResponsePayload extends JWTClaims {
 
 export interface DidAuthRequestCall {
   redirectUri: string;
+  requestUri: string;
   signatureUri: string;
   authZToken: string;
 }
