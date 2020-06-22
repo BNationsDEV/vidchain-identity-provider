@@ -48,7 +48,7 @@ export class SiopProcessor {
     this.jwtRedis.set(job.data.sessionId, jwt)
     this.logger.debug(`SIOP Request URI: ${uri}`)
     // store sessionId and nonce 
-    this.nonceRedis.set(job.data.sessionId, nonce)
+    this.nonceRedis.set(nonce, job.data.sessionId)
     this.logger.debug('SIOP Request completed.')
 
     return uri

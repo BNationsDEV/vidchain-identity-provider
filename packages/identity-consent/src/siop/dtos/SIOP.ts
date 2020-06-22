@@ -23,6 +23,11 @@ export interface SiopAckRequest {
   validationRequest: boolean;
 }
 
+export interface MessageSendSignInResponse {
+  clientId: string;
+  siopResponse: SiopResponse;
+}
+
 export interface SiopResponse {
   validationResult: boolean;
   did: string;

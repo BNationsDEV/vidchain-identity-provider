@@ -11,7 +11,7 @@ import {
   } from '@nestjs/websockets';
   import { Socket, Server } from 'socket.io';
   import { Logger, BadRequestException } from '@nestjs/common';
-  import { SiopResponse, QRResponse, SiopUriRedirect } from 'src/siop/dtos/SIOP';
+  import { SiopResponse, QRResponse, SiopUriRedirect, MessageSendSignInResponse } from 'src/siop/dtos/SIOP';
   import { Observable, of } from 'rxjs';
   import { InjectQueue } from '@nestjs/bull';
   import { Queue } from 'bull';
@@ -62,8 +62,10 @@ import {
     }
   
     @SubscribeMessage('sendSignInResponse')
-    handleSignInResponseEvent(@MessageBody() message: SiopResponse): void {
-      this.logger.log(`SIOP Response Validation:     ${JSON.stringify(message)}`)
-      this.wss.emit('signInResponse', JSON.stringify(message));
+    handleSignInResponseEvent(@MessageBody() message: MessageSendSignInResponse): void {
+      this.logger.log(`SIOP Response Validation:     ${JSON.stringify(message.siopResponse)}`)
+      const clientId = message.clientId;
+      this.logger.log(`Send to:     ${clientId}`)
+      this.wss.to(clientId).emit('signInResponse', JSON.stringify(message.siopResponse));
     }
   }

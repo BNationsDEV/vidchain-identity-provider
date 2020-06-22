@@ -1,7 +1,7 @@
 import { Controller, Post, Body, BadRequestException, Logger, Get, Param } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import { SiopResponseJwt, SiopAckResponse, SiopResponse, SiopRequestJwt, DidAuthValidationResponse,  } from './dtos/SIOP';
+import { SiopResponseJwt, SiopAckResponse, SiopResponse,MessageSendSignInResponse, SiopRequestJwt, DidAuthValidationResponse,  } from './dtos/SIOP';
 import { VidDidAuth, DidAuthRequestCall, DIDAUTH_ERRORS} from '../did-auth/src/index';
 import { CLIENT_ID_URI, REDIS_URL, REDIS_PORT , BASE_URL, SIGNATURE_VALIDATION } from '../config';
 import { getUserDid, getJwtNonce, getAuthToken} from '../util/Util';
@@ -29,14 +29,18 @@ export class SiopController {
     if (!siopResponseJwt || !siopResponseJwt.jwt) {
       throw new BadRequestException(DIDAUTH_ERRORS.BAD_PARAMS)
     }
-    this.logger.log(`[RP Backend] Received SIOP Response JWT: ${siopResponseJwt.jwt}`)
+    this.logger.log(`[RP Backend] Received SIOP Response JWT: ${JSON.stringify(siopResponseJwt)}`)
     const authZToken = await getAuthToken();
     // validate siop response
+    const nonce = await this._getValidNonce(siopResponseJwt.jwt);
+    const clientID = await this._getValidClient(nonce);
+    this.logger.log("Nonce: "+nonce);
+    this.logger.log("Client: "+ clientID);
     const verifyDidAuthResponse:DidAuthValidationResponse = await VidDidAuth.verifyDidAuthResponse(
       siopResponseJwt.jwt, 
       SIGNATURE_VALIDATION, 
       authZToken,
-      await this._getValidNonce(siopResponseJwt.jwt)
+      nonce
     );
     // const verifyDidAuthResponse:DidAuthValidationResponse = {
     //   signatureValidation: true
@@ -54,10 +58,16 @@ export class SiopController {
       did: getUserDid(siopResponseJwt.jwt),
       jwt: siopResponseJwt.jwt
     }
+
+    const messageSendSignInResponse: MessageSendSignInResponse = {
+      clientId: clientID,
+      siopResponse: siopResponse
+    }
+
     
     // send a message to server so it can communicate with front end io client
     // and send the validation response
-    this.socket.emit('sendSignInResponse', siopResponse);
+    this.socket.emit('sendSignInResponse', messageSendSignInResponse );
     // also send the response to the siop client
     return verifyDidAuthResponse
   }
@@ -80,5 +90,11 @@ export class SiopController {
       throw new BadRequestException(DIDAUTH_ERRORS.BAD_PARAMS)
     }
     return nonce;
+  }
+
+  private async _getValidClient(nonce: string): Promise<any> {
+      const clients = await this.nonceRedis.get(nonce);
+      this.logger.debug(`---- ${clients} ----`);
+      return clients;
   }
 }
