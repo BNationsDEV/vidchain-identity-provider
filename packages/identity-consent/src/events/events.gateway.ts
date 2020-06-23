@@ -11,7 +11,7 @@ import {
   } from '@nestjs/websockets';
   import { Socket, Server } from 'socket.io';
   import { Logger, BadRequestException } from '@nestjs/common';
-  import { SiopResponse, QRResponse, SiopUriRedirect, MessageSendSignInResponse } from 'src/siop/dtos/SIOP';
+  import { SiopResponse, QRResponse, SiopUriRedirect, MessageSendSignInResponse, MessageSendQRResponse} from 'src/siop/dtos/SIOP';
   import { Observable, of } from 'rxjs';
   import { InjectQueue } from '@nestjs/bull';
   import { Queue } from 'bull';
@@ -56,9 +56,10 @@ import {
     }
     
     @SubscribeMessage('sendSIOPRequestJwtToFrontend')
-    handlePrintQREvent(@MessageBody() qrResponse: QRResponse): void {
-      this.logger.log(`SIOP Request SIOP URI:    ${qrResponse.siopUri}`)
-      this.wss.emit('printQR', qrResponse);
+    handlePrintQREvent(@MessageBody() qrResponse: MessageSendQRResponse): void {
+      this.logger.log(`SIOP Request SIOP URI:    ${qrResponse.qRResponse.siopUri}`)
+      const clientId = qrResponse.clientId;
+      this.wss.to(clientId).emit('printQR', qrResponse.qRResponse);
     }
   
     @SubscribeMessage('sendSignInResponse')

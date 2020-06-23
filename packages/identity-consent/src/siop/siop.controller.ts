@@ -1,7 +1,7 @@
 import { Controller, Post, Body, BadRequestException, Logger, Get, Param } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import { SiopResponseJwt, SiopAckResponse, SiopResponse,MessageSendSignInResponse, SiopRequestJwt, DidAuthValidationResponse,  } from './dtos/SIOP';
+import { SiopResponseJwt, SiopAckResponse, SiopResponse,MessageSendSignInResponse, SiopRequestJwt, DidAuthValidationResponse,MessageSendQRResponse } from './dtos/SIOP';
 import { VidDidAuth, DidAuthRequestCall, DIDAUTH_ERRORS} from '../did-auth/src/index';
 import { CLIENT_ID_URI, REDIS_URL, REDIS_PORT , BASE_URL, SIGNATURE_VALIDATION } from '../config';
 import { getUserDid, getJwtNonce, getAuthToken} from '../util/Util';

@@ -38,6 +38,10 @@ export interface SiopAckResponse {
   validationResult: boolean;
 }
 
+export interface MessageSendQRResponse {
+  clientId: string;
+  qRResponse: QRResponse;
+}
 export interface QRResponse {
   imageQr: string;
   siopUri: string;

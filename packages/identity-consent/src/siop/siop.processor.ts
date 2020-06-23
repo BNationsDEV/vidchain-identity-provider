@@ -2,7 +2,7 @@ import { Process, Processor, InjectQueue, OnQueueCompleted } from '@nestjs/bull'
 import { Logger, BadRequestException, Body } from '@nestjs/common';
 import { Job, Queue } from 'bull'
 import { VidDidAuth, DidAuthRequestCall, DIDAUTH_ERRORS} from '../did-auth/src/index';
-import { SiopUriRequest, SiopResponse, SiopAckRequest, QRResponse, SiopResponseJwt, DidAuthValidationResponse, LoginResponse } from './dtos/SIOP';
+import { SiopUriRequest, SiopResponse, SiopAckRequest, QRResponse, SiopResponseJwt, DidAuthValidationResponse, MessageSendQRResponse } from './dtos/SIOP';
 import { doPostCall, getAuthToken, getUserDid, getJwtNonce } from 'src/util/Util';
 import { BASE_URL, SIGNATURES, SIGNATURE_VALIDATION, REDIS_PORT, REDIS_URL } from '../config';
 import QRCode from 'qrcode';
@@ -72,8 +72,13 @@ export class SiopProcessor {
         imageQr, 
         siopUri: result
       }
+
+      const messageSendQRResponse: MessageSendQRResponse = {
+        clientId: job.data.sessionId,
+        qRResponse: qrResponse
+      }
       // sends an event to the server, to send the QR to the client
-      this.socket.emit('sendSIOPRequestJwtToFrontend', qrResponse);
+      this.socket.emit('sendSIOPRequestJwtToFrontend', messageSendQRResponse);
     }
 
     // when clientUriRedirect is present, we post the SIOP URI to the user server
