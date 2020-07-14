@@ -3,6 +3,8 @@ import { Res, Req,Request, BadRequestException, Logger } from '@nestjs/common';
 import { Response } from 'express';
 import { ERRORS } from './util/error'
 import * as hydra from './services/hydra';
+import axios from "axios";
+import * as config from './config';
 
 @Injectable()
 export class AppService {
@@ -41,7 +43,9 @@ export class AppService {
   async doLogin(@Req() req, @Res() res: Response) {
     var body = req.body;
     var challenge = body.challenge;
-    //Let's see if the user decided to accept or reject the consent request.. 
+    // In fact, if this request has been performed, the user has already accepted to login in the wallet
+    
+    // Let's see if the user decided to accept or reject the consent request.. 
     // Never happens in our flow (yet)
     if (body.submit === 'Deny access') {
       // Looks like the consent request was denied by the user
@@ -58,7 +62,6 @@ export class AppService {
           throw new BadRequestException(ERRORS.HYDRA_POST_LOGIN)
         });
     }
-  
     hydra.acceptLoginRequest(challenge, {
       // Subject is an alias for user ID. A subject can be a random string, a UUID, an email address, ....
       //In our case DID
@@ -85,12 +88,9 @@ export class AppService {
       });
   }
 
-
-
   checkConsent(@Request() req, @Res() res: Response) {
     const query = req.query;
     var challenge = query.consent_challenge;
-
     hydra.getConsentRequest(challenge)
       .then(function (response) {
         // If a user has granted this application the requested scope, hydra will tell us to not show the UI.
@@ -115,17 +115,20 @@ export class AppService {
             res.redirect(response.redirect_to);
           });
         }
-
-        // If consent can't be skipped we MUST show the consent UI.
-        res.render('consent', {
-          csrfToken: req.cookies._csrf,
+        
+        const body = {
           challenge: challenge,
-          // We have a bunch of data available from the response, check out the API docs to find what these values mean
-          // and what additional data you have available.
-          requested_scope: response.requested_scope,
-          user: response.subject,
-          client: response.client,
-        });
+          remember: true,
+          grant_scope: response.requested_scope
+        };
+
+      axios.post(config.BASE_URL, body)
+          .then ((result)=> {
+          console.log(result);
+          res.redirect(result.data);
+        })
+          .catch ((error)=> console.log(error))
+          
       })
       .catch(function (error) {
         throw new BadRequestException(ERRORS.HYDRA_CONSENT)
@@ -133,27 +136,11 @@ export class AppService {
 
   } 
 
-
   doConsent(@Req() req, @Res() res: Response) {
     var body = req.body;
     var challenge = body.challenge;
+    // If this request has been performed, the user has already accepted to login in the wallet
 
-    // Let's see if the user decided to accept or reject the consent request..
-    if (req.body.submit === 'Deny access') {
-      // Looks like the consent request was denied by the user
-      return hydra.rejectConsentRequest(challenge, {
-        error: 'access_denied',
-        error_description: 'The resource owner denied the request'
-      })
-        .then(function (response) {
-          // All we need to do now is to redirect the browser back to hydra!
-          res.redirect(response.redirect_to);
-        })
-        // This will handle any error that happens when making HTTP calls to hydra
-        .catch(function (error) {
-          console.log("error doconsent");
-        });
-    }
     var grant_scope = body.grant_scope
     if (!Array.isArray(grant_scope)) {
       grant_scope = [grant_scope]
