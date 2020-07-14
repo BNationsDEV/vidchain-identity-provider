@@ -122,7 +122,7 @@ export class AppService {
           grant_scope: response.requested_scope
         };
 
-      axios.post(config.BASE_URL, body)
+      axios.post(config.BASE_URL+'/consent', body)
           .then ((result)=> {
           console.log(result);
           res.redirect(result.data);
