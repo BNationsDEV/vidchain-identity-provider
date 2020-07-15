@@ -16,6 +16,7 @@
   <div id="login-app" class="formLogin">
     <input type="hidden" id="csrf" name="_csrf" value={{csrfToken}}>
     <input type="hidden" name="challenge" value={{challenge}}>
+    <input type="hidden" id="client_name" name="client_name" value={{client_name}}>
     <img id="logo" class ="logo" src="/static/logo__Vidchain.png"></img>
     <h1 class="subtitle">Authenticate with your VIDchain wallet</h1>
     <h4 class="subtitle">Go to login in your VIDchain mobile app and scan the QR code.</h4>
@@ -86,7 +87,8 @@
         let login_challenge = urlParams.get('login_challenge');
         const data = {
           clientUriRedirect: this.clientUriRedirect,
-          challenge: login_challenge
+          challenge: login_challenge,
+          client_name: document.getElementById('client_name').value
         };
         this.socket.emit('signIn', data);
 

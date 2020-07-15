@@ -32,6 +32,7 @@ export class AppService {
         res.render('index', {
           csrfToken: req.cookies._csrf,
           challenge: challenge,
+          client_name: response.client.client_name || response.client.client_id
         });
       })
       // This will handle any error that happens when making HTTP calls to hydra

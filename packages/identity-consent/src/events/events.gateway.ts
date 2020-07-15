@@ -47,6 +47,7 @@ import {
         // queueing the request
         this.siopQueue.add('userRequest', { 
           clientId: CLIENT_ID_URI,
+          clientName: uriRedirect.client_name,
           sessionId: client.id,
           clientUriRedirect: uriRedirect && uriRedirect.clientUriRedirect ? uriRedirect.clientUriRedirect : undefined
         });

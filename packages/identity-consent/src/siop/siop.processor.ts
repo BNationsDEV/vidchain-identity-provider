@@ -42,7 +42,7 @@ export class SiopProcessor {
     };
     console.log(didAuthRequestCall);
     // Creates a URI using the wallet backend that manages entity DID keys
-    const { uri, nonce, jwt } = await VidDidAuth.createUriRequest(didAuthRequestCall);
+    let { uri, nonce, jwt } = await VidDidAuth.createUriRequest(didAuthRequestCall);
     this.logger.debug(`SIOP Request JWT: ${jwt}`)
     // store siopRequestJwt with the user session id
     this.jwtRedis.set(job.data.sessionId, jwt)
@@ -63,14 +63,17 @@ export class SiopProcessor {
       throw new BadRequestException(DIDAUTH_ERRORS.BAD_PARAMS)
     }
 
+    //Append the client name to the result
+    const qrCodeResult = result + "&client_name="+job.data.clientName;
+
     // when clientUriRedirect NOT present, print QR to be read from an APP
     // !!! TODO: implement a way to send the siop:// and be catched by client (web plugin or APP deep link)
     if (!job.data.clientUriRedirect) {
       // generate QR code image 
-      const imageQr = await QRCode.toDataURL(result)
+      const imageQr = await QRCode.toDataURL(qrCodeResult)
       const qrResponse:QRResponse = {
         imageQr, 
-        siopUri: result
+        siopUri: qrCodeResult
       }
 
       const messageSendQRResponse: MessageSendQRResponse = {
@@ -83,7 +86,7 @@ export class SiopProcessor {
 
     // when clientUriRedirect is present, we post the SIOP URI to the user server
     if (job.data.clientUriRedirect) {
-      const response:SiopAckRequest = await doPostCall(result, job.data.clientUriRedirect)
+      const response:SiopAckRequest = await doPostCall(qrCodeResult, job.data.clientUriRedirect)
       this.logger.debug('Response: ' + JSON.stringify(response))
       // sends error to Front-end
       if (!response || !response.validationRequest) {
