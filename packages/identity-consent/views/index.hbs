@@ -88,7 +88,7 @@
         const data = {
           clientUriRedirect: this.clientUriRedirect,
           challenge: login_challenge,
-          client_name: document.getElementById('client_name').value
+          client_name: decodeURIComponent(document.getElementById('client_name').value)
         };
         this.socket.emit('signIn', data);
 

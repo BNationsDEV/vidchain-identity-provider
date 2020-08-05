@@ -26,7 +26,8 @@ hydra token user \
  # Create the client
  hydra clients create \
     --endpoint http://127.0.0.1:9001 \
-    --id alex123 \
+    --id alex1234 \
+    --name nameTest \
     --secret secret \
     --grant-types authorization_code,refresh_token \
     --response-types code,id_token \
@@ -40,7 +41,7 @@ hydra token user \
     --port 9010 \
     --auth-url http://127.0.0.1:9000/oauth2/auth \
     --token-url http://127.0.0.1:9000/oauth2/token \
-    --client-id alex123 \
+    --client-id alex1234 \
     --client-secret secret \
     --scope openid,offline
 
@@ -75,6 +76,16 @@ hydra clients create \
     --response-types code,id_token \
     --scope openid,offline \
     --callbacks http://localhost:3024/demo/callback
+# Example Univeristy
+    hydra clients create \
+    --endpoint https://dev.api.vidchain.net \
+    --id university \
+    --name YourUniveristy \
+    --secret secret \
+    --grant-types authorization_code,refresh_token \
+    --response-types code,id_token \
+    --scope openid,offline \
+    --callbacks https://dev.api.vidchain.net/universitydemo/callback
 
 
 
