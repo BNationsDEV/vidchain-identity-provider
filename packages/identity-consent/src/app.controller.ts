@@ -1,8 +1,7 @@
 import { Controller, Get, Body, Render, Req, Res, Post } from '@nestjs/common';
 import { Response } from 'express';
 import { AppService } from './app.service';
-var csrf = require('csurf');
-var csrfProtection = csrf({ cookie: true, secure: true});
+
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}

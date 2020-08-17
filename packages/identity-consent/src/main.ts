@@ -5,7 +5,7 @@ import{ PORT } from "./config"
 import { join } from 'path';
 import * as express from 'express';
 var csrf = require('csurf');
-var cookieParser = require('cookie-parser')
+var cookieParser = require('cookie-parser');
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -15,6 +15,6 @@ async function bootstrap() {
   app.use(cookieParser())
 
   await app.listen(PORT);
-  app.use(csrf());
+  app.use(csrf({ cookie: true, secure: true }));
 }
 bootstrap();
