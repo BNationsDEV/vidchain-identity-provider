@@ -15,6 +15,6 @@ async function bootstrap() {
   app.use(cookieParser())
 
   await app.listen(PORT);
-  app.use(csrf({ cookie: true, secure: true }));
+  app.use(csrf({ cookie: { secure: true }}));
 }
 bootstrap();
