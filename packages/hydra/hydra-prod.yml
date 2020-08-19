@@ -19,6 +19,7 @@ services:
       - URLS_CONSENT=https://dev.api.vidchain.net/consent
       - URLS_LOGIN=https://dev.api.vidchain.net/login
       - URLS_LOGOUT=https://dev.api.vidchain.net/logout
+      - SERVE_COOKIES_SAME_SITE_MODE=Lax
       # - OAUTH2_ERROR_URL. This URL can be used to provide an endpoint which will receive error messages from ORY Hydra that should be displayed to the end user.
       - DSN=postgres://hydra:secret@postgresd:5432/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
       - SECRETS_SYSTEM=T68zLmRJonSNbRUWRlqOFFJWBLXU7yrn
