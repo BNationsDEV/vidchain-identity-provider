@@ -13,7 +13,7 @@ services:
     networks:
       - hydra_network
     command:
-      serve all --dangerous-force-http
+      serve all
     environment:
       - URLS_SELF_ISSUER=https://dev.api.vidchain.net
       - URLS_CONSENT=https://dev.api.vidchain.net/consent
