@@ -25,6 +25,7 @@ services:
       - PORT=3000
       - REDIS_PORT=6379
       - HYDRA_URL=http://hydra:4445
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
   
   redis:
     image: redis:latest
