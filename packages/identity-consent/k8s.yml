@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity-consent-api-deployment
+  labels:
+    app: identity-consent-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: identity-consent-api
+  strategy: 
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: identity-consent-api
+    spec:
+      containers:
+      - image: k8scrvidchaindev.azurecr.io/identity-consent-api:v0.1
+        imagePullPolicy: "Always"
+        name: identity-consent-api
+        ports:
+        - containerPort: 3000
+        env:
+        - name: REDIS_URL
+          value: redis
+        - name: BASE_URL
+          value: https://dev.vidchain.net
+        - name: PORT
+          value: "3000"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: HYDRA_URL
+          value: http://hydra:4445
+        - name: NODE_TLS_REJECT_UNAUTHORIZED
+          value: "0"
+      restartPolicy: Always
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: identity-consent-api-service
+  labels:
+    app: identity-consent-api
+spec:
+  type: ClusterIP
+  ports:
+  - name: "3000"
+    port: 3000
+  selector:
+    app: identity-consent-api
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: identity-consent-api-ingress
+  namespace: development
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+  - hosts:
+    - dev.vidchain.net
+    secretName: tls-secret
+  rules:
+  - host: dev.vidchain.net
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: identity-consent-api-service
+          servicePort: 3000

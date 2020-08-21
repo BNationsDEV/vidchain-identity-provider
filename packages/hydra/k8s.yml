@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hydra
+  labels:
+    app: hydra
+spec:
+  selector:
+    matchLabels:
+      app: hydra
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hydra
+    spec:
+      containers:
+      - name: hydra
+        image: oryd/hydra:latest
+        ports:
+        - containerPort: 4444
+        - containerPort: 4445
+        env:
+          - name: URLS_SELF_ISSUER
+            value: https://dev.vidchain.net
+          - name: URLS_CONSENT
+            value: https://dev.vidchain.net/consent
+          - name: URLS_LOGIN
+            value: https://dev.vidchain.net/login
+          - name: URLS_LOGOUT
+            value: https://dev.vidchain.net/logout
+          - name: SERVE_COOKIES_SAME_SITE_MODE
+            value: Strict
+          - name: DSN
+            valueFrom:
+              secretKeyRef:
+                name: hydra-dsn
+                key: postgres-endpoint
+          - name: SECRETS_SYSTEM
+            valueFrom:
+              secretKeyRef:
+                name: hydra-secrets-system
+                key: secrets-system
+          - name: CORS_ENABLED
+            value: "true"
+          - name: CORS_ALLOWED_ORIGINS
+            value: "*"
+          - name: CORS_DEBUG
+            value: "true"
+      - name: hydra-migrate
+        image: oryd/hydra:latest
+        env:
+          - name: DSN
+            valueFrom:
+              secretKeyRef:
+                name: hydra-dsn
+                key: postgres-endpoint
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: hydra
+  labels:
+    app: hydra
+spec:
+  ports:
+  - name: "9000"
+    port: 9000
+    targetPort: 4444
+  - name: "9001"
+    port: 9001
+    targetPort: 4445
+  selector:
+    app: hydra
