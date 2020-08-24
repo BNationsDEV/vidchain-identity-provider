@@ -17,6 +17,8 @@ spec:
       containers:
       - name: hydra
         image: oryd/hydra:latest
+        #command: ["hydra"]
+        #args: ["serve", "all", "--dangerous-force-http"]
         ports:
         - containerPort: 4444
         - containerPort: 4445
@@ -46,16 +48,28 @@ spec:
           - name: CORS_ALLOWED_ORIGINS
             value: "*"
           - name: CORS_DEBUG
-            value: "true"
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hydra-migrate
+spec:
+  template:
+    spec:
+      containers:
       - name: hydra-migrate
         image: oryd/hydra:latest
+        args: ["migrate", "sql", "-e", "--yes"]
         env:
           - name: DSN
             valueFrom:
               secretKeyRef:
                 name: hydra-dsn
                 key: postgres-endpoint
-
+      restartPolicy: Never
+  backoffLimit: 4
+   
 ---
 
 apiVersion: v1
