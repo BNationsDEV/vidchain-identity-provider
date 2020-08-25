@@ -32,7 +32,7 @@ spec:
         - name: REDIS_PORT
           value: "6379"
         - name: HYDRA_URL
-          value: http://hydra:4445
+          value: http://hydra:9001
         - name: NODE_TLS_REJECT_UNAUTHORIZED
           value: "0"
       restartPolicy: Always
@@ -72,7 +72,27 @@ spec:
   - host: dev.vidchain.net
     http:
       paths:
-      - path: /
+      - path: /login
+        backend:
+          serviceName: identity-consent-api-service
+          servicePort: 3000
+      - path: /logout
+        backend:
+          serviceName: identity-consent-api-service
+          servicePort: 3000
+      - path: /consent
+        backend:
+          serviceName: identity-consent-api-service
+          servicePort: 3000
+      - path: /siop
+        backend:
+          serviceName: identity-consent-api-service
+          servicePort: 3000
+      - path: /socket
+        backend:
+          serviceName: identity-consent-api-service
+          servicePort: 3000
+      - path: /static
         backend:
           serviceName: identity-consent-api-service
           servicePort: 3000

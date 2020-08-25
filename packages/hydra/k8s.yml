@@ -17,8 +17,8 @@ spec:
       containers:
       - name: hydra
         image: oryd/hydra:latest
-        #command: ["hydra"]
-        #args: ["serve", "all", "--dangerous-force-http"]
+        command: ["hydra"]
+        args: ["serve", "all", "--dangerous-force-http"]
         ports:
         - containerPort: 4444
         - containerPort: 4445
@@ -88,3 +88,32 @@ spec:
     targetPort: 4445
   selector:
     app: hydra
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: hydra-ingress
+  namespace: development
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+  - hosts:
+    - dev.vidchain.net
+    secretName: tls-secret
+  rules:
+  - host: dev.vidchain.net
+    http:
+      paths:
+      - path: /oauth2
+        backend:
+          serviceName: hydra
+          servicePort: 9000
+      - path: /clients
+        backend:
+          serviceName: hydra
+          servicePort: 9001
