@@ -19,9 +19,9 @@ const REDIS_PORT: number = +process.env.REDIS_PORT || 6379
 
 const HYDRA_URL = process.env.HYDRA_URL || "http://127.0.0.1:9001"
 
-const SIGNATURES = "https://dev.api.vidchain.net/api/v1/signatures"
-const SIGNATURE_VALIDATION = "https://dev.api.vidchain.net/api/v1/signature-validations";
-const SESSIONS = "https://dev.api.vidchain.net/api/v1/sessions"
+const SIGNATURES = "https://dev.vidchain.net/api/v1/signatures"
+const SIGNATURE_VALIDATION = "https://dev.vidchain.net/api/v1/signature-validations";
+const SESSIONS = "https://dev.vidchain.net/api/v1/sessions"
 
 //Legal Entity
 const grantType = "urn:ietf:params:oauth:grant-type:jwt-bearer";

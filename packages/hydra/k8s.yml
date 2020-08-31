@@ -9,6 +9,7 @@ spec:
     matchLabels:
       app: hydra
   replicas: 1
+  revisionHistoryLimit: 1
   template:
     metadata:
       labels:
@@ -36,12 +37,12 @@ spec:
           - name: DSN
             valueFrom:
               secretKeyRef:
-                name: hydra-dsn
+                name: hydra
                 key: postgres-endpoint
           - name: SECRETS_SYSTEM
             valueFrom:
               secretKeyRef:
-                name: hydra-secrets-system
+                name: hydra
                 key: secrets-system
           - name: CORS_ENABLED
             value: "true"
@@ -69,7 +70,7 @@ spec:
           - name: DSN
             valueFrom:
               secretKeyRef:
-                name: hydra-dsn
+                name: hydra
                 key: postgres-endpoint
       restartPolicy: Never
   backoffLimit: 4
