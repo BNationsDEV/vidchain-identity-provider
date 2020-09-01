@@ -106,12 +106,11 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/ssl-passthrough: "true"
     nginx.ingress.kubernetes.io/auth-proxy-set-headers: custom-headers
-    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   tls:
   - hosts:
     - dev.vidchain.net
-    secretName: tls-secret
+    secretName: tls-secret-production
   rules:
   - host: dev.vidchain.net
     http:
