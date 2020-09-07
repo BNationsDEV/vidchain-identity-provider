@@ -1,0 +1,64 @@
+# Deploy to Azure Kubernetes Service
+# Build and push image to Azure Container Registry; Deploy to Azure Kubernetes Service
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- ci/cd-azure-pipeline-aks
+
+resources:
+- repo: self
+
+variables:
+
+  Repo: 'identity-consent-api'
+  Dockerfile: 'packages/identity-consent/Dockerfile'
+  k8s: 'packages/identity-consent/k8s.yaml'
+  namespace: 'development'
+
+  #tag: '$(Build.BuildId)'
+  tag: 'v0.1'
+
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  displayName: 'Build stage'
+  jobs:  
+  - job: BuildIdentityConsent
+    displayName: 'Build identity-consent'
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      displayName: Build and push identity-consent image to container registry
+      inputs:
+        command: buildAndPush
+        repository: $(Repo)
+        dockerfile: $(Dockerfile)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+- stage: Deploy
+  displayName: 'Deploy stage'
+  dependsOn: Build
+  jobs:
+  - deployment: Deploy
+    displayName: 'Deploy identity-consent'
+    pool:
+      vmImage: $(vmImageName)
+    environment: 'development'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+          - task: Kubernetes@1
+            displayName: kubectl apply for identity-consent
+            inputs:
+              connectionType: Azure Resource Manager
+              azureSubscriptionEndpoint: $(azureSubscriptionEndpoint) 
+              azureResourceGroup: $(azureResourceGroup)
+              kubernetesCluster: $(kubernetesCluster)
+              command: apply
+              arguments: -f $(System.DefaultWorkingDirectory)/$(k8s) -n $(namespace)
