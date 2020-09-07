@@ -9,13 +9,25 @@ resources:
 - repo: self
 
 variables:
-
+  # Image repository
   Repo: 'identity-consent-api'
   RepoEndpoint: 'k8scrvidchaindev.azurecr.io/identity-consent-api'
+
+  # Dockerfile
   Dockerfile: 'packages/identity-consent/Dockerfile'
-  k8s: 'packages/identity-consent/k8s.yml'
+
+  # Deployment YAML
+  # Only used when the deployment is already available in the cluster
   deployment: deployment/identity-consent-api-deployment
+  
+  # Otherwise Kubernetes YAML...
+  # Used to create a new deployment (check commented code below)
+  #k8s: 'packages/identity-consent/k8s.yml'
+
+  # Kubernetes namespace
   namespace: 'development'
+
+  # Image tagging: application version - build
   tag: 'v0.1-build.$(Build.BuildId)'
 
   # Agent VM image name
@@ -53,8 +65,9 @@ stages:
         deploy:
           steps:
           - checkout: self
+          ## Since the deployment is already available in the cluster
           - task: Kubernetes@1
-            displayName: kubectl apply for identity-consent
+            displayName: kubectl set image for identity-consent
             inputs:
               connectionType: Azure Resource Manager
               azureSubscriptionEndpoint: $(azureSubscriptionEndpoint) 
@@ -62,3 +75,14 @@ stages:
               kubernetesCluster: $(kubernetesCluster)
               command: set
               arguments: image $(deployment) $(Repo)=$(RepoEndpoint):$(tag) -n $(namespace)
+          ## Otherwise, use code below to create a new deployment 
+          #- task: Kubernetes@1
+          #  displayName: kubectl apply for identity-consent
+          #  inputs:
+          #    connectionType: Azure Resource Manager
+          #    azureSubscriptionEndpoint: $(azureSubscriptionEndpoint) 
+          #    azureResourceGroup: $(azureResourceGroup)
+          #    kubernetesCluster: $(kubernetesCluster)
+          #    command: apply
+          #    arguments: -f $(System.DefaultWorkingDirectory)/$(k8s) -n $(namespace)
+          
