@@ -12,7 +12,7 @@ variables:
 
   Repo: 'identity-consent-api'
   Dockerfile: 'packages/identity-consent/Dockerfile'
-  k8s: 'packages/identity-consent/k8s.yaml'
+  k8s: 'packages/identity-consent/k8s.yml'
   namespace: 'development'
 
   #tag: '$(Build.BuildId)'
