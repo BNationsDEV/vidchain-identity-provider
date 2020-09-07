@@ -16,9 +16,7 @@ variables:
   k8s: 'packages/identity-consent/k8s.yml'
   deployment: deployment/identity-consent-api-deployment
   namespace: 'development'
-
-  tag: '$(Build.BuildId)'
-  #tag: 'v0.1'
+  tag: 'v0.1-build.$(Build.BuildId)'
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
