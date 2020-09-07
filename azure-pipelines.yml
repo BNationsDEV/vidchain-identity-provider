@@ -11,12 +11,14 @@ resources:
 variables:
 
   Repo: 'identity-consent-api'
+  RepoEndpoint: 'k8scrvidchaindev.azurecr.io/identity-consent-api'
   Dockerfile: 'packages/identity-consent/Dockerfile'
   k8s: 'packages/identity-consent/k8s.yml'
+  deployment: deployment/identity-consent-api-deployment
   namespace: 'development'
 
-  #tag: '$(Build.BuildId)'
-  tag: 'v0.1'
+  tag: '$(Build.BuildId)'
+  #tag: 'v0.1'
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
@@ -60,5 +62,5 @@ stages:
               azureSubscriptionEndpoint: $(azureSubscriptionEndpoint) 
               azureResourceGroup: $(azureResourceGroup)
               kubernetesCluster: $(kubernetesCluster)
-              command: apply
-              arguments: -f $(System.DefaultWorkingDirectory)/$(k8s) -n $(namespace)
+              command: set image
+              arguments: $(deployment) $(Repo)=$(RepoEndpoint):$(tag)
