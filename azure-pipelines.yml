@@ -63,4 +63,4 @@ stages:
               azureResourceGroup: $(azureResourceGroup)
               kubernetesCluster: $(kubernetesCluster)
               command: set
-              arguments: image $(deployment) $(Repo)=$(RepoEndpoint):$(tag)
+              arguments: image $(deployment) $(Repo)=$(RepoEndpoint):$(tag) -n $(namespace)
