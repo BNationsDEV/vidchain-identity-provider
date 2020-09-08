@@ -11,14 +11,17 @@ spec:
     matchLabels:
       app: identity-consent-api
   strategy: 
-    type: Recreate
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   template:
     metadata:
       labels:
         app: identity-consent-api
     spec:
       containers:
-      - image: k8scrvidchaindev.azurecr.io/identity-consent-api:v0.1
+      - image: k8scrvidchaindev.azurecr.io/identity-consent-api:v0.1-build.31
         imagePullPolicy: "Always"
         name: identity-consent-api
         ports:
