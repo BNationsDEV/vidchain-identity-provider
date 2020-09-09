@@ -30,7 +30,7 @@ variables:
   namespace: 'development'
 
   # Image tagging: application version - build
-  # tag: 'v0.1-build.$(Build.BuildId)'
+  tag: v$(major).$(minor)$(Rev:.r)-$(Build.SourceBranchName)
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
 
@@ -53,7 +53,7 @@ stages:
         dockerfile: $(Dockerfile)
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
-          v$(major).$(minor)$(Rev:.r)-$(Build.SourceBranchName)
+          $(tag)
 - stage: Deploy
   displayName: 'Deploy stage'
   dependsOn: Build
@@ -77,7 +77,7 @@ stages:
               azureResourceGroup: $(azureResourceGroup)
               kubernetesCluster: $(kubernetesCluster)
               command: set
-              arguments: image $(deployment) $(Repo)=$(RepoEndpoint):v$(major).$(minor)$(Rev:.r)-$(Build.SourceBranchName) -n $(namespace)
+              arguments: image $(deployment) $(Repo)=$(RepoEndpoint):$(tag) -n $(namespace)
           ## Otherwise, use code below to create a new deployment 
           #- task: Kubernetes@1
           #  displayName: kubectl apply for identity-consent
