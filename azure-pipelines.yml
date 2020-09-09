@@ -9,6 +9,8 @@ resources:
 - repo: self
 
 variables:
+  major: 0
+  minor: 1
   # Image repository
   Repo: 'identity-consent-api'
   RepoEndpoint: 'k8scrvidchaindev.azurecr.io/identity-consent-api'
@@ -28,10 +30,11 @@ variables:
   namespace: 'development'
 
   # Image tagging: application version - build
-  tag: 'v0.1-build.$(Build.BuildId)'
-
+  # tag: 'v0.1-build.$(Build.BuildId)'
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
+
+name: v$(major).$(minor)$(Rev:.r)-$(Build.SourceBranchName)
 
 stages:
 - stage: Build
@@ -50,7 +53,7 @@ stages:
         dockerfile: $(Dockerfile)
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
-          $(tag)
+          v$(major).$(minor)$(Rev:.r)-$(Build.SourceBranchName)
 - stage: Deploy
   displayName: 'Deploy stage'
   dependsOn: Build
@@ -74,7 +77,7 @@ stages:
               azureResourceGroup: $(azureResourceGroup)
               kubernetesCluster: $(kubernetesCluster)
               command: set
-              arguments: image $(deployment) $(Repo)=$(RepoEndpoint):$(tag) -n $(namespace)
+              arguments: image $(deployment) $(Repo)=$(RepoEndpoint):v$(major).$(minor)$(Rev:.r)-$(Build.SourceBranchName) -n $(namespace)
           ## Otherwise, use code below to create a new deployment 
           #- task: Kubernetes@1
           #  displayName: kubectl apply for identity-consent
