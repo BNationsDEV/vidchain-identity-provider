@@ -30,11 +30,11 @@ variables:
   namespace: 'development'
 
   # Image tagging: application version - build
-  tag: v$(major).$(minor)$(Rev:.r)-$(Build.SourceBranchName)
+  tag: $(major).$(minor).$(Build.BuildNumber)-$(Build.SourceBranchName)
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
 
-name: v$(major).$(minor)$(Rev:.r)-$(Build.SourceBranchName)
+name: $(major).$(minor)$(Rev:.r)-$(Build.SourceBranchName)
 
 stages:
 - stage: Build
