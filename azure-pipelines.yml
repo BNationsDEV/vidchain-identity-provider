@@ -77,7 +77,7 @@ stages:
       name: check_changes
       displayName: 'Check changed files in wallet-api'
   - job: Build       
-    displayName: 'Build wallet-api'
+    displayName: 'Build identity-consent'
     pool:
       vmImage: $(vmImageName)    
     dependsOn: CheckChanges      
