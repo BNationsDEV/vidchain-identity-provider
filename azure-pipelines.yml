@@ -98,6 +98,7 @@ stages:
   jobs:
   - deployment: Deploy
     displayName: 'Deploy identity-consent'
+    condition: eq(stageDependencies.Build.CheckChanges.outputs['check_changes.SOURCE_CODE_CHANGED'], 'true')
     pool:
       vmImage: $(vmImageName)
     environment: 'development'
