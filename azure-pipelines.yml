@@ -115,6 +115,8 @@ stages:
               azureSubscriptionEndpoint: $(azureSubscriptionEndpoint) 
               azureResourceGroup: $(azureResourceGroup)
               kubernetesCluster: $(kubernetesCluster)
+              useConfigMapFile: true
+              configMapFile: dev-configmap.yml
               command: set
               arguments: image $(deployment) $(Repo)=$(RepoEndpoint):$(tag) -n $(namespace)
           ## Otherwise, use code below to create a new deployment 
