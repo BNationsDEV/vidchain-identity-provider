@@ -28,17 +28,36 @@ spec:
         - containerPort: 3000
         env:
         - name: REDIS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: dev-identity-provider-configmap
+              key: REDIS_URL
           value: redis
         - name: BASE_URL
-          value: https://dev.vidchain.net
+          valueFrom:
+            configMapKeyRef:
+              name: dev-identity-provider-configmap
+              key: BASE_URL
         - name: PORT
-          value: "3000"
+          valueFrom:
+            configMapKeyRef:
+              name: dev-identity-provider-configmap
+              key: PORT
         - name: REDIS_PORT
-          value: "6379"
+          valueFrom:
+            configMapKeyRef:
+              name: dev-identity-provider-configmap
+              key: REDIS_PORT
         - name: HYDRA_URL
-          value: http://hydra:9001
+          valueFrom:
+            configMapKeyRef:
+              name: dev-identity-provider-configmap
+              key: HYDRA_URL
         - name: MOCK_TLS_TERMINATION
-          value: "true"
+          valueFrom:
+            configMapKeyRef:
+              name: dev-identity-provider-configmap
+              key: MOCK_TLS_TERMINATION
       restartPolicy: Always
 ---
 
