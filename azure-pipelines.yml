@@ -108,7 +108,7 @@ stages:
           steps:
           - checkout: self
           - task: KubernetesManifest@0
-            displayName: Deploy
+            displayName: Deploy K8s manifest
             inputs:              
               kubernetesServiceConnection: $(kubernetesServiceConnection)
               namespace: $(namespace)
