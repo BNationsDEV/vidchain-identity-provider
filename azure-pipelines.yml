@@ -14,21 +14,14 @@ variables:
   # Image repository
   Repo: 'identity-consent-api'
   RepoEndpoint: 'k8scrvidchaindev.azurecr.io/identity-consent-api'
-
   # Dockerfile
   Dockerfile: 'packages/identity-consent/Dockerfile'
-
-  # Deployment YAML
-  # Only used when the deployment is already available in the cluster
-  deployment: deployment/identity-consent-api-deployment
-  
-  # Otherwise Kubernetes YAML...
-  # Used to create a new deployment (check commented code below)
-  #k8s: 'packages/identity-consent/k8s.yml'
-
+  # Kubernetes YAML
+  k8s: 'packages/identity-consent/k8s.yml'
+  # Configmaps
+  configMap: 'packages/identity-consent/dev-configmap.yml'
   # Kubernetes namespace
   namespace: 'development'
-
   # Image tagging: application version - build
   tag: $(Build.BuildNumber)
   # Agent VM image name
@@ -115,33 +108,13 @@ stages:
               azureResourceGroup: $(azureResourceGroup)
               kubernetesCluster: $(kubernetesCluster)
               command: apply
-              arguments: -f dev-configmap.yml -n $(namespace)
+              arguments: -f $(configMap) -n $(namespace)
           - task: KubernetesManifest@0
             displayName: Create/update deployment
             inputs:              
               kubernetesServiceConnection: $(kubernetesServiceConnection)
               namespace: $(namespace)
-              manifests: packages/identity-consent/k8s.yml
+              manifests: $(k8s)
               containers: |
                 $(RepoEndpoint):$(tag)
-          ## Since the deployment is already available in the cluster
-          #- task: Kubernetes@1
-          #  displayName: kubectl set image for identity-consent
-          #  inputs:
-          #    connectionType: Azure Resource Manager
-          #    azureSubscriptionEndpoint: $(azureSubscriptionEndpoint) 
-          #    azureResourceGroup: $(azureResourceGroup)
-          #    kubernetesCluster: $(kubernetesCluster)
-          #    command: set
-          #    arguments: image $(deployment) $(Repo)=$(RepoEndpoint):$(tag) -n $(namespace)
-          ## Otherwise, use code below to create a new deployment 
-          #- task: Kubernetes@1
-          #  displayName: kubectl apply for identity-consent
-          #  inputs:
-          #    connectionType: Azure Resource Manager
-          #    azureSubscriptionEndpoint: $(azureSubscriptionEndpoint) 
-          #    azureResourceGroup: $(azureResourceGroup)
-          #    kubernetesCluster: $(kubernetesCluster)
-          #    command: apply
-          #    arguments: -f $(System.DefaultWorkingDirectory)/$(k8s) -n $(namespace)
           
