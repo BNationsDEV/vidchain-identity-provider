@@ -30,33 +30,33 @@ spec:
         - name: REDIS_URL
           valueFrom:
             configMapKeyRef:
-              name: dev-identity-provider-configmap
+              name: identity-provider-configmap
               key: REDIS_URL
           value: redis
         - name: BASE_URL
           valueFrom:
             configMapKeyRef:
-              name: dev-identity-provider-configmap
+              name: identity-provider-configmap
               key: BASE_URL
         - name: PORT
           valueFrom:
             configMapKeyRef:
-              name: dev-identity-provider-configmap
+              name: identity-provider-configmap
               key: PORT
         - name: REDIS_PORT
           valueFrom:
             configMapKeyRef:
-              name: dev-identity-provider-configmap
+              name: identity-provider-configmap
               key: REDIS_PORT
         - name: HYDRA_URL
           valueFrom:
             configMapKeyRef:
-              name: dev-identity-provider-configmap
+              name: identity-provider-configmap
               key: HYDRA_URL
         - name: MOCK_TLS_TERMINATION
           valueFrom:
             configMapKeyRef:
-              name: dev-identity-provider-configmap
+              name: identity-provider-configmap
               key: MOCK_TLS_TERMINATION
       restartPolicy: Always
 ---
