@@ -32,7 +32,6 @@ spec:
             configMapKeyRef:
               name: identity-provider-configmap
               key: REDIS_URL
-          value: redis
         - name: BASE_URL
           valueFrom:
             configMapKeyRef:
