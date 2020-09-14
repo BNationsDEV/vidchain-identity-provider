@@ -21,7 +21,7 @@ spec:
         app: identity-consent-api
     spec:
       containers:
-      - image: k8scrvidchaindev.azurecr.io/identity-consent-api:v0.1-build.31
+      - image: k8scrvidchaindev.azurecr.io/identity-consent-api:v1.0
         imagePullPolicy: "Always"
         name: identity-consent-api
         ports:
