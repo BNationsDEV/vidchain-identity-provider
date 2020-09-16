@@ -43,7 +43,9 @@ stages:
         displayName: 'Use node'
       - script: |
           npmVersionString=$(node -p "require('./packages/identity-consent/package.json').version")
-          echo "##vso[build.updatebuildnumber]$npmVersionString-commit.$(Build.SourceVersion)"
+          commit=$(Build.SourceVersion)
+          shortCommit=${commit:0:6}
+          echo "##vso[build.updatebuildnumber]$npmVersionString-commit.$shortCommit"
         displayName: 'retrieve packages/identity-consent/package.json version'
   - job: CheckChanges
     displayName: 'Checking if there are changes in identity-consent'
