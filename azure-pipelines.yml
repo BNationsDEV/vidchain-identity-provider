@@ -9,8 +9,6 @@ resources:
 - repo: self
 
 variables:
-  major: 0
-  minor: 1
   # Image repository
   Repo: 'identity-consent-api'
   RepoEndpoint: 'k8scrvidchaindev.azurecr.io/identity-consent-api'
@@ -44,7 +42,7 @@ stages:
       - script: |
           npmVersionString=$(node -p "require('./packages/identity-consent/package.json').version")
           commit=$(Build.SourceVersion)
-          shortCommit=${commit:0:6}
+          shortCommit=${commit:0:7}
           echo "##vso[build.updatebuildnumber]$npmVersionString-commit.$shortCommit"
         displayName: 'retrieve packages/identity-consent/package.json version'
   - job: CheckChanges
