@@ -42,7 +42,7 @@ stages:
           versionSpec: '12.x'
         displayName: 'Use node'
       - script: |
-          npmVersionString=$(node -p "require('$(packageJson)').version")
+          npmVersionString=$(node -p "require('./$(packageJson)').version")
           commit=$(Build.SourceVersion)
           shortCommit=${commit:0:7}
           echo "##vso[build.updatebuildnumber]$npmVersionString-commit.$shortCommit"
