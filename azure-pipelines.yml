@@ -34,6 +34,8 @@ stages:
   jobs:
   - job: GetPackageVersion
     displayName: 'Retrieve package.json version to update build number'
+    pool:
+      vmImage: $(vmImageName)
     steps:
       - task: NodeTool@0
         inputs:
