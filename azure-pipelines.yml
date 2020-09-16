@@ -18,6 +18,8 @@ variables:
   k8s: 'packages/identity-consent/k8s.yml'
   # Configmaps
   configMap: 'packages/identity-consent/dev-configmap.yml'
+  # package.json
+  packageJson: 'packages/identity-consent/package.json'
   # Kubernetes namespace
   namespace: 'development'
   # Image tagging: application version - build
@@ -40,11 +42,11 @@ stages:
           versionSpec: '12.x'
         displayName: 'Use node'
       - script: |
-          npmVersionString=$(node -p "require('./packages/identity-consent/package.json').version")
+          npmVersionString=$(node -p "require('$(packageJson)').version")
           commit=$(Build.SourceVersion)
           shortCommit=${commit:0:7}
           echo "##vso[build.updatebuildnumber]$npmVersionString-commit.$shortCommit"
-        displayName: 'retrieve packages/identity-consent/package.json version'
+        displayName: 'retrieve $(packageJson) version'
   - job: CheckChanges
     displayName: 'Checking if there are changes in identity-consent'
     pool:
