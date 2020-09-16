@@ -42,7 +42,7 @@ stages:
           versionSpec: '12.x'
         displayName: 'Use node'
       - script: |
-          npmVersionString=$(node -p "require('packages/identity-consent/package.json').version")
+          npmVersionString=$(node -p "require('./packages/identity-consent/package.json').version")
           echo "##vso[build.updatebuildnumber]$npmVersionString-commit.$(Build.SourceVersion)"
         displayName: 'retrieve packages/identity-consent/package.json version'
   - job: CheckChanges
