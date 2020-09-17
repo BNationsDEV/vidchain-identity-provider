@@ -90,15 +90,33 @@ stages:
     condition: eq(dependencies.CheckChanges.outputs['check_changes.SOURCE_CODE_CHANGED'], 'true')
     steps:
     - task: Docker@2
-      displayName: Build and push identity-consent image to container registry
+      displayName: Login ACR
       inputs:
-        command: buildAndPush
-        repository: $(Repo)
-        dockerfile: $(Dockerfile)
+        command: login
         containerRegistry: $(dockerRegistryServiceConnection)
+    - script: "docker pull $(RepoEndpoint):latest"
+      displayName: Pull latest for layer caching
+      continueOnError: true # for first build, no cache
+    - task: Docker@2
+      displayName: "build --cache-from=$(RepoEndpoint):latest"
+      inputs:
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: '$(Repo)'
+        command: 'build'
+        Dockerfile: $(Dockerfile)
+        arguments: '--cache-from=$(RepoEndpoint):latest' 
         tags: |
           $(tag)
-          latest 
+          latest
+    - task: Docker@2
+      displayName: "push"
+      inputs:
+        command: push
+        containerRegistry: "$(dockerRegistryServiceConnection)"
+        repository: $(Repo) 
+        tags: |
+          $(tag)
+          latest
 - stage: Deploy
   displayName: 'Deploy stage'
   dependsOn: Build
