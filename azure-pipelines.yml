@@ -148,5 +148,4 @@ stages:
               namespace: $(namespace)
               manifests: $(k8s)
               containers: |
-                $(RepoEndpoint):$(tag)
-          
+                $(RepoEndpoint):$(tag)   
