@@ -9,6 +9,7 @@ resources:
 - repo: self
 
 variables:
+  # Docker Buildkit improves image build performance
   DOCKER_BUILDKIT: 1
   # Image repository
   Repo: 'identity-consent-api'
