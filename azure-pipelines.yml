@@ -9,6 +9,7 @@ resources:
 - repo: self
 
 variables:
+  DOCKER_BUILDKIT: 1
   # Image repository
   Repo: 'identity-consent-api'
   RepoEndpoint: 'k8scrvidchaindev.azurecr.io/identity-consent-api'
