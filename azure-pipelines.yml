@@ -98,6 +98,7 @@ stages:
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)
+          latest 
 - stage: Deploy
   displayName: 'Deploy stage'
   dependsOn: Build
