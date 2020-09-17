@@ -96,7 +96,7 @@ stages:
         containerRegistry: $(dockerRegistryServiceConnection)
     - script: "docker pull $(RepoEndpoint):latest"
       displayName: Pull latest for layer caching
-      continueOnError: true # for first build, no cache
+      continueOnError: true
     - task: Docker@2
       displayName: "build --cache-from=$(RepoEndpoint):latest"
       inputs:
