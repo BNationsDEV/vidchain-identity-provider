@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity-consent-api-deployment
+  labels:
+    app: identity-consent-api
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: identity-consent-api
+  strategy: 
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: identity-consent-api
+    spec:
+      containers:
+      - image: k8scrvidchaindev.azurecr.io/identity-consent-api:v1.0
+        imagePullPolicy: "Always"
+        name: identity-consent-api
+        ports:
+        - containerPort: 3000
+        env:
+        - name: REDIS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: identity-provider-configmap
+              key: REDIS_URL
+        - name: BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: identity-provider-configmap
+              key: BASE_URL
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: identity-provider-configmap
+              key: PORT
+        - name: REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: identity-provider-configmap
+              key: REDIS_PORT
+        - name: HYDRA_URL
+          valueFrom:
+            configMapKeyRef:
+              name: identity-provider-configmap
+              key: HYDRA_URL
+        - name: MOCK_TLS_TERMINATION
+          valueFrom:
+            configMapKeyRef:
+              name: identity-provider-configmap
+              key: MOCK_TLS_TERMINATION
+      restartPolicy: Always
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: identity-consent-api-service
+  labels:
+    app: identity-consent-api
+spec:
+  type: ClusterIP
+  ports:
+  - name: "3000"
+    port: 3000
+  selector:
+    app: identity-consent-api
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: identity-consent-api-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  tls:
+  - hosts:
+    - dev.vidchain.net
+    secretName: tls-secret-production
+  rules:
+  - host: dev.vidchain.net
+    http:
+      paths:
+      - path: /login
+        backend:
+          serviceName: identity-consent-api-service
+          servicePort: 3000
+      - path: /logout
+        backend:
+          serviceName: identity-consent-api-service
+          servicePort: 3000
+      - path: /consent
+        backend:
+          serviceName: identity-consent-api-service
+          servicePort: 3000
+      - path: /siop
+        backend:
+          serviceName: identity-consent-api-service
+          servicePort: 3000
+      - path: /socket
+        backend:
+          serviceName: identity-consent-api-service
+          servicePort: 3000
+      - path: /static
+        backend:
+          serviceName: identity-consent-api-service
+          servicePort: 3000

@@ -1,0 +1,153 @@
+# Deploy to Azure Kubernetes Service
+# Build and push image to Azure Container Registry; Deploy to Azure Kubernetes Service
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- main
+
+resources:
+- repo: self
+
+variables:
+  # Docker Buildkit improves image build performance
+  DOCKER_BUILDKIT: 1
+  # Image repository
+  Repo: 'identity-consent-api'
+  RepoEndpoint: 'k8scrvidchaindev.azurecr.io/identity-consent-api'
+  # Dockerfile
+  Dockerfile: 'packages/identity-consent/Dockerfile'
+  # Kubernetes YAML
+  k8s: 'packages/identity-consent/k8s.yml'
+  # Configmaps
+  configMap: 'packages/identity-consent/dev-configmap.yml'
+  # package.json
+  packageJson: 'packages/identity-consent/package.json'
+  # Kubernetes namespace
+  namespace: 'production'
+  # Image tagging: application version - build
+  tag: $(Build.BuildNumber)
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+  # Check if there are changes of the following files
+  checkFiles: '("azure-pipelines/azure-pipelines.yml" "dev-configmap.yml" "packages/identity-consent/k8s.yml" "packages/identity-consent/src" "packages/identity-consent/public" "packages/identity-consent/views" "packages/identity-consent/package.json" "packages/identity-consent/package-lock.json")'
+
+stages:
+- stage: 'Build'
+  jobs:
+  - job: GetPackageVersion
+    displayName: 'Retrieve package.json version to update build number'
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '12.x'
+        displayName: 'Use node'
+      - script: |
+          npmVersionString=$(node -p "require('./$(packageJson)').version")
+          commit=$(Build.SourceVersion)
+          shortCommit=${commit:0:7}
+          echo "##vso[build.updatebuildnumber]$npmVersionString-commit.$shortCommit"
+        displayName: 'retrieve $(packageJson) version'
+  - job: CheckChanges
+    displayName: 'Checking if there are changes in identity-consent'
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - bash: |
+        declare -a files=$(checkFiles)
+        echo "This script detects if there's any change in:"
+        for f in "${files[@]}"
+        do
+            echo ">>> $f"
+        done
+        echo "********** CHANGES **********"
+        CHANGED_FILES=$(git diff HEAD HEAD~ --name-only)
+        BUILD_REQUIRED=false
+        for f in "${files[@]}" 
+        do 
+            for FILE in $CHANGED_FILES
+            do
+            if [[ $FILE == *$f* ]]; then
+                echo ">>> $FILE >>> CHANGED"
+                BUILD_REQUIRED=true
+                break
+            fi
+            done
+        done
+        if [ $BUILD_REQUIRED = true ]; then
+            echo "Build required."
+            echo "##vso[task.setvariable variable=SOURCE_CODE_CHANGED;isOutput=true]true"
+        else
+            echo "There are no changes that require building a new image."
+            echo "##vso[task.setvariable variable=SOURCE_CODE_CHANGED;isOutput=true]false"
+        fi
+      name: check_changes
+      displayName: 'Check changed files in identity-consent'
+  - job: Build       
+    displayName: 'Build identity-consent'
+    pool:
+      vmImage: $(vmImageName)    
+    dependsOn: CheckChanges      
+    condition: eq(dependencies.CheckChanges.outputs['check_changes.SOURCE_CODE_CHANGED'], 'true')
+    steps:
+    - task: Docker@2
+      displayName: Login ACR
+      inputs:
+        command: login
+        containerRegistry: $(dockerRegistryServiceConnection)
+    - script: "docker pull $(RepoEndpoint):latest"
+      displayName: Pull latest for layer caching
+      continueOnError: true
+    - task: Docker@2
+      displayName: "build --cache-from=$(RepoEndpoint):latest"
+      inputs:
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: '$(Repo)'
+        command: 'build'
+        Dockerfile: $(Dockerfile)
+        arguments: '--cache-from=$(RepoEndpoint):latest' 
+        tags: |
+          $(tag)
+          latest
+    - task: Docker@2
+      displayName: "push"
+      inputs:
+        command: push
+        containerRegistry: "$(dockerRegistryServiceConnection)"
+        repository: $(Repo) 
+        tags: |
+          $(tag)
+          latest
+- stage: Deploy
+  displayName: 'Deploy stage'
+  dependsOn: Build
+  jobs:
+  - deployment: Deploy
+    displayName: 'Deploy identity-consent'
+    condition: eq(stageDependencies.Build.CheckChanges.outputs['check_changes.SOURCE_CODE_CHANGED'], 'true')
+    pool:
+      vmImage: $(vmImageName)
+    environment: 'development'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+          - task: Kubernetes@1
+            displayName: Create/update configmap
+            inputs:
+              connectionType: Azure Resource Manager
+              azureSubscriptionEndpoint: $(azureSubscriptionEndpoint) 
+              azureResourceGroup: $(azureResourceGroup)
+              kubernetesCluster: $(kubernetesCluster)
+              command: apply
+              arguments: -f $(configMap) -n $(namespace)
+          - task: KubernetesManifest@0
+            displayName: Create/update deployment
+            inputs:              
+              kubernetesServiceConnection: $(kubernetesServiceConnection)
+              namespace: $(namespace)
+              manifests: $(k8s)
+              containers: |
+                $(RepoEndpoint):$(tag)   
