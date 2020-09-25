@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: identity-provider-configmap
+data:
+  BASE_URL: "https://api.vidchain.net"
+  PORT: "3000"
+  REDIS_PORT: "6380"
+  HYDRA_URL: "http://hydra:9001"
+  MOCK_TLS_TERMINATION: "true"

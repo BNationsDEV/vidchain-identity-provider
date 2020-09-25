@@ -21,7 +21,7 @@ spec:
         app: identity-consent-api
     spec:
       containers:
-      - image: k8scrvidchaindev.azurecr.io/identity-consent-api:v1.0
+      - image: k8scrvidchaindev.azurecr.io/identity-consent-api:latest
         imagePullPolicy: "Always"
         name: identity-consent-api
         ports:
@@ -29,9 +29,9 @@ spec:
         env:
         - name: REDIS_URL
           valueFrom:
-            configMapKeyRef:
-              name: identity-provider-configmap
-              key: REDIS_URL
+            secretKeyRef:
+              name: redis
+              key: redis-url
         - name: BASE_URL
           valueFrom:
             configMapKeyRef:
