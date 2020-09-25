@@ -29,9 +29,9 @@ spec:
         env:
         - name: REDIS_URL
           valueFrom:
-            configMapKeyRef:
-              name: identity-provider-configmap
-              key: REDIS_URL
+            secretKeyRef:
+              name: redis
+              key: redis-url
         - name: BASE_URL
           valueFrom:
             configMapKeyRef:
