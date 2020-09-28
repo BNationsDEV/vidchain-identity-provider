@@ -3,7 +3,8 @@ kind: ConfigMap
 metadata:
   name: identity-provider-configmap
 data:
-  BASE_URL: "https://dev.vidchain.net"
+  REDIS_URL: "redis"
+  BASE_URL: "https://api.vidchain.net"
   PORT: "3000"
   REDIS_PORT: "6379"
   HYDRA_URL: "http://hydra:9001"
