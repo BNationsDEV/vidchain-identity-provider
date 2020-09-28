@@ -1,7 +1,3 @@
-# Deploy to Azure Kubernetes Service
-# Build and push image to Azure Container Registry; Deploy to Azure Kubernetes Service
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
-
 trigger:
   branches:
     include:
@@ -19,9 +15,9 @@ variables:
   # Dockerfile
   Dockerfile: 'packages/identity-consent/Dockerfile'
   # Kubernetes YAML
-  k8s: 'packages/identity-consent/k8s.yml'
+  k8s: 'packages/identity-consent/k8s/k8s-dev.yml'
   # Configmaps
-  configMap: 'packages/identity-consent/configmap-dev.yml'
+  configMap: 'packages/identity-consent/k8s/configmap-dev.yml'
   # package.json
   packageJson: 'packages/identity-consent/package.json'
   # Kubernetes namespace
@@ -31,7 +27,7 @@ variables:
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
   # Check if there are changes of the following files
-  checkFiles: '("azure-pipelines/azure-pipelines-dev.yml" "$(configMap)" "packages/identity-consent/k8s.yml" "packages/identity-consent/src" "packages/identity-consent/public" "packages/identity-consent/views" "packages/identity-consent/package.json" "packages/identity-consent/package-lock.json")'
+  checkFiles: '("azure-pipelines/azure-pipelines-dev.yml" "$(configMap)" "$(k8s)" "packages/identity-consent/src" "packages/identity-consent/public" "packages/identity-consent/views" "packages/identity-consent/package.json" "packages/identity-consent/package-lock.json")'
 
 stages:
 - stage: 'Build'
