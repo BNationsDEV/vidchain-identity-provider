@@ -1,11 +1,9 @@
 // CONFIG PROJECT FILE
 import * as dotenv from "dotenv";
-
 // importing .env variables
 dotenv.config();
 
-const PORT: number = +process.env.PORT || 3000;
-console.log(process.env.BASE_URL);
+const PORT: number = + process.env.PORT || 3000;
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
 
 const SIOP_PATH = '/siop'
@@ -15,13 +13,13 @@ const RETURN_CALL = '/responses'
 const CLIENT_ID_URI = BASE_URL + SIOP_PATH + RETURN_CALL
 
 const REDIS_URL = process.env.REDIS_URL || ""
-const REDIS_PORT: number = +process.env.REDIS_PORT || 6379
+const REDIS_PORT: number = + process.env.REDIS_PORT || 6379
 
 const HYDRA_URL = process.env.HYDRA_URL || "http://127.0.0.1:9001"
 
-const SIGNATURES = "https://dev.vidchain.net/api/v1/signatures"
-const SIGNATURE_VALIDATION = "https://dev.vidchain.net/api/v1/signature-validations";
-const SESSIONS = "https://dev.vidchain.net/api/v1/sessions"
+const SIGNATURES = process.env.BASE_URL + "/api/v1/signatures"
+const SIGNATURE_VALIDATION = process.env.BASE_URL + "/api/v1/signature-validations";
+const SESSIONS = process.env.BASE_URL + "/api/v1/sessions"
 
 //Legal Entity
 const grantType = "urn:ietf:params:oauth:grant-type:jwt-bearer";

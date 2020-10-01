@@ -3,6 +3,8 @@ trigger:
     include:
       - development
 
+pr: none
+
 resources:
 - repo: self
 
