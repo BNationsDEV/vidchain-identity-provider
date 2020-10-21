@@ -70,7 +70,6 @@
             remember: this.remember,
             grant_scope: this.requested_scope
           };
-          console.log(body);
           axios.post('/consent', body)
             .then ((res)=> window.location = res.data)
            .catch ((error)=> console.log(error))
@@ -89,7 +88,6 @@
       created() {
         const requestedScope = "{{ requested_scope}}";
         const scopeArray = requestedScope.split(",");
-        console.log(scopeArray);
         this.requested_scope = scopeArray;
       }
     });

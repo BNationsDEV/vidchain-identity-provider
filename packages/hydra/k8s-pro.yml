@@ -25,15 +25,50 @@ spec:
         - containerPort: 4445
         env:
           - name: URLS_SELF_ISSUER
-            value: https://api.vidchain.net
+            valueFrom:
+              configMapKeyRef:
+                name: hydra-configmap
+                key: URLS_SELF_ISSUER
           - name: URLS_CONSENT
-            value: https://api.vidchain.net/consent
+            valueFrom:
+              configMapKeyRef:
+                name: hydra-configmap
+                key: URLS_CONSENT
           - name: URLS_LOGIN
-            value: https://api.vidchain.net/login
+            valueFrom:
+              configMapKeyRef:
+                name: hydra-configmap
+                key: URLS_LOGIN
           - name: URLS_LOGOUT
-            value: https://api.vidchain.net/logout
+            valueFrom:
+              configMapKeyRef:
+                name: hydra-configmap
+                key: URLS_LOGOUT
           - name: SERVE_COOKIES_SAME_SITE_MODE
-            value: Strict
+            valueFrom:
+              configMapKeyRef:
+                name: hydra-configmap
+                key: SERVE_COOKIES_SAME_SITE_MODE
+          - name: CORS_ENABLED
+            valueFrom:
+              configMapKeyRef:
+                name: hydra-configmap
+                key: CORS_ENABLED
+          - name: CORS_ALLOWED_ORIGINS
+            valueFrom:
+              configMapKeyRef:
+                name: hydra-configmap
+                key: CORS_ALLOWED_ORIGINS
+          - name: CORS_DEBUG
+            valueFrom:
+              configMapKeyRef:
+                name: hydra-configmap
+                key: CORS_DEBUG
+          - name: HTTPS_ALLOW_TERMINATION_FROM
+            valueFrom:
+              configMapKeyRef:
+                name: hydra-configmap
+                key: HTTPS_ALLOW_TERMINATION_FROM
           - name: DSN
             valueFrom:
               secretKeyRef:
@@ -44,14 +79,6 @@ spec:
               secretKeyRef:
                 name: hydra
                 key: secrets-system
-          - name: CORS_ENABLED
-            value: "true"
-          - name: CORS_ALLOWED_ORIGINS
-            value: "*"
-          - name: CORS_DEBUG
-            value: "true"
-          - name: HTTPS_ALLOW_TERMINATION_FROM
-            value: "10.0.0.0/8"
 
 ---
 

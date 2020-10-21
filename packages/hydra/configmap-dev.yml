@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hydra-configmap
+data:
+  URLS_SELF_ISSUER: "https://dev.vidchain.net"
+  URLS_CONSENT: "https://dev.vidchain.net/consent"
+  URLS_LOGIN: "https://dev.vidchain.net/login"
+  URLS_LOGOUT: "https://dev.vidchain.net/logout"
+  SERVE_COOKIES_SAME_SITE_MODE: Strict
+  CORS_ENABLED: "true"
+  CORS_ALLOWED_ORIGINS: "*"
+  CORS_DEBUG: "true"
+  HTTPS_ALLOW_TERMINATION_FROM: "10.0.0.0/8"

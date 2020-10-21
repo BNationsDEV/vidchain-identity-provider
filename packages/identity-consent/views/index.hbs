@@ -41,17 +41,14 @@
           var img = document.getElementById('qrImage');
           img.src = '';
         },
+        
         resetVars() {
           this.error = '';
           this.validationResult = '';
           this.resetImg();
         },
 
-        receiveMessage(msg) {
-          console.log(`recv: ${msg}`);
-        },
         displayQr(qrResponse) {
-          console.log(qrResponse);
           var img = document.getElementById('qrImage')
           img.src = qrResponse.imageQr
         },
@@ -59,7 +56,6 @@
         signInResponse(msg) {
           let urlParams = new URLSearchParams(window.location.search);
           let login_challenge = urlParams.get('login_challenge');
-          console.log(`recv: ${msg}`);
           const response = JSON.parse(msg)
           this.resetImg();
           this.validationResult = `Your Sign-In validation result is: ${response.validationResult}`;
@@ -92,12 +88,7 @@
         };
         this.socket.emit('signIn', data);
 
-        this.socket.on('signIn', (msg) => {
-          console.log(msg);
-          this.receiveMessage(msg);
-        });
         this.socket.on('printQR', (qrResponse) => {
-          console.log("pin");
           this.displayQr(qrResponse);
         });
         this.socket.on('signInResponse', (msg) => {
