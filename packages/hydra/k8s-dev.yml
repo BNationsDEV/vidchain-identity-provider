@@ -137,7 +137,7 @@ spec:
   tls:
   - hosts:
     - dev.vidchain.net
-    secretName: tls-secret-production
+    secretName: tls-secret-development
   rules:
   - host: dev.vidchain.net
     http:
