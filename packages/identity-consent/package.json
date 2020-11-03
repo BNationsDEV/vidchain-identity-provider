@@ -32,6 +32,7 @@
     "@types/socket.io-client": "^1.4.33",
     "@validated-id/vid-did-resolver": "0.0.7",
     "base-58": "0.0.1",
+    "base-64": "^1.0.0",
     "base64url": "^3.0.1",
     "bull": "^3.14.0",
     "cookie-parser": "^1.4.5",

@@ -1,8 +1,9 @@
 import axios from 'axios';
 import { JWT } from 'jose';
 import { BadRequestException } from '@nestjs/common';
+import { decode as atob, encode } from "base-64";
 import { DidAuthResponsePayload } from 'src/did-auth/src';
-import { SESSIONS, grantType, assertion, scope } from '../config';
+import { SESSIONS, grantType, Entity, scope } from '../config';
 import { ERRORS } from './error';
 
 async function doPostCall(data: any, url: string): Promise<any> {
@@ -25,7 +26,7 @@ async function getAuthToken(): Promise<any> {
     const url = SESSIONS;
     const data = {
       grantType: grantType,
-      assertion: assertion,
+      assertion: strB64enc(Entity),
       scope: scope
     }
     const response = await axios.post(url, data);
@@ -59,6 +60,18 @@ function isTokenExpired(jwt) {
   const payload = decodePayload(jwt);
   if (!payload || !payload.exp) return true;
   return +payload.exp * 1000 < Date.now();
+}
+
+/**
+ * Encoded  a Base64 string in an UTF-8 string format
+ * @param input Base64 encoded string to decode
+ */
+function strB64enc(input) {
+  try {
+    return encode(JSON.stringify(input));
+  } catch (error) {
+    return null;
+  }
 }
 
 export {

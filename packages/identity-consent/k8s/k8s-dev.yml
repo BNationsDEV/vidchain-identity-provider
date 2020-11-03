@@ -57,6 +57,11 @@ spec:
             configMapKeyRef:
               name: identity-provider-configmap
               key: MOCK_TLS_TERMINATION
+        - name: API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: identity-api-key
+              key: api-key
       restartPolicy: Always
 ---
 
