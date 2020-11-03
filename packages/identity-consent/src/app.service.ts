@@ -15,7 +15,6 @@ export class AppService {
     const query = req.query;
     // The challenge is used to fetch information about the login request from ORY Hydra.
     var challenge = query.login_challenge;
-
     hydra.getLoginRequest(challenge)
       .then(function (response) {
         // If hydra was already able to authenticate the user, skip will be true and we do not need to re-authenticate
@@ -119,13 +118,12 @@ export class AppService {
         
         const body = {
           challenge: challenge,
-          remember: true,
+          remember: false,
           grant_scope: response.requested_scope
         };
 
       axios.post(config.BASE_URL+'/consent', body)
           .then ((result)=> {
-          console.log(result);
           res.redirect(result.data);
         })
           .catch ((error)=> console.log(error))

@@ -54,8 +54,6 @@ function put(flow, action, challenge, body) {
     }
   )
     .then(function (res) {
-      // console.log("response put");
-      // console.log(res.status);
       if (res.status < 200 || res.status > 302) {
         // This will handle any errors that aren't network related (network related errors are handled automatically)
         return res.json().then(function (body) {

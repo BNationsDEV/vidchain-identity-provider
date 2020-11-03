@@ -4,7 +4,7 @@ import { Queue } from 'bull';
 import { SiopResponseJwt, SiopAckResponse, SiopResponse,MessageSendSignInResponse, SiopRequestJwt, DidAuthValidationResponse,MessageSendQRResponse } from './dtos/SIOP';
 import { VidDidAuth, DidAuthRequestCall, DIDAUTH_ERRORS} from '../did-auth/src/index';
 import { CLIENT_ID_URI, REDIS_URL, REDIS_PORT , BASE_URL, SIGNATURE_VALIDATION } from '../config';
-import { getUserDid, getJwtNonce, getAuthToken} from '../util/Util';
+import { getUserDid, getJwtNonce, getAuthToken, doPostCall} from '../util/Util';
 import io from 'socket.io-client';
 import Redis from 'ioredis';
 
@@ -64,10 +64,30 @@ export class SiopController {
       siopResponse: siopResponse
     }
 
+
+    //CHECK WHAT TO DO HERE, IF IS FROM WEB FO TO EMIT, OTHERWISE RETURN VALUE
+    if(siopResponseJwt.login_challenge){
+      this.logger.debug(`I have challenge`);
+      this.logger.debug(siopResponseJwt.login_challenge);
+      const did = siopResponse.did 
+
+      //const did = "did:ebsi:0x2c8181B9bF7F8f708A7C68DaE04d6d56A87dFBD3"
+      const body = {
+        challenge: siopResponseJwt.login_challenge,
+        remember: false,
+        did
+      };
+      const res = await doPostCall(body, BASE_URL+'/login',);
+      return res;
+    }
+    else{
+      this.logger.debug(`I DO not have challenge`);
+      this.socket.emit('sendSignInResponse', messageSendSignInResponse );
+    }
     
     // send a message to server so it can communicate with front end io client
     // and send the validation response
-    this.socket.emit('sendSignInResponse', messageSendSignInResponse );
+    //this.socket.emit('sendSignInResponse', messageSendSignInResponse );
     // also send the response to the siop client
     return verifyDidAuthResponse
   }

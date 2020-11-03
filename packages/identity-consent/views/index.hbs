@@ -20,7 +20,7 @@
     <img id="logo" class ="logo" src="/static/logo__Vidchain.png"></img>
     <h1 class="subtitle">Authenticate with your VIDchain wallet</h1>
     <h4 class="subtitle">Go to login in your VIDchain mobile app and scan the QR code.</h4>
-        <img id="qrImage" class="qrImage"></img>
+    <img id="qrImage" class="qrImage"></img>
         {{!-- <button class="scanButton" v-on:click="sendSIOPClientUriBackend">Continue using Vidchain</button> --}}
         {{!-- <div class="remember">
           <input type="checkbox" id="remember" name="remember" v-bind:value="remember" value="1">
@@ -49,8 +49,16 @@
         },
 
         displayQr(qrResponse) {
-          var img = document.getElementById('qrImage')
-          img.src = qrResponse.imageQr
+          const inMobileOrTablet = this.isMobileOrTablet();
+          if(inMobileOrTablet){
+            let urlParams = new URLSearchParams(window.location.search);
+            let login_challenge = urlParams.get('login_challenge');
+            window.open("https://api.vidchain.net?qr="+qrResponse.siopUri+"&login_challenge="+login_challenge, "_self");
+          }
+          else{
+            var img = document.getElementById('qrImage')
+            img.src = qrResponse.imageQr
+          }  
         },
 
         signInResponse(msg) {
@@ -75,6 +83,13 @@
             .catch ((error)=> console.log(error))
           }
         },
+        isMobileOrTablet() {
+          if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            return true
+          } else {
+            return false
+          }
+        }
       },
       created() {
         this.socket = io('/')
@@ -84,7 +99,7 @@
         const data = {
           clientUriRedirect: this.clientUriRedirect,
           challenge: login_challenge,
-          client_name: decodeURIComponent(document.getElementById('client_name').value)
+          client_name: decodeURIComponent(document.getElementById('client_name').value),
         };
         this.socket.emit('signIn', data);
 

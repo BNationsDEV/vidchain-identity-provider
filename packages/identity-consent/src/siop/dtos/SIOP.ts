@@ -14,6 +14,7 @@ export interface SiopRequestJwt {
 
 export interface SiopResponseJwt {
   jwt: string;
+  login_challenge?: string;
 }
 
 export interface SiopResponseProcessed extends SiopResponseJwt {
