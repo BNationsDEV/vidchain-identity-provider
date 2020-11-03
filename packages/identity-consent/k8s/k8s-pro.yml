@@ -37,6 +37,11 @@ spec:
             configMapKeyRef:
               name: identity-provider-configmap
               key: BASE_URL
+        - name: API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: identity-provider-configmap
+              key: API_URL
         - name: PORT
           valueFrom:
             configMapKeyRef:
