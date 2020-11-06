@@ -2,7 +2,7 @@ import axios from 'axios';
 import { JWT } from 'jose';
 import { BadRequestException } from '@nestjs/common';
 import { decode as atob, encode } from "base-64";
-import { DidAuthResponsePayload } from 'src/did-auth/src';
+import { DidAuthResponsePayload } from '@validatedid/did-auth';
 import { SESSIONS, grantType, Entity, scope } from '../config';
 import { ERRORS } from './error';
 

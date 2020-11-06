@@ -62,4 +62,3 @@ export interface LoginResponse {
   challenge: string;
   did: string;
 }
-
