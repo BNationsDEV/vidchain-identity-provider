@@ -41,8 +41,6 @@ import {
       @MessageBody() uriRedirect:SiopUriRedirect,
       @ConnectedSocket() client: Socket ): Observable<WsResponse<unknown>> {
         this.logger.debug(`SignIn Received from ${client.id}`);
-        this.logger.debug(`SignIn Received from ${uriRedirect.client_name}`);
-        this.logger.debug(`SignIn Received from ${uriRedirect.scope}`);
         if (uriRedirect && uriRedirect.clientUriRedirect) {
           this.logger.debug(`Using URI redirect: ${uriRedirect.clientUriRedirect}`)
         }
@@ -50,6 +48,7 @@ import {
         this.siopQueue.add('userRequest', { 
           clientId: CLIENT_ID_URI,
           clientName: uriRedirect.client_name,
+          clientScope: uriRedirect.scope,
           sessionId: client.id,
           clientUriRedirect: uriRedirect && uriRedirect.clientUriRedirect ? uriRedirect.clientUriRedirect : undefined
         });

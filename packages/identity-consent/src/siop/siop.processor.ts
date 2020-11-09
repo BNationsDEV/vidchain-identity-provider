@@ -2,8 +2,8 @@ import { Process, Processor, InjectQueue, OnQueueCompleted } from '@nestjs/bull'
 import { Logger, BadRequestException, Body } from '@nestjs/common';
 import { Job, Queue } from 'bull'
 import { VidDidAuth, DidAuthRequestCall, DidAuthErrors} from '@validatedid/did-auth';
-import { SiopAckRequest, QRResponse, MessageSendQRResponse } from './dtos/SIOP';
-import { doPostCall, getAuthToken, getUserDid, getJwtNonce } from 'src/util/Util';
+import { SiopAckRequest, QRResponse, MessageSendQRResponse, OidcClaim } from './dtos/SIOP';
+import { doPostCall, getAuthToken, getVcFromScope } from 'src/util/Util';
 import { BASE_URL, SIGNATURES, SIGNATURE_VALIDATION, REDIS_PORT, REDIS_URL } from '../config';
 import QRCode from 'qrcode';
 import io from 'socket.io-client';
@@ -29,24 +29,21 @@ export class SiopProcessor {
   async handleSiopRequest(job: Job): Promise<string> {
     this.logger.debug('SIOP Request received.')
     this.logger.debug(`Processing job ${job.id} of type ${job.name}`)
-    this.logger.debug("uri");
-    this.logger.debug(job.data.clientUriRedirect);
     if (!job || !job.data || !job.data.clientId || !job.data.sessionId) {
       console.log(DidAuthErrors.BAD_PARAMS);
       throw new BadRequestException(DidAuthErrors.BAD_PARAMS)
     }
     const authZToken = await getAuthToken();
     //TODO: When type OidcClaim is export it by the library used it.
-    const verifiableIdOidcClaim = {
-      vc: {
-        VerifiableIdCredential: { essential: true },
-      },
+    const verifiableIdOidcClaim: OidcClaim = {
+      vc: getVcFromScope(job.data.clientScope)
     };
     const didAuthRequestCall: DidAuthRequestCall = {
       redirectUri: BASE_URL + "/siop/responses",
       requestUri: BASE_URL + "/siop/jwts/"+ job.data.sessionId,
       signatureUri: SIGNATURES,
-      authZToken: authZToken
+      authZToken: authZToken,
+      claims: verifiableIdOidcClaim,
     };
     console.log(didAuthRequestCall);
     // Creates a URI using the wallet backend that manages entity DID keys
