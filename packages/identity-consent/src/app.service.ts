@@ -31,7 +31,8 @@ export class AppService {
         res.render('index', {
           csrfToken: req.cookies._csrf,
           challenge: challenge,
-          client_name: encodeURIComponent(response.client.client_name) || response.client.client_id
+          client_name: encodeURIComponent(response.client.client_name) || response.client.client_id,
+          scope: encodeURIComponent(response.client.scope) || response.client.scope
         });
       })
       // This will handle any error that happens when making HTTP calls to hydra
@@ -90,9 +91,11 @@ export class AppService {
 
   checkConsent(@Request() req, @Res() res: Response) {
     const query = req.query;
+    console.log("In check consent");
     var challenge = query.consent_challenge;
     hydra.getConsentRequest(challenge)
       .then(function (response) {
+        console.log("query");
         // If a user has granted this application the requested scope, hydra will tell us to not show the UI.
         if (response.skip) {
           // You can apply logic here, for example grant another scope, or do whatever...

@@ -6,6 +6,7 @@ export interface SiopUriRedirect {
   clientUriRedirect?: string;
   challenge?: string;
   client_name?: string;
+  scope?: string;
 }
 
 export interface SiopRequestJwt {

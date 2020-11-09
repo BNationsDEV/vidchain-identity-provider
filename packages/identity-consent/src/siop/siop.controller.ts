@@ -2,7 +2,7 @@ import { Controller, Post, Body, BadRequestException, Logger, Get, Param } from 
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { SiopResponseJwt, SiopResponse,MessageSendSignInResponse, SiopRequestJwt, DidAuthValidationResponse } from './dtos/SIOP';
-import { VidDidAuth, DidAuthRequestCall, DidAuthErrors} from '@validatedid/did-auth';
+import { VidDidAuth, DidAuthErrors} from '@validatedid/did-auth';
 import { CLIENT_ID_URI, REDIS_URL, REDIS_PORT , BASE_URL, SIGNATURE_VALIDATION } from '../config';
 import { getUserDid, getJwtNonce, getAuthToken, doPostCall} from '../util/Util';
 import io from 'socket.io-client';
