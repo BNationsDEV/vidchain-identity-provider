@@ -5,7 +5,7 @@ import { decode as atob, encode } from "base-64";
 import { DidAuthResponsePayload } from '@validatedid/did-auth';
 import { SESSIONS, grantType, Entity, scope } from '../config';
 import { ERRORS } from './error';
-import { OidcClaimRequest } from '../siop/dtos/SIOP';
+import { OidcClaimRequest, OidcClaimJson } from '../siop/dtos/SIOP';
 
 async function doPostCall(data: any, url: string): Promise<any> {
   try {
@@ -58,9 +58,10 @@ function getVcFromScope(scope: string): OidcClaimRequest {
   scopeArray.forEach((value,index) => {
     //Skip the first two scopes. Ex: offline openid VerifiableIdCredential
     if(index > 1){
-      claim[value] = {
+      const oidcClaim: OidcClaimJson = {
         essential: true
       }
+      claim[value] = oidcClaim;
     }
   })
   return claim;
