@@ -75,7 +75,8 @@ export class SiopController {
       const body = {
         challenge: siopResponseJwt.login_challenge,
         remember: false,
-        did
+        did,
+        jwt: siopResponseJwt.jwt
       };
       const res = await doPostCall(body, BASE_URL+'/login',);
       return res;
