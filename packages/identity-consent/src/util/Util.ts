@@ -2,9 +2,10 @@ import axios from 'axios';
 import { JWT } from 'jose';
 import { BadRequestException } from '@nestjs/common';
 import { decode as atob, encode } from "base-64";
-import { DidAuthResponsePayload } from 'src/did-auth/src';
+import { DidAuthResponsePayload } from '@validatedid/did-auth';
 import { SESSIONS, grantType, Entity, scope } from '../config';
 import { ERRORS } from './error';
+import { OidcClaimRequest, OidcClaimJson } from '../siop/dtos/SIOP';
 
 async function doPostCall(data: any, url: string): Promise<any> {
   try {
@@ -50,6 +51,21 @@ function getUserDid( jwt: string ): string {
   const didWithSufix = decodePayload(jwt).sub_jwk.kid;
   return parseUserDid(didWithSufix);
 }
+//TODO: When type OidcClaim is export it by the library used it.
+function getVcFromScope(scope: string): OidcClaimRequest {
+  const scopeArray: string[] = scope.split(" ");
+  let claim: OidcClaimRequest = {};
+  scopeArray.forEach((value,index) => {
+    //Skip the first two scopes. Ex: offline openid VerifiableIdCredential
+    if(index > 1){
+      const oidcClaim: OidcClaimJson = {
+        essential: true
+      }
+      claim[value] = oidcClaim;
+    }
+  })
+  return claim;
+}
 
 function parseUserDid( did: string ): string {
   return did.split("#")[0];
@@ -79,5 +95,6 @@ export {
   getUserDid,
   getJwtNonce,
   isTokenExpired,
-  getAuthToken
+  getAuthToken,
+  getVcFromScope
 };

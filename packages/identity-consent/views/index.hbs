@@ -17,6 +17,7 @@
     <input type="hidden" id="csrf" name="_csrf" value={{csrfToken}}>
     <input type="hidden" name="challenge" value={{challenge}}>
     <input type="hidden" id="client_name" name="client_name" value={{client_name}}>
+    <input type="hidden" id="scope" name="scope" value={{scope}}>
     <img id="logo" class ="logo" src="/static/logo__Vidchain.png"></img>
     <h1 class="subtitle">Authenticate with your VIDchain wallet</h1>
     <h4 class="subtitle">Go to login in your VIDchain mobile app and scan the QR code.</h4>
@@ -72,12 +73,14 @@
           if(response.validationResult){
             //Do Post to login
             const did = response.did 
+            const jwt = response.jwt 
 
             //const did = "did:ebsi:0x2c8181B9bF7F8f708A7C68DaE04d6d56A87dFBD3"
             const body = {
               challenge: login_challenge,
               remember: this.remember,
-              did
+              did,
+              jwt
             };
             axios.post('/login', body)
             .then ((res)=> window.location = res.data)
@@ -101,6 +104,7 @@
           clientUriRedirect: this.clientUriRedirect,
           challenge: login_challenge,
           client_name: decodeURIComponent(document.getElementById('client_name').value),
+          scope: decodeURIComponent(document.getElementById('scope').value),
         };
         this.socket.emit('signIn', data);
 

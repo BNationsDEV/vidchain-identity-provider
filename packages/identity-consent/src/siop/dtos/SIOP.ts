@@ -6,6 +6,7 @@ export interface SiopUriRedirect {
   clientUriRedirect?: string;
   challenge?: string;
   client_name?: string;
+  scope?: string;
 }
 
 export interface SiopRequestJwt {
@@ -63,3 +64,15 @@ export interface LoginResponse {
   did: string;
 }
 
+export interface OidcClaimJson {
+  essential?: boolean;
+  value?: string;
+  values?: string[];
+}
+export interface OidcClaimRequest {
+  [x: string]: null | OidcClaimJson;
+}
+export interface OidcClaim {
+  vc?: OidcClaimRequest;
+  [x: string]: unknown;
+}

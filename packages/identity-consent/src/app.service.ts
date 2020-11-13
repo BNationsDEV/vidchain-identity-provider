@@ -31,7 +31,8 @@ export class AppService {
         res.render('index', {
           csrfToken: req.cookies._csrf,
           challenge: challenge,
-          client_name: encodeURIComponent(response.client.client_name) || response.client.client_id
+          client_name: encodeURIComponent(response.client.client_name) || response.client.client_id,
+          scope: encodeURIComponent(response.client.scope) || response.client.scope
         });
       })
       // This will handle any error that happens when making HTTP calls to hydra
@@ -77,6 +78,13 @@ export class AppService {
       // Sets which "level" (e.g. 2-factor authentication) of authentication the user has. The value is really arbitrary
       // and optional. In the context of OpenID Connect, a value of 0 indicates the lowest authorization level.
       // acr: '0',
+
+      // Context is an optional object which can hold arbitrary data. The data will be made available when fetching the
+      // consent request under the "context" field. This is useful in scenarios where login and consent endpoints share
+      // data.
+      context: {
+        jwt: body.jwt || ""
+      },
     })
       .then(function (response) {
         // All we need to do now is to redirect the user back to hydra!
@@ -90,9 +98,11 @@ export class AppService {
 
   checkConsent(@Request() req, @Res() res: Response) {
     const query = req.query;
+    console.log("In check consent");
     var challenge = query.consent_challenge;
     hydra.getConsentRequest(challenge)
       .then(function (response) {
+        console.log(response.context);
         // If a user has granted this application the requested scope, hydra will tell us to not show the UI.
         if (response.skip) {
           // You can apply logic here, for example grant another scope, or do whatever...
@@ -109,7 +119,9 @@ export class AppService {
               //access_token: { foo: 'bar' },
 
               // This data will be available in the ID token.
-              //id_token: { baz: 'bar' },
+              id_token: { 
+                jwt: response.context.jwt
+              },
             }
           }).then(function (response) {
             res.redirect(response.redirect_to);
@@ -119,7 +131,8 @@ export class AppService {
         const body = {
           challenge: challenge,
           remember: false,
-          grant_scope: response.requested_scope
+          grant_scope: response.requested_scope,
+          jwt: response.context.jwt
         };
 
       axios.post(config.BASE_URL+'/consent', body)
@@ -159,6 +172,9 @@ export class AppService {
 
             // This data will be available in the ID token.
             //id_token: { baz: 'bar' },
+            id_token: { 
+              jwt: response.context.jwt
+            },
           },
           // ORY Hydra checks if requested audiences are allowed by the client, so we can simply echo this.
           grant_access_token_audience: response.requested_access_token_audience,

@@ -1,9 +1,9 @@
 import { Process, Processor, InjectQueue, OnQueueCompleted } from '@nestjs/bull';
 import { Logger, BadRequestException, Body } from '@nestjs/common';
 import { Job, Queue } from 'bull'
-import { VidDidAuth, DidAuthRequestCall, DIDAUTH_ERRORS} from '../did-auth/src/index';
-import { SiopUriRequest, SiopResponse, SiopAckRequest, QRResponse, SiopResponseJwt, DidAuthValidationResponse, MessageSendQRResponse } from './dtos/SIOP';
-import { doPostCall, getAuthToken, getUserDid, getJwtNonce } from 'src/util/Util';
+import { VidDidAuth, DidAuthRequestCall, DidAuthErrors} from '@validatedid/did-auth';
+import { SiopAckRequest, QRResponse, MessageSendQRResponse, OidcClaim } from './dtos/SIOP';
+import { doPostCall, getAuthToken, getVcFromScope } from 'src/util/Util';
 import { BASE_URL, SIGNATURES, SIGNATURE_VALIDATION, REDIS_PORT, REDIS_URL } from '../config';
 import QRCode from 'qrcode';
 import io from 'socket.io-client';
@@ -30,15 +30,20 @@ export class SiopProcessor {
     this.logger.debug('SIOP Request received.')
     this.logger.debug(`Processing job ${job.id} of type ${job.name}`)
     if (!job || !job.data || !job.data.clientId || !job.data.sessionId) {
-      console.log(DIDAUTH_ERRORS.BAD_PARAMS);
-      throw new BadRequestException(DIDAUTH_ERRORS.BAD_PARAMS)
+      console.log(DidAuthErrors.BAD_PARAMS);
+      throw new BadRequestException(DidAuthErrors.BAD_PARAMS)
     }
     const authZToken = await getAuthToken();
+    //TODO: When type OidcClaim is export it by the library used it.
+    const verifiableIdOidcClaim: OidcClaim = {
+      vc: getVcFromScope(job.data.clientScope)
+    };
     const didAuthRequestCall: DidAuthRequestCall = {
       redirectUri: BASE_URL + "/siop/responses",
       requestUri: BASE_URL + "/siop/jwts/"+ job.data.sessionId,
       signatureUri: SIGNATURES,
-      authZToken: authZToken
+      authZToken: authZToken,
+      claims: verifiableIdOidcClaim,
     };
     console.log(didAuthRequestCall);
     // Creates a URI using the wallet backend that manages entity DID keys
@@ -60,7 +65,7 @@ export class SiopProcessor {
     this.logger.debug(`Processing result`)
     this.logger.debug('Result: ' + JSON.stringify(result))
     if (!job || !job.data || !result) {
-      throw new BadRequestException(DIDAUTH_ERRORS.BAD_PARAMS)
+      throw new BadRequestException(DidAuthErrors.BAD_PARAMS)
     }
 
     //Append the client name to the result
