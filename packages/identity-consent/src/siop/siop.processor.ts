@@ -44,7 +44,7 @@ export class SiopProcessor {
 
     const uriDecoded = decodeURIComponent(uriRequest.urlEncoded);
     this.logger.debug(`SIOP Request URI: ${uriDecoded}`)
-    // store sessionId and nonce 
+    // store sessionId and nonces
     const data = parse(uriDecoded);
     const nonce = data.nonce as string;
     this.logger.debug(`SIOP Request nonce: ${nonce}`)
