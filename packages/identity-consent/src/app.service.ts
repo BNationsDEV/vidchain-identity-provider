@@ -13,6 +13,7 @@ export class AppService {
 
   checkLogin(@Request() req, @Res() res: Response) {
     const query = req.query;
+    console.log(query);
     // The challenge is used to fetch information about the login request from ORY Hydra.
     var challenge = query.login_challenge;
     hydra.getLoginRequest(challenge)
@@ -32,7 +33,7 @@ export class AppService {
           csrfToken: req.cookies._csrf,
           challenge: challenge,
           client_name: encodeURIComponent(response.client.client_name) || response.client.client_id,
-          scope: encodeURIComponent(response.client.scope) || response.client.scope
+          scope: encodeURIComponent(response.requested_scope)
         });
       })
       // This will handle any error that happens when making HTTP calls to hydra

@@ -54,9 +54,13 @@ function getEnterpriseDID(token: string): string {
 const generateJwtRequest = async (jwt: string, job: Job): Promise<siopDidAuth.DidAuthTypes.UriRequest> => {
   const did: string = getEnterpriseDID(jwt);
 
+  console.log("scope client");
+  console.log(job.data.clientScope);
   const claims: siopDidAuth.OidcClaim = {
     vc: getVcFromScope(job.data.clientScope)
   };
+  console.log("claims");
+  console.log(claims);
 
   let responseContext: siopDidAuth.DidAuthTypes.DidAuthResponseContext = siopDidAuth.DidAuthTypes.DidAuthResponseContext.RP;
   if(!job.data.isMobile){
@@ -100,11 +104,11 @@ function getUserDid( jwt: string ): string {
 }
 //TODO: When type OidcClaim is export it by the library used it.
 function getVcFromScope(scope: string): OidcClaimRequest {
-  const scopeArray: string[] = scope.split(" ");
+  const scopeArray: string[] = scope.split(",");
   let claim: OidcClaimRequest = {};
   scopeArray.forEach((value,index) => {
     //Skip the first two scopes. Ex: offline openid VerifiableIdCredential
-    if(index > 1){
+    if(value !== "openid" && value !== "offline"){
       const oidcClaim: OidcClaimJson = {
         essential: true
       }
