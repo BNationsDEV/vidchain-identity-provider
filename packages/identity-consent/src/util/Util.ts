@@ -54,13 +54,9 @@ function getEnterpriseDID(token: string): string {
 const generateJwtRequest = async (jwt: string, job: Job): Promise<siopDidAuth.DidAuthTypes.UriRequest> => {
   const did: string = getEnterpriseDID(jwt);
 
-  console.log("scope client");
-  console.log(job.data.clientScope);
   const claims: siopDidAuth.OidcClaim = {
     vc: getVcFromScope(job.data.clientScope)
   };
-  console.log("claims");
-  console.log(claims);
 
   let responseContext: siopDidAuth.DidAuthTypes.DidAuthResponseContext = siopDidAuth.DidAuthTypes.DidAuthResponseContext.RP;
   if(!job.data.isMobile){
