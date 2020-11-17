@@ -67,7 +67,6 @@ export class SiopProcessor {
     const qrCodeResult = result + "&client_name="+job.data.clientName;
 
     // when clientUriRedirect NOT present, print QR to be read from an APP
-    // !!! TODO: implement a way to send the siop:// and be catched by client (web plugin or APP deep link)
     if (!job.data.clientUriRedirect) {
       // generate QR code image
       const dropPrefixForQRImage = qrCodeResult.split(IDENTITY_PROVIDER_APP+"?")[1];

@@ -105,6 +105,7 @@
           challenge: login_challenge,
           client_name: decodeURIComponent(document.getElementById('client_name').value),
           scope: decodeURIComponent(document.getElementById('scope').value),
+          isMobile: this.isMobileOrTablet()
         };
         this.socket.emit('signIn', data);
 

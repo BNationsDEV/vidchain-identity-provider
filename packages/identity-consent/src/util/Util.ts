@@ -8,6 +8,7 @@ import { SESSIONS, grantType, Entity, scope, BASE_URL, SIGNATURES, IDENTITY_PROV
 import { ERRORS } from './error';
 import { OidcClaimRequest, OidcClaimJson } from '../siop/dtos/SIOP';
 import { IEnterpriseAuthZToken, JWTPayload } from '../siop/dtos/Tokens';
+import { response } from 'express';
 
 async function doPostCall(data: any, url: string): Promise<any> {
   try {
@@ -57,6 +58,12 @@ const generateJwtRequest = async (jwt: string, job: Job): Promise<siopDidAuth.Di
     vc: getVcFromScope(job.data.clientScope)
   };
 
+  let responseContext: siopDidAuth.DidAuthTypes.DidAuthResponseContext = siopDidAuth.DidAuthTypes.DidAuthResponseContext.RP;
+  if(!job.data.isMobile){
+    responseContext = siopDidAuth.DidAuthTypes.DidAuthResponseContext.WALLET
+  }
+
+
   const requestOpts: siopDidAuth.DidAuthTypes.DidAuthRequestOpts = {
     oidpUri: IDENTITY_PROVIDER_APP,
     redirectUri:  BASE_URL + "/siop/responses",
@@ -75,7 +82,7 @@ const generateJwtRequest = async (jwt: string, job: Job): Promise<siopDidAuth.Di
       referenceUri: `https://dev.vidchain.net/api/v1/identifiers/${did};transform-keys=jwks`,
     },
     responseMode: siopDidAuth.DidAuthTypes.DidAuthResponseMode.FORM_POST,
-    responseContext: siopDidAuth.DidAuthTypes.DidAuthResponseContext.RP,
+    responseContext: responseContext,
     claims: claims,
   };
   const uriRequest: siopDidAuth.DidAuthTypes.UriRequest = await siopDidAuth.createUriRequest(requestOpts);
