@@ -1,11 +1,13 @@
 import axios from 'axios';
 import { JWT } from 'jose';
 import { BadRequestException } from '@nestjs/common';
+import { Job } from 'bull'
 import { decode as atob, encode } from "base-64";
-import { DidAuthResponsePayload } from '@validatedid/did-auth';
-import { SESSIONS, grantType, Entity, scope } from '../config';
+import * as siopDidAuth from "@validatedid/did-auth";
+import { SESSIONS, grantType, Entity, scope, BASE_URL, SIGNATURES, IDENTITY_PROVIDER_APP } from '../config';
 import { ERRORS } from './error';
 import { OidcClaimRequest, OidcClaimJson } from '../siop/dtos/SIOP';
+import { IEnterpriseAuthZToken, JWTPayload } from '../siop/dtos/Tokens';
 
 async function doPostCall(data: any, url: string): Promise<any> {
   try {
@@ -38,10 +40,48 @@ async function getAuthToken(): Promise<any> {
 }
 
 
-function decodePayload( jwt: string ): DidAuthResponsePayload{
+function decodePayload( jwt: string ): JWTPayload{
   const { payload } = JWT.decode(jwt, { complete: true });
-  return payload as DidAuthResponsePayload;
+  return payload as JWTPayload;
 }
+
+function getEnterpriseDID(token: string): string {
+  const { payload } = JWT.decode(token, { complete: true });
+  return (payload as IEnterpriseAuthZToken).did;
+}
+
+const generateJwtRequest = async (jwt: string, job: Job): Promise<siopDidAuth.DidAuthTypes.UriRequest> => {
+  const did: string = getEnterpriseDID(jwt);
+
+  const claims: siopDidAuth.OidcClaim = {
+    vc: getVcFromScope(job.data.clientScope)
+  };
+
+  const requestOpts: siopDidAuth.DidAuthTypes.DidAuthRequestOpts = {
+    oidpUri: IDENTITY_PROVIDER_APP,
+    redirectUri:  BASE_URL + "/siop/responses",
+    requestObjectBy: {
+      type: siopDidAuth.DidAuthTypes.ObjectPassedBy.REFERENCE,
+      referenceUri: BASE_URL + "/siop/jwts/"+ job.data.sessionId
+    },
+    signatureType: {
+      signatureUri: SIGNATURES,
+      did: did,
+      authZToken: jwt,
+      kid: `${did}#key-1`,
+    },
+    registrationType: {
+      type: siopDidAuth.DidAuthTypes.ObjectPassedBy.REFERENCE,
+      referenceUri: `https://dev.vidchain.net/api/v1/identifiers/${did};transform-keys=jwks`,
+    },
+    responseMode: siopDidAuth.DidAuthTypes.DidAuthResponseMode.FORM_POST,
+    responseContext: siopDidAuth.DidAuthTypes.DidAuthResponseContext.RP,
+    claims: claims,
+  };
+  const uriRequest: siopDidAuth.DidAuthTypes.UriRequest = await siopDidAuth.createUriRequest(requestOpts);
+  return uriRequest;
+}
+  
 
 function getJwtNonce(jwt: string): string {
   return decodePayload(jwt).nonce
@@ -96,5 +136,6 @@ export {
   getJwtNonce,
   isTokenExpired,
   getAuthToken,
-  getVcFromScope
+  getVcFromScope,
+  generateJwtRequest
 };

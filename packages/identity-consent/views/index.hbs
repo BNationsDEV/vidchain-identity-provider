@@ -55,7 +55,7 @@
             let urlParams = new URLSearchParams(window.location.search);
             let login_challenge = urlParams.get('login_challenge');
             //window.open("https://api.vidchain.net?qr="+qrResponse.siopUri+"&login_challenge="+login_challenge, "_self");
-            window.open("vidchain://did-auth?"+qrResponse.siopUri+"&login_challenge="+login_challenge, "_self");
+            window.open(qrResponse.siopUri+"&login_challenge="+login_challenge, "_self");
           }
           else{
             var img = document.getElementById('qrImage')
