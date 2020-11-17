@@ -1,10 +1,11 @@
 import { Process, Processor, InjectQueue, OnQueueCompleted } from '@nestjs/bull';
 import { Logger, BadRequestException, Body } from '@nestjs/common';
 import { Job, Queue } from 'bull'
-import { VidDidAuth, DidAuthRequestCall, DidAuthErrors} from '@validatedid/did-auth';
+import { parse } from "querystring";
+import * as siopDidAuth from "@validatedid/did-auth";
 import { SiopAckRequest, QRResponse, MessageSendQRResponse, OidcClaim } from './dtos/SIOP';
-import { doPostCall, getAuthToken, getVcFromScope } from 'src/util/Util';
-import { BASE_URL, SIGNATURES, SIGNATURE_VALIDATION, REDIS_PORT, REDIS_URL } from '../config';
+import { doPostCall, getAuthToken, getVcFromScope, generateJwtRequest } from 'src/util/Util';
+import { BASE_URL, SIGNATURES, IDENTITY_PROVIDER_APP, REDIS_PORT, REDIS_URL } from '../config';
 import QRCode from 'qrcode';
 import io from 'socket.io-client';
 import Redis from 'ioredis';
@@ -30,33 +31,27 @@ export class SiopProcessor {
     this.logger.debug('SIOP Request received.')
     this.logger.debug(`Processing job ${job.id} of type ${job.name}`)
     if (!job || !job.data || !job.data.clientId || !job.data.sessionId) {
-      console.log(DidAuthErrors.BAD_PARAMS);
-      throw new BadRequestException(DidAuthErrors.BAD_PARAMS)
+      throw new BadRequestException(siopDidAuth.DidAuthErrors.BAD_PARAMS)
     }
     const authZToken = await getAuthToken();
     //TODO: When type OidcClaim is export it by the library used it.
-    const verifiableIdOidcClaim: OidcClaim = {
-      vc: getVcFromScope(job.data.clientScope)
-    };
-    const didAuthRequestCall: DidAuthRequestCall = {
-      redirectUri: BASE_URL + "/siop/responses",
-      requestUri: BASE_URL + "/siop/jwts/"+ job.data.sessionId,
-      signatureUri: SIGNATURES,
-      authZToken: authZToken,
-      claims: verifiableIdOidcClaim,
-    };
-    console.log(didAuthRequestCall);
+    
+    const uriRequest: siopDidAuth.DidAuthTypes.UriRequest = await generateJwtRequest(authZToken, job);
     // Creates a URI using the wallet backend that manages entity DID keys
-    let { uri, nonce, jwt } = await VidDidAuth.createUriRequest(didAuthRequestCall);
-    this.logger.debug(`SIOP Request JWT: ${jwt}`)
+    this.logger.debug(`SIOP Request JWT: ${uriRequest.jwt}`)
     // store siopRequestJwt with the user session id
-    this.jwtRedis.set(job.data.sessionId, jwt)
-    this.logger.debug(`SIOP Request URI: ${uri}`)
-    // store sessionId and nonce 
+    this.jwtRedis.set(job.data.sessionId, uriRequest.jwt);
+
+    const uriDecoded = decodeURIComponent(uriRequest.urlEncoded);
+    this.logger.debug(`SIOP Request URI: ${uriDecoded}`)
+    // store sessionId and nonces
+    const data = parse(uriDecoded);
+    const nonce = data.nonce as string;
+    this.logger.debug(`SIOP Request nonce: ${nonce}`)
     this.nonceRedis.set(nonce, job.data.sessionId)
     this.logger.debug('SIOP Request completed.')
 
-    return uri
+    return uriDecoded
   }
 
   @OnQueueCompleted()
@@ -65,17 +60,17 @@ export class SiopProcessor {
     this.logger.debug(`Processing result`)
     this.logger.debug('Result: ' + JSON.stringify(result))
     if (!job || !job.data || !result) {
-      throw new BadRequestException(DidAuthErrors.BAD_PARAMS)
+      throw new BadRequestException(siopDidAuth.DidAuthErrors.BAD_PARAMS)
     }
 
     //Append the client name to the result
     const qrCodeResult = result + "&client_name="+job.data.clientName;
 
     // when clientUriRedirect NOT present, print QR to be read from an APP
-    // !!! TODO: implement a way to send the siop:// and be catched by client (web plugin or APP deep link)
     if (!job.data.clientUriRedirect) {
-      // generate QR code image 
-      const imageQr = await QRCode.toDataURL(qrCodeResult)
+      // generate QR code image
+      const dropPrefixForQRImage = qrCodeResult.split(IDENTITY_PROVIDER_APP+"?")[1];
+      const imageQr = await QRCode.toDataURL(dropPrefixForQRImage)
       const qrResponse:QRResponse = {
         imageQr, 
         siopUri: qrCodeResult

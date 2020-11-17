@@ -7,6 +7,7 @@ export interface SiopUriRedirect {
   challenge?: string;
   client_name?: string;
   scope?: string;
+  isMobile?: boolean
 }
 
 export interface SiopRequestJwt {

@@ -2,7 +2,7 @@ import { Controller, Post, Body, BadRequestException, Logger, Get, Param } from 
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { SiopResponseJwt, SiopResponse,MessageSendSignInResponse, SiopRequestJwt, DidAuthValidationResponse } from './dtos/SIOP';
-import { VidDidAuth, DidAuthErrors} from '@validatedid/did-auth';
+import * as siopDidAuth from "@validatedid/did-auth";
 import { CLIENT_ID_URI, REDIS_URL, REDIS_PORT , BASE_URL, SIGNATURE_VALIDATION } from '../config';
 import { getUserDid, getJwtNonce, getAuthToken, doPostCall} from '../util/Util';
 import io from 'socket.io-client';
@@ -24,10 +24,10 @@ export class SiopController {
   private readonly socket = io(BASE_URL);
 
   @Post('responses')
-  async validateSIOPResponse(@Body() siopResponseJwt: SiopResponseJwt): Promise<DidAuthValidationResponse> {
+  async validateSIOPResponse(@Body() siopResponseJwt: SiopResponseJwt): Promise<siopDidAuth.DidAuthTypes.DidAuthValidationResponse> {
     this.logger.log('[RP Backend] Received POST SIOP Response from SIOP client')
     if (!siopResponseJwt || !siopResponseJwt.jwt) {
-      throw new BadRequestException(DidAuthErrors.BAD_PARAMS)
+      throw new BadRequestException(siopDidAuth.DidAuthErrors.BAD_PARAMS)
     }
     this.logger.log(`[RP Backend] Received SIOP Response JWT: ${JSON.stringify(siopResponseJwt)}`)
     const authZToken = await getAuthToken();
@@ -36,22 +36,29 @@ export class SiopController {
     const clientID = await this._getValidClient(nonce);
     this.logger.log("Nonce: "+nonce);
     this.logger.log("Client: "+ clientID);
-    const verifyDidAuthResponse:DidAuthValidationResponse = await VidDidAuth.verifyDidAuthResponse(
-      siopResponseJwt.jwt, 
-      SIGNATURE_VALIDATION, 
-      authZToken,
-      nonce
+
+    const optsVerify: siopDidAuth.DidAuthTypes.DidAuthVerifyOpts = {
+      verificationType: {
+        verifyUri: SIGNATURE_VALIDATION,
+        authZToken,
+      },
+      nonce: nonce,
+    };
+    const validationResponse: siopDidAuth.DidAuthTypes.DidAuthValidationResponse = await siopDidAuth.verifyDidAuthResponse(
+      siopResponseJwt.jwt,
+      optsVerify
     );
+
     // const verifyDidAuthResponse:DidAuthValidationResponse = {
     //   signatureValidation: true
     // }
-    this.logger.debug(`[RP Backend] SIOP Response validation: ${verifyDidAuthResponse.signatureValidation}`)
-    if (!verifyDidAuthResponse.signatureValidation) {
-      this.logger.error(DidAuthErrors.ERROR_VERIFYING_SIGNATURE)
-      throw new BadRequestException(DidAuthErrors.ERROR_VERIFYING_SIGNATURE)
+    this.logger.debug(`[RP Backend] SIOP Response validation: ${validationResponse.signatureValidation}`)
+    if (!validationResponse.signatureValidation) {
+      this.logger.error(siopDidAuth.DidAuthErrors.ERROR_VERIFYING_SIGNATURE)
+      throw new BadRequestException(siopDidAuth.DidAuthErrors.ERROR_VERIFYING_SIGNATURE)
     }
     // prepare siop response struct to return
-    const validationResult:boolean = verifyDidAuthResponse.signatureValidation;
+    const validationResult:boolean = validationResponse.signatureValidation;
 
     const siopResponse:SiopResponse = { 
       validationResult,
@@ -90,7 +97,7 @@ export class SiopController {
     // and send the validation response
     //this.socket.emit('sendSignInResponse', messageSendSignInResponse );
     // also send the response to the siop client
-    return verifyDidAuthResponse
+    return validationResponse
   }
 
   @Get('jwts/:clientId')
@@ -107,8 +114,8 @@ export class SiopController {
     try {
       await this.nonceRedis.get(getJwtNonce(jwt));  
     } catch (error) {
-      this.logger.error(DidAuthErrors.BAD_PARAMS)
-      throw new BadRequestException(DidAuthErrors.BAD_PARAMS)
+      this.logger.error(siopDidAuth.DidAuthErrors.BAD_PARAMS)
+      throw new BadRequestException(siopDidAuth.DidAuthErrors.BAD_PARAMS)
     }
     return nonce;
   }

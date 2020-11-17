@@ -21,6 +21,7 @@ const SIGNATURES = process.env.API_URL + "/api/v1/signatures";
 const SIGNATURE_VALIDATION = process.env.API_URL + "/api/v1/signature-validations";
 const SESSIONS = process.env.API_URL + "/api/v1/sessions";
 const API_KEY = process.env.API_KEY || "undefined";
+const IDENTITY_PROVIDER_APP = "vidchain://did-auth";
 
 //Legal Entity
 const Entity = {
@@ -33,4 +34,4 @@ const Entity = {
 const grantType = "urn:ietf:params:oauth:grant-type:jwt-bearer";
 const scope = "vidchain profile entity";
 
-export {PORT,CLIENT_ID_URI, BASE_URL, SIGNATURES, SIGNATURE_VALIDATION, REDIS_URL, REDIS_PORT, HYDRA_URL, SESSIONS, grantType, Entity, scope}
+export {PORT,CLIENT_ID_URI, BASE_URL, SIGNATURES, SIGNATURE_VALIDATION, REDIS_URL, REDIS_PORT, HYDRA_URL, SESSIONS, grantType, Entity, scope, IDENTITY_PROVIDER_APP}

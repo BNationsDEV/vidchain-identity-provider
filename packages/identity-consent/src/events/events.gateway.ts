@@ -44,13 +44,14 @@ import {
         if (uriRedirect && uriRedirect.clientUriRedirect) {
           this.logger.debug(`Using URI redirect: ${uriRedirect.clientUriRedirect}`)
         }
-        // queueing the request
+        // queueing the requests
         this.siopQueue.add('userRequest', { 
           clientId: CLIENT_ID_URI,
           clientName: uriRedirect.client_name,
           clientScope: uriRedirect.scope,
           sessionId: client.id,
-          clientUriRedirect: uriRedirect && uriRedirect.clientUriRedirect ? uriRedirect.clientUriRedirect : undefined
+          clientUriRedirect: uriRedirect && uriRedirect.clientUriRedirect ? uriRedirect.clientUriRedirect : undefined,
+          isMobile: uriRedirect.isMobile
         });
         this.logger.debug(`Sin the queue ${client.id}`);
   
