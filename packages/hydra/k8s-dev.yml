@@ -69,6 +69,11 @@ spec:
               configMapKeyRef:
                 name: hydra-configmap
                 key: HTTPS_ALLOW_TERMINATION_FROM
+          - name: WEBFINGER_OIDC_DISCOVERY_SUPPORTED_SCOPE
+            valueFrom:
+              configMapKeyRef:
+                name: hydra-configmap
+                key: WEBFINGER_OIDC_DISCOVERY_SUPPORTED_SCOPE
           - name: DSN
             valueFrom:
               secretKeyRef:
