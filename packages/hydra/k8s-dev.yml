@@ -150,6 +150,15 @@ spec:
         backend:
           serviceName: hydra
           servicePort: 9001
+      - path: /.well-known/openid-configuration
+        backend:
+          serviceName: hydra
+          servicePort: 9000
+      - path: /.well-known/jwks.json
+        backend:
+          serviceName: hydra
+          servicePort: 9000
+
 
 --- 
 
