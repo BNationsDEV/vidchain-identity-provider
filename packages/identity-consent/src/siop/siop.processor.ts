@@ -168,7 +168,11 @@ export default class SiopProcessor {
     this.logger.debug("SIOP Request event completed.");
     this.logger.debug(`Processing result`);
     this.logger.debug(`Result: ${JSON.stringify(result)}`);
+    this.logger.debug(
+      `Job data to process: ${JSON.stringify(job.data, null, 2)}`
+    );
     if (!job || !job.data || !result) {
+      this.logger.error(DidAuthErrors.BAD_PARAMS);
       throw new BadRequestException(DidAuthErrors.BAD_PARAMS);
     }
     const userRequestData = job.data as UserRequest;
