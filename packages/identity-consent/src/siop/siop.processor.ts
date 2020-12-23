@@ -124,7 +124,9 @@ export default class SiopProcessor {
     const redisUserRequest = job.data as UserRequest;
     if (!redisUserRequest.clientId || !redisUserRequest.sessionId)
       throw new BadRequestException(DidAuthErrors.BAD_PARAMS);
+    this.logger.debug("to authZToken");
     const authZToken = await getAuthToken();
+    this.logger.debug("out from authZToken");
     // TODO: When type OidcClaim is export it by the library used it.
     const uriRequest = await generateJwtRequest(authZToken, job);
     if (!uriRequest || !uriRequest.urlEncoded)

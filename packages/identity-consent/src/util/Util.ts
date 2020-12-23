@@ -1,6 +1,5 @@
 import axios from "axios";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { encode } from "base-64";
 import { DidAuthTypes, OidcClaimRequest, OidcSsi } from "@validatedid/did-auth";
 import jwt_decode from "jwt-decode";
 import { JWTPayload } from "@validatedid/did-auth/dist/interfaces/JWT";
@@ -44,7 +43,10 @@ async function doPostCall(data: unknown, url: string): Promise<unknown> {
 
 async function getAuthToken(): Promise<string> {
   const url = SESSIONS;
-  Logger.debug(JSON.stringify(Entity, null, 2));
+  const logger = new Logger("AuthToken");
+  logger.debug(JSON.stringify(Entity, null, 2));
+  // eslint-disable-next-line no-console
+  console.log(JSON.stringify(Entity, null, 2));
   const data = {
     grantType,
     assertion: Buffer.from(JSON.stringify(Entity)).toString("base64"),
@@ -61,7 +63,13 @@ async function getAuthToken(): Promise<string> {
 
     return (response.data as AccessTokenResponseBody).accessToken;
   } catch (error) {
-    Logger.error(
+    logger.error(
+      `POST AUTH TOKEN ERROR: ${(error as Error).message} : ${
+        (error as Error).name
+      }`
+    );
+    // eslint-disable-next-line no-console
+    console.error(
       `POST AUTH TOKEN ERROR: ${(error as Error).message} : ${
         (error as Error).name
       }`
