@@ -31,7 +31,7 @@ const API_BASE_URL = checkStrVar(process.env.API_URL, "API_URL");
 const SIGNATURES = `${API_BASE_URL}/api/v1/signatures`;
 const SIGNATURE_VALIDATION = `${API_BASE_URL}/api/v1/signature-validations`;
 const SESSIONS = `${API_BASE_URL}/api/v1/sessions`;
-const API_KEY = checkStrVar(process.env.REDIS_URL, "API_KEY");
+const API_KEY = checkStrVar(process.env.API_KEY, "API_KEY");
 const IDENTITY_PROVIDER_APP = "vidchain://did-auth";
 
 // Legal Entity
