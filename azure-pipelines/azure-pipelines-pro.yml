@@ -29,7 +29,7 @@ variables:
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
   # Check if there are changes of the following files
-  checkFiles: '("azure-pipelines/azure-pipelines-pro.yml" "$(configMap)" "$(k8s)" "packages/identity-consent/src" "packages/identity-consent/public" "packages/identity-consent/views" "packages/identity-consent/package.json" "packages/identity-consent/package-lock.json") "packages/hydra"'
+  checkFiles: '("azure-pipelines/azure-pipelines-pro.yml" "$(configMap)" "$(k8s)" "packages/identity-consent" "packages/hydra")'
 
 stages:
 - stage: 'Build'
