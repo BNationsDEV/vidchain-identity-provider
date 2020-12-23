@@ -18,15 +18,15 @@
     <input type="hidden" name="challenge" value={{challenge}}>
     <input type="hidden" id="client_name" name="client_name" value={{client_name}}>
     <input type="hidden" id="scope" name="scope" value={{scope}}>
-    <img id="logo" class ="logo" src="/static/logo__Vidchain.png"></img>
+    <img id="logo" class="logo" src="/static/logo__Vidchain.png"></img>
     <h1 class="subtitle">Authenticate with your VIDchain wallet</h1>
     <h4 class="subtitle">Go to login in your VIDchain mobile app and scan the QR code.</h4>
     <img id="qrImage" class="qrImage"></img>
-        {{!-- <button class="scanButton" v-on:click="sendSIOPClientUriBackend">Continue using Vidchain</button> --}}
-        {{!-- <div class="remember">
-          <input type="checkbox" id="remember" name="remember" v-bind:value="remember" value="1">
-          <label for="remember"><b>Remember me</b></label>
-        </div> --}}
+    {{!-- <button class="scanButton" v-on:click="sendSIOPClientUriBackend">Continue using Vidchain</button> --}}
+    {{!-- <div class="remember">
+      <input type="checkbox" id="remember" name="remember" v-bind:value="remember" value="1">
+      <label for="remember"><b>Remember me</b></label>
+    </div> --}}
   </div>
   <script>
     const app = new Vue({
@@ -42,7 +42,7 @@
           var img = document.getElementById('qrImage');
           img.src = '';
         },
-        
+
         resetVars() {
           this.error = '';
           this.validationResult = '';
@@ -51,16 +51,15 @@
 
         displayQr(qrResponse) {
           const inMobileOrTablet = this.isMobileOrTablet();
-          if(inMobileOrTablet){
+          if (inMobileOrTablet) {
             let urlParams = new URLSearchParams(window.location.search);
             let login_challenge = urlParams.get('login_challenge');
-            //window.open("https://api.vidchain.net?qr="+qrResponse.siopUri+"&login_challenge="+login_challenge, "_self");
-            window.open(qrResponse.siopUri+"&login_challenge="+login_challenge, "_self");
+            window.open(qrResponse.siopUri + "&login_challenge=" + login_challenge, "_self");
           }
-          else{
+          else {
             var img = document.getElementById('qrImage')
             img.src = qrResponse.imageQr
-          }  
+          }
         },
 
         signInResponse(msg) {
@@ -69,13 +68,11 @@
           const response = JSON.parse(msg)
           this.resetImg();
           this.validationResult = `Your Sign-In validation result is: ${response.validationResult}`;
-          //this.did = `Your DID is: ${response.did}`;
-          if(response.validationResult){
+          if (response.validationResult) {
             //Do Post to login
-            const did = response.did 
-            const jwt = response.jwt 
+            const did = response.did
+            const jwt = response.jwt
 
-            //const did = "did:ebsi:0x2c8181B9bF7F8f708A7C68DaE04d6d56A87dFBD3"
             const body = {
               challenge: login_challenge,
               remember: this.remember,
@@ -83,12 +80,12 @@
               jwt
             };
             axios.post('/login', body)
-            .then ((res)=> window.location = res.data)
-            .catch ((error)=> console.log(error))
+              .then((res) => window.location = res.data)
+              .catch((error) => console.log(error))
           }
         },
         isMobileOrTablet() {
-          if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+          if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
             return true
           } else {
             return false
@@ -121,10 +118,11 @@
   </script>
 
   <style scoped>
-    .subtitle{
+    .subtitle {
       align-self: center;
       color: #00bf71;
     }
+
     .formLogin {
       display: flex;
       flex-direction: column;
@@ -132,11 +130,13 @@
       background: #ffffff;
       padding: 1rem 1.25rem;
     }
-    .logo{
+
+    .logo {
       max-width: 300px;
       margin: 1%;
       align-self: center;
     }
+
     .scanButton {
       display: block;
       cursor: pointer;
@@ -148,17 +148,19 @@
       border-radius: 20px;
       font-size: 1.5rem;
       font-weight: 600;
-      color:  #ffffff;
+      color: #ffffff;
       background-size: 100% 100%;
       box-shadow: 0 0 0 7px var(--light) inset;
       align-self: center;
       margin-top: 5%;
     }
-    .qrImage{
+
+    .qrImage {
       max-width: 300px;
       align-self: center;
     }
-    .remember{
+
+    .remember {
       align-self: center;
       margin-top: 2%;
       color: #00bf71;
