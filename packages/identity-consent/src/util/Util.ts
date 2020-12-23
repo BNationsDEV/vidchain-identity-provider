@@ -44,20 +44,30 @@ async function doPostCall(data: unknown, url: string): Promise<unknown> {
 
 async function getAuthToken(): Promise<string> {
   const url = SESSIONS;
+  Logger.debug(JSON.stringify(Entity, null, 2));
   const data = {
     grantType,
-    assertion: encode(JSON.stringify(Entity)),
+    assertion: Buffer.from(JSON.stringify(Entity)).toString("base64"),
     scope,
   };
-  const response = await axios.post(url, data);
-  if (
-    !response ||
-    !response.data ||
-    !(response.data as AccessTokenResponseBody).accessToken
-  )
-    throw new BadRequestException(ERRORS.SESSION);
+  try {
+    const response = await axios.post(url, data);
+    if (
+      !response ||
+      !response.data ||
+      !(response.data as AccessTokenResponseBody).accessToken
+    )
+      throw new BadRequestException(ERRORS.SESSION);
 
-  return (response.data as AccessTokenResponseBody).accessToken;
+    return (response.data as AccessTokenResponseBody).accessToken;
+  } catch (error) {
+    Logger.error(
+      `POST AUTH TOKEN ERROR: ${(error as Error).message} : ${
+        (error as Error).name
+      }`
+    );
+    throw error;
+  }
 }
 
 function getEnterpriseDID(token: string): string {
