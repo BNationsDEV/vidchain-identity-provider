@@ -13,9 +13,6 @@ import * as config from "./config";
 import { DoConsent, DoLogin, LoginCookie } from "./@types/identityProvider";
 
 function processAccessGranted(challenge: string, body: DoLogin, res: Response) {
-  const logger = new Logger("processAccessGranted");
-  logger.debug(`body: ${JSON.stringify(body, null, 2)}`);
-  logger.debug(`challenge: ${challenge}`);
   hydra
     .acceptLoginRequest(challenge, {
       // Subject is an alias for user ID. A subject can be a random string, a UUID, an email address, ....
@@ -80,7 +77,6 @@ export default class AppService {
     hydra
       .getLoginRequest(challenge)
       .then(async (response) => {
-        logger.log("getLoginRequest success");
         // If hydra was already able to authenticate the user, skip will be true and we do not need to re-authenticate
         // the user.
         if (response.skip) {
@@ -105,7 +101,7 @@ export default class AppService {
       })
       // This will handle any error that happens when making HTTP calls to hydra
       .catch((error) => {
-        logger.error("getLoginRequest error");
+        logger.error(`${ERRORS.HYDRA_LOGIN} : (${(error as Error).message})`);
         throw new BadRequestException(
           `${ERRORS.HYDRA_LOGIN} : (${(error as Error).message})`
         );
@@ -115,13 +111,10 @@ export default class AppService {
   doLogin(@Req() req: Request, @Res() res: Response): void {
     const body = req.body as DoLogin;
     const { challenge } = body;
-    const logger = new Logger("doLogin");
     if (body.submit === "Deny access") {
-      logger.log("doLogin deny access");
       processDenyAccess(challenge, res);
       return;
     }
-    logger.log("doLogin success");
     processAccessGranted(challenge, body, res);
   }
 
@@ -129,8 +122,6 @@ export default class AppService {
     hydra
       .getConsentRequest(challenge)
       .then((response) => {
-        const logger = new Logger("App Service");
-        logger.log(response.context);
         // If a user has granted this application the requested scope, hydra will tell us to not show the UI.
         if (response.skip) {
           // You can apply logic here, for example grant another scope, or do whatever...
@@ -170,13 +161,17 @@ export default class AppService {
             grant_scope: response.requested_scope,
             jwt: response.context.jwt,
           };
-
+          const logger = new Logger("checkConsent");
           axios
             .post(`${config.BASE_URL}/consent`, body)
             .then((result) => {
               res.redirect(result.data);
             })
-            .catch((error) => Logger.error(error));
+            .catch((error) =>
+              logger.error(
+                `${ERRORS.HYDRA_CONSENT} : ${(error as Error).message}`
+              )
+            );
         }
       })
       .catch((error) => {

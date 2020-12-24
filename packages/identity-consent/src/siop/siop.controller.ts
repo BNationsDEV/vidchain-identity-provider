@@ -127,8 +127,15 @@ export default class SiopController {
 
     // send a message to server so it can communicate with front end io client
     // and send the validation response
-    this.socket.emit("sendSignInResponse", messageSendSignInResponse);
+    // this.socket.emit("sendSignInResponse", messageSendSignInResponse);
     // also send the response to the siop client
+    this.logger.debug(
+      `Returning Response to the app: ${JSON.stringify(
+        validationResponse,
+        null,
+        2
+      )}`
+    );
     return validationResponse;
   }
 
