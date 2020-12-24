@@ -86,11 +86,13 @@ export default class SiopController {
       verificationType: {
         verifyUri: SIGNATURE_VALIDATION,
         authZToken,
-        didUrlResolver: `${API_BASE_URL}/api/v1/identifiers`,
+        // !!! TODO: FIX: !!! PATCH change to /api/v1/identifiers
+        didUrlResolver: `${API_BASE_URL}/api/v1/patch-identifiers`,
       },
       redirectUri: `${BASE_URL}/siop/responses`,
       nonce,
     };
+    this.logger.debug(`Id Token to verify: siopResponseJwt`);
     const validationResponse = await verifyDidAuthResponse(
       siopResponseJwt.jwt,
       optsVerify
