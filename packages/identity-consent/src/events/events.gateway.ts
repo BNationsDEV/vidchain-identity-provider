@@ -21,7 +21,7 @@ import {
   SiopUriRedirect,
 } from "../@types/siop";
 
-@WebSocketGateway({ cookie: false })
+@WebSocketGateway({ transports: ["websocket"], cookie: false })
 export default class EventsGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
   @WebSocketServer()

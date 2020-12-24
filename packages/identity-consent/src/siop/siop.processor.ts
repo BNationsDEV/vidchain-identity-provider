@@ -112,6 +112,10 @@ export default class SiopProcessor {
     keyPrefix: "jwt:",
   });
 
+  private readonly socket = io(BASE_URL, {
+    transports: ["websocket"],
+  });
+
   @Process("userRequest")
   async handleSiopRequest(job: Job): Promise<string> {
     this.logger.debug("SIOP Request received.");
@@ -195,26 +199,9 @@ export default class SiopProcessor {
       this.logger.debug(
         `message QR Response: ${JSON.stringify(messageSendQRResponse, null, 2)}`
       );
-      // this.logger.log(BASE_URL);
-      // sends an event to the server, to send the QR to the client
-      // this.socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
 
-      this.logger.log("Going to connect");
-      const socket = io("localhost");
-      socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
-      const socket2 = io.connect(BASE_URL);
-      socket2.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
-      const socket3 = io.connect("localhost");
-      socket3.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
-      this.logger.debug(
-        `Connected to 'localhost' with id from me as a client: ${socket.id}`
-      );
-      this.logger.debug(
-        `Connected to '${BASE_URL}' with id from me as a client: ${socket2.id}`
-      );
-      this.logger.debug(
-        `Connected to 'localhost' with id from me as a client: ${socket3.id}`
-      );
+      // sends an event to the server, to send the QR to the client
+      this.socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
       this.logger.log("End of function");
     }
 
