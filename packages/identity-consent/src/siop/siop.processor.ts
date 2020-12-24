@@ -112,11 +112,15 @@ export default class SiopProcessor {
     keyPrefix: "jwt:",
   });
 
-  private readonly socket = io("wss://dev.vidchain.net/socket.io", {
+  private readonly socket = io(BASE_URL, {
     transports: ["websocket"],
   });
 
-  private readonly socket2 = io("wss://dev.vidchain.net", {
+  private readonly socket2 = io("wss://dev.vidchain.net/socket.io", {
+    transports: ["websocket"],
+  });
+
+  private readonly socket3 = io("wss://dev.vidchain.net", {
     transports: ["websocket"],
   });
 
@@ -207,6 +211,7 @@ export default class SiopProcessor {
       // sends an event to the server, to send the QR to the client
       this.socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
       this.socket2.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
+      this.socket3.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
       this.logger.log("End of function");
     }
 

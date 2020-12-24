@@ -55,8 +55,6 @@ export default class SiopController {
     keyPrefix: "jwt:",
   });
 
-  private readonly socket = io(BASE_URL);
-
   @Post("responses")
   async validateSIOPResponse(
     @Body() siopResponseJwt: SiopResponseJwt
@@ -131,7 +129,10 @@ export default class SiopController {
     }
 
     this.logger.debug(`I DO not have challenge`);
-    this.socket.emit("sendSignInResponse", messageSendSignInResponse);
+    const socket = io(BASE_URL, {
+      transports: ["websocket"],
+    });
+    socket.emit("sendSignInResponse", messageSendSignInResponse);
 
     // send a message to server so it can communicate with front end io client
     // and send the validation response
