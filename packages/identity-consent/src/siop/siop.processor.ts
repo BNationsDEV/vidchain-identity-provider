@@ -112,10 +112,6 @@ export default class SiopProcessor {
     keyPrefix: "jwt:",
   });
 
-  private readonly socket = io(BASE_URL, {
-    transports: ["websocket"],
-  });
-
   @Process("userRequest")
   async handleSiopRequest(job: Job): Promise<string> {
     this.logger.debug("SIOP Request received.");
@@ -199,9 +195,11 @@ export default class SiopProcessor {
       this.logger.debug(
         `message QR Response: ${JSON.stringify(messageSendQRResponse, null, 2)}`
       );
-
+      const socket = io(BASE_URL, {
+        transports: ["websocket"],
+      });
       // sends an event to the server, to send the QR to the client
-      this.socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
+      socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
       this.logger.log("End of function");
     }
 
