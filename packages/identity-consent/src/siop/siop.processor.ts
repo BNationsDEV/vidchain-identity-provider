@@ -200,49 +200,21 @@ export default class SiopProcessor {
       // this.socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
 
       this.logger.log("Going to connect");
-      const socket = io(BASE_URL);
-      socket.connect();
-      socket.on("connect", () => {
-        this.logger.log(socket.connected); // true
-        this.logger.debug(
-          `Connected? ${Boolean(
-            socket.connected
-          ).toString()} to '${BASE_URL}' with id from me as a client: ${
-            socket.id
-          }`
-        );
-        socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
-      });
-      this.logger.debug(
-        `Connected to '${BASE_URL}' with id from me as a client: ${socket.id}`
-      );
-
-      /*
-      this.socket.on("connect", () => {
-        this.logger.log(this.socket.connected); // true
-        this.logger.debug(
-          `Connected? ${Boolean(
-            this.socket.connected
-          ).toString()} to '${BASE_URL}' with id from me as a client: ${
-            this.socket.id
-          }`
-        );
-        // sends an event to the server, to send the QR to the client
-        this.socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
-      });
-      */
-      socket.on("disconnect", (reason: string) => {
-        this.logger.log(`Disconnect: Reason -> ${reason}`);
-      });
-
-      this.logger.log("Out from connect");
-      socket.on("connect_error", () => {
-        setTimeout(() => {
-          this.logger.log("Connection error");
-          socket.connect();
-        }, 1000);
-      });
+      const socket = io("localhost");
       socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
+      const socket2 = io.connect(BASE_URL);
+      socket2.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
+      const socket3 = io.connect("localhost");
+      socket3.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
+      this.logger.debug(
+        `Connected to 'localhost' with id from me as a client: ${socket.id}`
+      );
+      this.logger.debug(
+        `Connected to '${BASE_URL}' with id from me as a client: ${socket2.id}`
+      );
+      this.logger.debug(
+        `Connected to 'localhost' with id from me as a client: ${socket3.id}`
+      );
       this.logger.log("End of function");
     }
 
