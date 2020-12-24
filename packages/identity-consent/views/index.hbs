@@ -79,7 +79,6 @@
               did,
               jwt
             };
-            console.log("going to login");
             axios.post('/login', body)
               .then((res) => window.location = res.data)
               .catch((error) => console.log(error))
@@ -113,7 +112,6 @@
           this.displayQr(qrResponse);
         });
         this.socket.on('signInResponse', (msg) => {
-          console.log("arrived from backend");
           this.signInResponse(msg);
         });
       },

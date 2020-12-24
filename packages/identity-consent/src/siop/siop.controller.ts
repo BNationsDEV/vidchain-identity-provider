@@ -56,6 +56,10 @@ export default class SiopController {
     keyPrefix: "jwt:",
   });
 
+  private readonly socket = io(BASE_URL, {
+    transports: ["websocket"],
+  });
+
   @Post("responses")
   async validateSIOPResponse(
     @Body() siopResponseJwt: SiopResponseJwt
@@ -66,11 +70,6 @@ export default class SiopController {
     if (!siopResponseJwt || !siopResponseJwt.jwt) {
       throw new BadRequestException(DidAuthErrors.BAD_PARAMS);
     }
-    this.logger.log(
-      `[RP Backend] Received SIOP Response JWT: ${JSON.stringify(
-        siopResponseJwt
-      )}`
-    );
     const authZToken = await getAuthToken();
     // TODO: !!! verify state
     // It means that the app should call this POST with the id_token & state as the body
@@ -79,8 +78,6 @@ export default class SiopController {
     // validate siop response
     const nonce = await this.getValidNonce(siopResponseJwt.jwt);
     const clientID = await this.getValidClient(nonce);
-    this.logger.log(`Nonce: ${nonce}`);
-    this.logger.log(`Client: ${clientID}`);
 
     const optsVerify: DidAuthTypes.DidAuthVerifyOpts = {
       verificationType: {
@@ -92,7 +89,6 @@ export default class SiopController {
       redirectUri: `${BASE_URL}/siop/responses`,
       nonce,
     };
-    this.logger.debug(`Id Token to verify: siopResponseJwt`);
     const validationResponse = await verifyDidAuthResponse(
       siopResponseJwt.jwt,
       optsVerify
@@ -116,10 +112,7 @@ export default class SiopController {
 
     // CHECK WHAT TO DO HERE, IF IS FROM WEB FO TO EMIT, OTHERWISE RETURN VALUE
     if (siopResponseJwt.login_challenge) {
-      this.logger.debug(`I have challenge`);
-      this.logger.debug(siopResponseJwt.login_challenge);
       const { did } = siopResponse;
-
       const body = {
         challenge: siopResponseJwt.login_challenge,
         remember: false,
@@ -132,15 +125,9 @@ export default class SiopController {
       )) as DidAuthTypes.DidAuthValidationResponse;
     }
 
-    this.logger.debug(`I DO not have challenge`);
-    const socket = io(BASE_URL, {
-      transports: ["websocket"],
-    });
-    socket.emit("sendSignInResponse", messageSendSignInResponse);
-
     // send a message to server so it can communicate with front end io client
     // and send the validation response
-    // this.socket.emit('sendSignInResponse', messageSendSignInResponse );
+    this.socket.emit("sendSignInResponse", messageSendSignInResponse);
     // also send the response to the siop client
     return validationResponse;
   }

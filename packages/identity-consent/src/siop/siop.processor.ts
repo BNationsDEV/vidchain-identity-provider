@@ -112,6 +112,10 @@ export default class SiopProcessor {
     keyPrefix: "jwt:",
   });
 
+  private readonly socket = io(BASE_URL, {
+    transports: ["websocket"],
+  });
+
   @Process("userRequest")
   async handleSiopRequest(job: Job): Promise<string> {
     this.logger.debug("SIOP Request received.");
@@ -163,10 +167,6 @@ export default class SiopProcessor {
   async onCompleted(job: Job, result: string): Promise<void> {
     this.logger.debug("SIOP Request event completed.");
     this.logger.debug(`Processing result`);
-    this.logger.debug(`Result: ${JSON.stringify(result)}`);
-    this.logger.debug(
-      `Job data to process: ${JSON.stringify(job.data, null, 2)}`
-    );
     if (!job || !job.data || !result) {
       this.logger.error(DidAuthErrors.BAD_PARAMS);
       throw new BadRequestException(DidAuthErrors.BAD_PARAMS);
@@ -192,15 +192,9 @@ export default class SiopProcessor {
         clientId: userRequestData.sessionId,
         qRResponse: qrResponse,
       };
-      this.logger.debug(
-        `message QR Response: ${JSON.stringify(messageSendQRResponse, null, 2)}`
-      );
-      const socket = io(BASE_URL, {
-        transports: ["websocket"],
-      });
+
       // sends an event to the server, to send the QR to the client
-      socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
-      this.logger.log("End of function");
+      this.socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
     }
 
     // when clientUriRedirect is present, we post the SIOP URI to the user server
@@ -209,10 +203,9 @@ export default class SiopProcessor {
         qrCodeResult,
         userRequestData.clientUriRedirect
       )) as SiopAckRequest;
-      this.logger.debug(`Response: ${JSON.stringify(response)}`);
       // sends error to Front-end
       if (!response || !response.validationRequest) {
-        this.logger.debug("Error on SIOP Request Validation.");
+        this.logger.error("Error on SIOP Request Validation.");
         await this.siopErrorQueue.add("errorSiopRequestValidation");
       }
     }

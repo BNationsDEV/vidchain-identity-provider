@@ -48,10 +48,6 @@ export default class EventsGateway
     @MessageBody() uriRedirect: SiopUriRedirect,
     @ConnectedSocket() client: Socket
   ): Promise<Observable<WsResponse<unknown>>> {
-    this.logger.debug(`SignIn Received from ${client.id}`);
-    if (uriRedirect && uriRedirect.clientUriRedirect) {
-      this.logger.debug(`Using URI redirect: ${uriRedirect.clientUriRedirect}`);
-    }
     // queueing the requests
     await this.siopQueue.add("userRequest", {
       clientId: CLIENT_ID_URI,
