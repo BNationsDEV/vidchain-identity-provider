@@ -3,7 +3,7 @@ module.exports = {
   testEnvironment: "node",
   rootDir: ".",
   roots: ["<rootDir>/src/", "<rootDir>/tests/"],
-  testMatch: ["**/?(*.)+(spec|test).+(ts|tsx|js)"],
+  testMatch: ["**/?(*.)+(spec|test|tests).+(ts|tsx|js)"],
   transform: {
     "^.+\\.(ts|tsx)?$": "ts-jest",
   },
@@ -13,11 +13,9 @@ module.exports = {
     "src/**/*.{ts,tsx}",
     "!src/**/*.d.ts",
     "!**/node_modules/**",
-    "!jest.config.js",
-    "!lint-staged.config.js",
   ],
   collectCoverage: true,
-  reporters: ["default", "jest-sonar"],
+  reporters: ["default", ["jest-junit", { outputDirectory: "./coverage" }]],
   globals: {
     "ts-jest": {
       diagnostics: true,

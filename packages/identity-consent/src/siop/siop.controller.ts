@@ -1,100 +1,172 @@
-import { Controller, Post, Body, BadRequestException, Logger, Get, Param } from '@nestjs/common';
-import { InjectQueue } from '@nestjs/bull';
-import { Queue } from 'bull';
-import { SiopResponseJwt, SiopAckResponse, SiopResponse,MessageSendSignInResponse, SiopRequestJwt, DidAuthValidationResponse,MessageSendQRResponse } from './dtos/SIOP';
-import { VidDidAuth, DidAuthRequestCall, DIDAUTH_ERRORS} from '../did-auth/src/index';
-import { CLIENT_ID_URI, REDIS_URL, REDIS_PORT , BASE_URL, SIGNATURE_VALIDATION } from '../config';
-import { getUserDid, getJwtNonce, getAuthToken} from '../util/Util';
-import io from 'socket.io-client';
-import Redis from 'ioredis';
+import {
+  Controller,
+  Post,
+  Body,
+  BadRequestException,
+  Logger,
+  Get,
+  Param,
+  InternalServerErrorException,
+} from "@nestjs/common";
+import { InjectQueue } from "@nestjs/bull";
+import { Queue } from "bull";
+import {
+  DidAuthTypes,
+  DidAuthErrors,
+  verifyDidAuthResponse,
+} from "@validatedid/did-auth";
+import io from "socket.io-client";
+import Redis from "ioredis";
+import {
+  REDIS_URL,
+  REDIS_PORT,
+  BASE_URL,
+  SIGNATURE_VALIDATION,
+  API_BASE_URL,
+} from "../config";
+import {
+  getUserDid,
+  getJwtNonce,
+  getAuthToken,
+  doPostCall,
+} from "../util/Util";
+import ERRORS from "../util/error";
+import {
+  MessageSendSignInResponse,
+  SiopRequestJwt,
+  SiopResponse,
+  SiopResponseJwt,
+} from "../@types/siop";
 
-@Controller('siop')
-export class SiopController {
-  constructor(@InjectQueue('siop') private readonly siopQueue: Queue) {}
+@Controller("siop")
+export default class SiopController {
+  constructor(@InjectQueue("siop") private readonly siopQueue: Queue) {}
+
   private readonly logger = new Logger(SiopController.name);
-  private readonly nonceRedis = new Redis({ 
+
+  private readonly nonceRedis = new Redis({
     port: REDIS_PORT,
     host: REDIS_URL,
-    keyPrefix: "nonce:" 
+    keyPrefix: "nonce:",
   });
-  private readonly jwtRedis = new Redis({  
+
+  private readonly jwtRedis = new Redis({
     port: REDIS_PORT,
-    host: REDIS_URL, 
-    keyPrefix: "jwt:" });
-  private readonly socket = io(BASE_URL);
+    host: REDIS_URL,
+    keyPrefix: "jwt:",
+  });
 
-  @Post('responses')
-  async validateSIOPResponse(@Body() siopResponseJwt: SiopResponseJwt): Promise<DidAuthValidationResponse> {
-    this.logger.log('[RP Backend] Received POST SIOP Response from SIOP client')
-    if (!siopResponseJwt || !siopResponseJwt.jwt) {
-      throw new BadRequestException(DIDAUTH_ERRORS.BAD_PARAMS)
-    }
-    this.logger.log(`[RP Backend] Received SIOP Response JWT: ${JSON.stringify(siopResponseJwt)}`)
-    const authZToken = await getAuthToken();
-    // validate siop response
-    const nonce = await this._getValidNonce(siopResponseJwt.jwt);
-    const clientID = await this._getValidClient(nonce);
-    this.logger.log("Nonce: "+nonce);
-    this.logger.log("Client: "+ clientID);
-    const verifyDidAuthResponse:DidAuthValidationResponse = await VidDidAuth.verifyDidAuthResponse(
-      siopResponseJwt.jwt, 
-      SIGNATURE_VALIDATION, 
-      authZToken,
-      nonce
+  private readonly socket = io(BASE_URL, {
+    transports: ["websocket"],
+  });
+
+  @Post("responses")
+  async validateSIOPResponse(
+    @Body() siopResponseJwt: SiopResponseJwt
+  ): Promise<DidAuthTypes.DidAuthValidationResponse> {
+    this.logger.log(
+      "[RP Backend] Received POST SIOP Response from SIOP client"
     );
-    // const verifyDidAuthResponse:DidAuthValidationResponse = {
-    //   signatureValidation: true
-    // }
-    this.logger.debug(`[RP Backend] SIOP Response validation: ${verifyDidAuthResponse.signatureValidation}`)
-    if (!verifyDidAuthResponse.signatureValidation) {
-      this.logger.error(DIDAUTH_ERRORS.ERROR_VERIFYING_SIGNATURE)
-      throw new BadRequestException(DIDAUTH_ERRORS.ERROR_VERIFYING_SIGNATURE)
+    if (!siopResponseJwt || !siopResponseJwt.jwt) {
+      throw new BadRequestException(DidAuthErrors.BAD_PARAMS);
     }
-    // prepare siop response struct to return
-    const validationResult:boolean = verifyDidAuthResponse.signatureValidation;
+    const authZToken = await getAuthToken();
+    // TODO: !!! verify state
+    // It means that the app should call this POST with the id_token & state as the body
+    // then verify nonce and remove it from redis (it can be called once)
+    // extract nonce and cliendId from redis (using state as key -> it has to change as now it is using another nonce as key)
+    // validate siop response
+    const nonce = await this.getValidNonce(siopResponseJwt.jwt);
+    const clientID = await this.getValidClient(nonce);
 
-    const siopResponse:SiopResponse = { 
-      validationResult,
-      did: getUserDid(siopResponseJwt.jwt),
-      jwt: siopResponseJwt.jwt
+    const optsVerify: DidAuthTypes.DidAuthVerifyOpts = {
+      verificationType: {
+        verifyUri: SIGNATURE_VALIDATION,
+        authZToken,
+        // !!! TODO: FIX: !!! PATCH change to /api/v1/identifiers
+        didUrlResolver: `${API_BASE_URL}/api/v1/patch-identifiers`,
+      },
+      redirectUri: `${BASE_URL}/siop/responses`,
+      nonce,
+    };
+    const validationResponse = await verifyDidAuthResponse(
+      siopResponseJwt.jwt,
+      optsVerify
+    );
+
+    if (!validationResponse.signatureValidation) {
+      this.logger.error(DidAuthErrors.ERROR_VERIFYING_SIGNATURE);
+      throw new BadRequestException(DidAuthErrors.ERROR_VERIFYING_SIGNATURE);
     }
+
+    const siopResponse: SiopResponse = {
+      validationResult: validationResponse.signatureValidation,
+      did: getUserDid(siopResponseJwt.jwt),
+      jwt: siopResponseJwt.jwt,
+    };
 
     const messageSendSignInResponse: MessageSendSignInResponse = {
       clientId: clientID,
-      siopResponse: siopResponse
+      siopResponse,
+    };
+
+    // CHECK WHAT TO DO HERE, IF IS FROM WEB FO TO EMIT, OTHERWISE RETURN VALUE
+    if (siopResponseJwt.login_challenge) {
+      const { did } = siopResponse;
+      const body = {
+        challenge: siopResponseJwt.login_challenge,
+        remember: false,
+        did,
+        jwt: siopResponseJwt.jwt,
+      };
+      return (await doPostCall(
+        body,
+        `${BASE_URL}/login`
+      )) as DidAuthTypes.DidAuthValidationResponse;
     }
 
-    
     // send a message to server so it can communicate with front end io client
     // and send the validation response
-    this.socket.emit('sendSignInResponse', messageSendSignInResponse );
+    this.socket.emit("sendSignInResponse", messageSendSignInResponse);
     // also send the response to the siop client
-    return verifyDidAuthResponse
+    this.logger.debug(
+      `Returning Response to the app: ${JSON.stringify(
+        validationResponse,
+        null,
+        2
+      )}`
+    );
+    return validationResponse;
   }
 
-  @Get('jwts/:clientId')
-  async getSIOPRequestJwt(@Param('clientId') clientId: string): Promise<SiopRequestJwt> {
+  @Get("jwts/:clientId")
+  async getSIOPRequestJwt(
+    @Param("clientId") clientId: string
+  ): Promise<SiopRequestJwt> {
     // retrieve jwt value stored in the DB with a key cliendId
-    const jwt = await this.jwtRedis.get(clientId)
+    const jwt = await this.jwtRedis.get(clientId);
+    if (!jwt) throw new InternalServerErrorException(ERRORS.NO_REDIS_JWT_FOUND);
     this.logger.debug(`Received request from ${clientId} to get the JWT`);
-    return { jwt }
+    return { jwt };
   }
 
-  private async _getValidNonce(jwt: string): Promise<string> {
+  private async getValidNonce(jwt: string): Promise<string> {
     const nonce = getJwtNonce(jwt);
     // loads nonce from Redis as a stored key or throws error if not found
     try {
-      await this.nonceRedis.get(getJwtNonce(jwt));  
+      await this.nonceRedis.get(getJwtNonce(jwt));
     } catch (error) {
-      this.logger.error(DIDAUTH_ERRORS.BAD_PARAMS)
-      throw new BadRequestException(DIDAUTH_ERRORS.BAD_PARAMS)
+      this.logger.error(DidAuthErrors.BAD_PARAMS);
+      throw new BadRequestException(DidAuthErrors.BAD_PARAMS);
     }
     return nonce;
   }
 
-  private async _getValidClient(nonce: string): Promise<any> {
-      const clients = await this.nonceRedis.get(nonce);
-      this.logger.debug(`---- ${clients} ----`);
-      return clients;
+  private async getValidClient(nonce: string): Promise<string> {
+    const clients = await this.nonceRedis.get(nonce);
+    if (!clients)
+      throw new InternalServerErrorException(ERRORS.NO_REDIS_CLIENTS_FOUND);
+    this.logger.debug(`---- ${clients} ----`);
+    return clients;
   }
 }

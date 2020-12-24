@@ -69,6 +69,11 @@ spec:
               configMapKeyRef:
                 name: hydra-configmap
                 key: HTTPS_ALLOW_TERMINATION_FROM
+          - name: WEBFINGER_OIDC_DISCOVERY_SUPPORTED_SCOPE
+            valueFrom:
+              configMapKeyRef:
+                name: hydra-configmap
+                key: WEBFINGER_OIDC_DISCOVERY_SUPPORTED_SCOPE
           - name: DSN
             valueFrom:
               secretKeyRef:
@@ -137,7 +142,7 @@ spec:
   tls:
   - hosts:
     - dev.vidchain.net
-    secretName: tls-secret-production
+    secretName: tls-secret-development
   rules:
   - host: dev.vidchain.net
     http:
@@ -150,6 +155,15 @@ spec:
         backend:
           serviceName: hydra
           servicePort: 9001
+      - path: /.well-known/openid-configuration
+        backend:
+          serviceName: hydra
+          servicePort: 9000
+      - path: /.well-known/jwks.json
+        backend:
+          serviceName: hydra
+          servicePort: 9000
+
 
 --- 
 

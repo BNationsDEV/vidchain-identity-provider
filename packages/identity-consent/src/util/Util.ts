@@ -1,64 +1,113 @@
-import axios from 'axios';
-import { JWT } from 'jose';
-import { BadRequestException } from '@nestjs/common';
-import { DidAuthResponsePayload } from 'src/did-auth/src';
-import { SESSIONS, grantType, assertion, scope } from '../config';
-import { ERRORS } from './error';
+import axios from "axios";
+import { BadRequestException, Logger } from "@nestjs/common";
+import { DidAuthTypes, OidcClaimRequest, OidcSsi } from "@validatedid/did-auth";
+import jwt_decode from "jwt-decode";
+import { JWTPayload } from "@validatedid/did-auth/dist/interfaces/JWT";
+import { SESSIONS, grantType, Entity, scope } from "../config";
+import ERRORS from "./error";
+import {
+  IEnterpriseAuthZToken,
+  AccessTokenResponseBody,
+} from "../@types/Tokens";
 
-async function doPostCall(data: any, url: string): Promise<any> {
+// TODO: When type OidcClaim is export it by the library used it.
+function getVcFromScope(inputScope: string): OidcClaimRequest {
+  const scopeArray: string[] = inputScope.split(",");
+  const claim: OidcClaimRequest = {};
+  scopeArray.forEach((value) => {
+    // Skip the first two scopes. Ex: offline openid VerifiableIdCredential
+    if (value !== "openid" && value !== "offline") {
+      const oidcClaim: OidcSsi.OidcClaimJson = {
+        essential: true,
+      };
+      claim[value] = oidcClaim;
+    }
+  });
+  return claim;
+}
+
+async function doPostCall(data: unknown, url: string): Promise<unknown> {
+  const logger = new Logger("Util: doPostCall");
   try {
-    console.log ('Calling url: ' + url)
+    logger.log(`Calling url: ${url}`);
     const response = await axios.post(url, data);
-    console.log('AXIOS RESPONSE: ');
-    console.log(response.data);
-    return response.data;
+    logger.log("AXIOS RESPONSE: ");
+    logger.log(response.data);
+    return response.data as unknown;
   } catch (error) {
-    console.log((error as Error).message, url);
-    console.log((error as Error).name);
-    console.log((error as Error).stack);
+    logger.log((error as Error).message, url);
+    logger.log((error as Error).name);
+    logger.log((error as Error).stack);
     throw error;
   }
 }
 
-async function getAuthToken(): Promise<any> {
+async function getAuthToken(): Promise<string> {
+  const url = SESSIONS;
+  const logger = new Logger("Util: AuthToken");
+  logger.debug(JSON.stringify(Entity, null, 2));
+  // eslint-disable-next-line no-console
+  console.log(JSON.stringify(Entity, null, 2));
+  const data = {
+    grantType,
+    assertion: Buffer.from(JSON.stringify(Entity)).toString("base64"),
+    scope,
+  };
   try {
-    const url = SESSIONS;
-    const data = {
-      grantType: grantType,
-      assertion: assertion,
-      scope: scope
-    }
     const response = await axios.post(url, data);
-    return response.data.accessToken;
+    if (
+      !response ||
+      !response.data ||
+      !(response.data as AccessTokenResponseBody).accessToken
+    )
+      throw new BadRequestException(ERRORS.SESSION);
+
+    return (response.data as AccessTokenResponseBody).accessToken;
   } catch (error) {
-    throw new BadRequestException(ERRORS.SESSION)
+    logger.error(
+      `POST AUTH TOKEN ERROR: ${(error as Error).message} : ${
+        (error as Error).name
+      }`
+    );
+    // eslint-disable-next-line no-console
+    console.error(
+      `POST AUTH TOKEN ERROR: ${(error as Error).message} : ${
+        (error as Error).name
+      }`
+    );
+    throw error;
   }
 }
 
-
-function decodePayload( jwt: string ): DidAuthResponsePayload{
-  const { payload } = JWT.decode(jwt, { complete: true });
-  return payload as DidAuthResponsePayload;
+function getEnterpriseDID(token: string): string {
+  const payload = jwt_decode(token);
+  return (payload as IEnterpriseAuthZToken).did;
 }
 
 function getJwtNonce(jwt: string): string {
-  return decodePayload(jwt).nonce
+  const payload = jwt_decode(jwt);
+  return (payload as IEnterpriseAuthZToken).nonce;
 }
 
-function getUserDid( jwt: string ): string {
-  const didWithSufix = decodePayload(jwt).sub_jwk.kid;
-  return parseUserDid(didWithSufix);
-}
-
-function parseUserDid( did: string ): string {
+function parseUserDid(did: string): string {
   return did.split("#")[0];
 }
 
-function isTokenExpired(jwt) {
+function getUserDid(jwt: string): string {
+  const payload = jwt_decode(jwt);
+  const didWithSufix = (payload as DidAuthTypes.DidAuthResponsePayload).sub_jwk
+    .kid;
+  if (!didWithSufix) throw new BadRequestException(ERRORS.NO_KID_FOUND);
+  return parseUserDid(didWithSufix);
+}
+
+function isTokenExpired(jwt: string): boolean {
   if (jwt === null || jwt === "") return true;
-  const payload = decodePayload(jwt);
-  if (!payload || !payload.exp) return true;
-  return +payload.exp * 1000 < Date.now();
+  const payload = jwt_decode(jwt);
+  if (!payload) return true;
+  const { exp } = payload as JWTPayload;
+  if (!exp) return true;
+  return +exp * 1000 < Date.now();
 }
 
 export {
@@ -66,5 +115,7 @@ export {
   getUserDid,
   getJwtNonce,
   isTokenExpired,
-  getAuthToken
+  getAuthToken,
+  getVcFromScope,
+  getEnterpriseDID,
 };

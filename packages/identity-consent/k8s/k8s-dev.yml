@@ -37,6 +37,11 @@ spec:
             configMapKeyRef:
               name: identity-provider-configmap
               key: BASE_URL
+        - name: API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: identity-provider-configmap
+              key: API_URL
         - name: PORT
           valueFrom:
             configMapKeyRef:
@@ -57,6 +62,11 @@ spec:
             configMapKeyRef:
               name: identity-provider-configmap
               key: MOCK_TLS_TERMINATION
+        - name: API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: identity-api-key
+              key: api-key
       restartPolicy: Always
 ---
 
@@ -87,7 +97,7 @@ spec:
   tls:
   - hosts:
     - dev.vidchain.net
-    secretName: tls-secret-production
+    secretName: tls-secret-development
   rules:
   - host: dev.vidchain.net
     http:
