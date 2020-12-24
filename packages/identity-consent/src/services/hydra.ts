@@ -96,7 +96,7 @@ export async function acceptLoginRequest(
   challenge: string,
   body: Record<string, unknown>
 ): Promise<LoginAcceptResponse> {
-  return (await put("login", "reject", challenge, body)) as LoginAcceptResponse;
+  return (await put("login", "accept", challenge, body)) as LoginAcceptResponse;
 }
 // Rejects a login request.
 export async function rejectLoginRequest(
