@@ -88,26 +88,9 @@ const generateJwtRequest = async (
 
 @Processor("siop")
 export default class SiopProcessor {
-  private readonly socket;
-
   constructor(
     @InjectQueue("siopError") private readonly siopErrorQueue: Queue
-  ) {
-    this.socket = io(BASE_URL);
-    this.socket.on("connect", () => {
-      this.logger.log(this.socket.connected); // true
-      this.logger.debug(
-        `Connected? ${Boolean(
-          this.socket.connected
-        ).toString()} to '${BASE_URL}' with id from me as a client: ${
-          this.socket.id
-        }`
-      );
-    });
-    this.logger.debug(
-      `Connected to '${BASE_URL}' with id from me as a client: ${this.socket.id}`
-    );
-  }
+  ) {}
 
   private readonly logger = new Logger(SiopProcessor.name);
 
@@ -217,7 +200,23 @@ export default class SiopProcessor {
       // this.socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
 
       this.logger.log("Going to connect");
-      this.socket.connect();
+      const socket = io(BASE_URL);
+      socket.connect();
+      socket.on("connect", () => {
+        this.logger.log(socket.connected); // true
+        this.logger.debug(
+          `Connected? ${Boolean(
+            socket.connected
+          ).toString()} to '${BASE_URL}' with id from me as a client: ${
+            socket.id
+          }`
+        );
+        socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
+      });
+      this.logger.debug(
+        `Connected to '${BASE_URL}' with id from me as a client: ${socket.id}`
+      );
+
       /*
       this.socket.on("connect", () => {
         this.logger.log(this.socket.connected); // true
@@ -232,18 +231,18 @@ export default class SiopProcessor {
         this.socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
       });
       */
-      this.socket.on("disconnect", (reason: string) => {
+      socket.on("disconnect", (reason: string) => {
         this.logger.log(`Disconnect: Reason -> ${reason}`);
       });
 
       this.logger.log("Out from connect");
-      this.socket.on("connect_error", () => {
+      socket.on("connect_error", () => {
         setTimeout(() => {
           this.logger.log("Connection error");
-          this.socket.connect();
+          socket.connect();
         }, 1000);
       });
-      this.socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
+      socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
       this.logger.log("End of function");
     }
 
