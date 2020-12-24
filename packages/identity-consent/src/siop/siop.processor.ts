@@ -88,9 +88,26 @@ const generateJwtRequest = async (
 
 @Processor("siop")
 export default class SiopProcessor {
+  private readonly socket;
+
   constructor(
     @InjectQueue("siopError") private readonly siopErrorQueue: Queue
-  ) {}
+  ) {
+    this.socket = io(BASE_URL);
+    this.socket.on("connect", () => {
+      this.logger.log(this.socket.connected); // true
+      this.logger.debug(
+        `Connected? ${Boolean(
+          this.socket.connected
+        ).toString()} to '${BASE_URL}' with id from me as a client: ${
+          this.socket.id
+        }`
+      );
+    });
+    this.logger.debug(
+      `Connected to '${BASE_URL}' with id from me as a client: ${this.socket.id}`
+    );
+  }
 
   private readonly logger = new Logger(SiopProcessor.name);
 
@@ -111,8 +128,6 @@ export default class SiopProcessor {
     host: REDIS_URL,
     keyPrefix: "jwt:",
   });
-
-  // private readonly socket = io(BASE_URL);
 
   @Process("userRequest")
   async handleSiopRequest(job: Job): Promise<string> {
@@ -200,21 +215,36 @@ export default class SiopProcessor {
       // this.logger.log(BASE_URL);
       // sends an event to the server, to send the QR to the client
       // this.socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
-      const socket = io();
+
       this.logger.log("Going to connect");
-      socket.on("connect", () => {
-        this.logger.log(socket.connected); // true
+      this.socket.connect();
+      /*
+      this.socket.on("connect", () => {
+        this.logger.log(this.socket.connected); // true
         this.logger.debug(
           `Connected? ${Boolean(
-            socket.connected
+            this.socket.connected
           ).toString()} to '${BASE_URL}' with id from me as a client: ${
-            socket.id
+            this.socket.id
           }`
         );
         // sends an event to the server, to send the QR to the client
-        socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
+        this.socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
       });
+      */
+      this.socket.on("disconnect", (reason: string) => {
+        this.logger.log(`Disconnect: Reason -> ${reason}`);
+      });
+
       this.logger.log("Out from connect");
+      this.socket.on("connect_error", () => {
+        setTimeout(() => {
+          this.logger.log("Connection error");
+          this.socket.connect();
+        }, 1000);
+      });
+      this.socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
+      this.logger.log("End of function");
     }
 
     // when clientUriRedirect is present, we post the SIOP URI to the user server
