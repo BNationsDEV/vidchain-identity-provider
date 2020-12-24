@@ -197,10 +197,13 @@ export default class SiopProcessor {
       this.logger.debug(
         `message QR Response: ${JSON.stringify(messageSendQRResponse, null, 2)}`
       );
-      this.logger.log(BASE_URL);
+      // this.logger.log(BASE_URL);
       // sends an event to the server, to send the QR to the client
       // this.socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
       const socket2 = io("/");
+      this.logger.debug(
+        `Connected to '/' with id from me as a client: ${socket2.id}`
+      );
       // sends an event to the server, to send the QR to the client
       socket2.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
     }
