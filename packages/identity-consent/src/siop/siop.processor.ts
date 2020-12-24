@@ -112,7 +112,7 @@ export default class SiopProcessor {
     keyPrefix: "jwt:",
   });
 
-  private readonly socket = io(BASE_URL);
+  // private readonly socket = io(BASE_URL);
 
   @Process("userRequest")
   async handleSiopRequest(job: Job): Promise<string> {
@@ -199,7 +199,10 @@ export default class SiopProcessor {
       );
       this.logger.log(BASE_URL);
       // sends an event to the server, to send the QR to the client
-      this.socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
+      // this.socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
+      const socket2 = io("/");
+      // sends an event to the server, to send the QR to the client
+      socket2.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
     }
 
     // when clientUriRedirect is present, we post the SIOP URI to the user server
