@@ -32,7 +32,8 @@ const get = async (flow: string, challenge: string): Promise<unknown> => {
   if (res.status < 200 || res.status > 302) {
     // This will handle any errors that aren't network related (network related errors are handled automatically)
     return res.json().then((body) => {
-      Logger.error("An error occurred while making a HTTP request: ", body);
+      const logger = new Logger("Hydra: get");
+      logger.error("An error occurred while making a HTTP request: ", body);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       return Promise.reject(new HttpException(body.error.message, res.status));
     });
@@ -64,7 +65,8 @@ const put = async (
   if (res.status < 200 || res.status > 302) {
     // This will handle any errors that aren't network related (network related errors are handled automatically)
     return res.json().then((body_1) => {
-      Logger.error("An error occurred while making a HTTP request: ", body_1);
+      const logger = new Logger("Hydra: put");
+      logger.error("An error occurred while making a HTTP request: ", body_1);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       return Promise.reject(new Error(body_1.error.message));
     });

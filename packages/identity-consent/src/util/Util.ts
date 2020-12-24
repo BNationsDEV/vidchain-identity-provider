@@ -27,23 +27,24 @@ function getVcFromScope(inputScope: string): OidcClaimRequest {
 }
 
 async function doPostCall(data: unknown, url: string): Promise<unknown> {
+  const logger = new Logger("Util: doPostCall");
   try {
-    Logger.log(`Calling url: ${url}`);
+    logger.log(`Calling url: ${url}`);
     const response = await axios.post(url, data);
-    Logger.log("AXIOS RESPONSE: ");
-    Logger.log(response.data);
+    logger.log("AXIOS RESPONSE: ");
+    logger.log(response.data);
     return response.data as unknown;
   } catch (error) {
-    Logger.log((error as Error).message, url);
-    Logger.log((error as Error).name);
-    Logger.log((error as Error).stack);
+    logger.log((error as Error).message, url);
+    logger.log((error as Error).name);
+    logger.log((error as Error).stack);
     throw error;
   }
 }
 
 async function getAuthToken(): Promise<string> {
   const url = SESSIONS;
-  const logger = new Logger("AuthToken");
+  const logger = new Logger("Util: AuthToken");
   logger.debug(JSON.stringify(Entity, null, 2));
   // eslint-disable-next-line no-console
   console.log(JSON.stringify(Entity, null, 2));
