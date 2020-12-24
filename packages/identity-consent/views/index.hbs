@@ -93,7 +93,9 @@
         }
       },
       created() {
-        this.socket = io('/')
+        this.socket = io('/', {
+          transports: ["websocket"],
+        });
         //Skip the click button functionality (do the request when opens)
         let urlParams = new URLSearchParams(window.location.search);
         let login_challenge = urlParams.get('login_challenge');
