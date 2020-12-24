@@ -200,7 +200,8 @@ export default class SiopProcessor {
       // this.logger.log(BASE_URL);
       // sends an event to the server, to send the QR to the client
       // this.socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
-      const socket = io(BASE_URL);
+      const socket = io();
+      this.logger.log("Going to connect");
       socket.on("connect", () => {
         this.logger.log(socket.connected); // true
         this.logger.debug(
@@ -213,6 +214,7 @@ export default class SiopProcessor {
         // sends an event to the server, to send the QR to the client
         socket.emit("sendSIOPRequestJwtToFrontend", messageSendQRResponse);
       });
+      this.logger.log("Out from connect");
     }
 
     // when clientUriRedirect is present, we post the SIOP URI to the user server
