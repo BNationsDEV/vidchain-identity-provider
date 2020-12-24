@@ -24,7 +24,8 @@ import {
 @WebSocketGateway({ cookie: false })
 export default class EventsGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
-  @WebSocketServer() wss!: Server;
+  @WebSocketServer()
+  wss!: Server;
 
   constructor(@InjectQueue("siop") private readonly siopQueue: Queue) {}
 
