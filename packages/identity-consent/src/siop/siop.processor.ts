@@ -42,13 +42,20 @@ import {
   SiopAckRequest,
 } from "../@types/siop";
 
+// Specifies whether the response should be returned to the redirect URI
+// in the intiator context, or whether the response can be returned
+// in a new/empty context. In this case, it will be in the same context
+// (a mobile device). The default responseContext is rp, indicating that
+// the response should be submitted in the existing initiator context.
 const getResponseContext = (
   userRequest: UserRequest
 ): DidAuthTypes.DidAuthResponseContext => {
   if (userRequest.isMobile) {
-    return DidAuthTypes.DidAuthResponseContext.WALLET;
+    //  OIDP is in the same context as the SIOP Client
+    return DidAuthTypes.DidAuthResponseContext.RP;
   }
-  return DidAuthTypes.DidAuthResponseContext.RP;
+  //  OIDP is in a different SIOP Client
+  return DidAuthTypes.DidAuthResponseContext.WALLET;
 };
 
 const generateJwtRequest = async (
