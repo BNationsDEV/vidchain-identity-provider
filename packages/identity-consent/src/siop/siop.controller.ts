@@ -22,6 +22,7 @@ import {
   REDIS_PORT,
   BASE_URL,
   SIGNATURE_VALIDATION,
+  API_BASE_URL,
 } from "../config";
 import {
   getUserDid,
@@ -85,6 +86,7 @@ export default class SiopController {
       verificationType: {
         verifyUri: SIGNATURE_VALIDATION,
         authZToken,
+        didUrlResolver: `${API_BASE_URL}/api/v1/identifiers`,
       },
       redirectUri: `${BASE_URL}/siop/responses`,
       nonce,
