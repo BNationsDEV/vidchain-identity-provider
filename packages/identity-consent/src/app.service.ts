@@ -73,9 +73,11 @@ export default class AppService {
     challenge: string,
     @Res() res: Response
   ): void {
+    const logger = new Logger("checkLogin");
     hydra
       .getLoginRequest(challenge)
       .then(async (response) => {
+        logger.log("getLoginRequest success");
         // If hydra was already able to authenticate the user, skip will be true and we do not need to re-authenticate
         // the user.
         if (response.skip) {
@@ -100,6 +102,7 @@ export default class AppService {
       })
       // This will handle any error that happens when making HTTP calls to hydra
       .catch((error) => {
+        logger.error("getLoginRequest error");
         throw new BadRequestException(
           `${ERRORS.HYDRA_LOGIN} : (${(error as Error).message})`
         );
@@ -109,11 +112,13 @@ export default class AppService {
   doLogin(@Req() req: Request, @Res() res: Response): void {
     const body = req.body as DoLogin;
     const { challenge } = body;
+    const logger = new Logger("doLogin");
     if (body.submit === "Deny access") {
+      logger.log("doLogin deny access");
       processDenyAccess(challenge, res);
       return;
     }
-
+    logger.log("doLogin success");
     processAccessGranted(challenge, body, res);
   }
 
@@ -121,7 +126,8 @@ export default class AppService {
     hydra
       .getConsentRequest(challenge)
       .then((response) => {
-        Logger.log(response.context);
+        const logger = new Logger("App Service");
+        logger.log(response.context);
         // If a user has granted this application the requested scope, hydra will tell us to not show the UI.
         if (response.skip) {
           // You can apply logic here, for example grant another scope, or do whatever...

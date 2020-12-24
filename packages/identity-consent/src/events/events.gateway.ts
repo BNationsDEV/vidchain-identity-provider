@@ -77,6 +77,7 @@ export default class EventsGateway
       `SIOP Request SIOP URI:    ${qrResponse.qRResponse.siopUri}`
     );
     const { clientId } = qrResponse;
+    this.logger.log(`Client ID: ${clientId}`);
     this.wss.to(clientId).emit("printQR", qrResponse.qRResponse);
   }
 
