@@ -21,8 +21,10 @@ if (MOCK_TLS_TERMINATION) {
 
 // A little helper that takes type (can be "login" or "consent") and a challenge and returns the response from ORY Hydra.
 const get = async (flow: string, challenge: string): Promise<unknown> => {
+  const logger = new Logger("Hydra: get");
   const url = new URL(`/oauth2/auth/requests/${flow}`, hydraUrl);
   url.search = querystring.stringify({ [`${flow}_challenge`]: challenge });
+  logger.debug(`going to fetch put: ${url.toString()}`);
   const res = await fetch(url.toString(), {
     method: "GET",
     headers: {
@@ -32,7 +34,6 @@ const get = async (flow: string, challenge: string): Promise<unknown> => {
   if (res.status < 200 || res.status > 302) {
     // This will handle any errors that aren't network related (network related errors are handled automatically)
     return res.json().then((body) => {
-      const logger = new Logger("Hydra: get");
       logger.error("An error occurred while making a HTTP request: ", body);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       return Promise.reject(new HttpException(body.error.message, res.status));
@@ -48,9 +49,11 @@ const put = async (
   challenge: string,
   body: Record<string, unknown>
 ): Promise<unknown> => {
+  const logger = new Logger("Hydra: put");
   const url = new URL(`/oauth2/auth/requests/${flow}/${action}`, hydraUrl);
   url.search = querystring.stringify({ [`${flow}_challenge`]: challenge });
-  const res = await fetch(
+  logger.debug(`going to fetch put: ${url.toString()}`);
+  return fetch(
     // Joins process.env.HYDRA_ADMIN_URL with the request path
     url.toString(),
     {
@@ -61,17 +64,25 @@ const put = async (
         ...mockTlsTermination,
       },
     }
-  );
-  if (res.status < 200 || res.status > 302) {
-    // This will handle any errors that aren't network related (network related errors are handled automatically)
-    return res.json().then((body_1) => {
-      const logger = new Logger("Hydra: put");
-      logger.error("An error occurred while making a HTTP request: ", body_1);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      return Promise.reject(new Error(body_1.error.message));
-    });
-  }
-  return res.json();
+    // eslint-disable-next-line func-names
+  ).then(async (res) => {
+    // console.log("response put");
+    // console.log(res.status);
+    if (res.status < 200 || res.status > 302) {
+      // This will handle any errors that aren't network related (network related errors are handled automatically)
+      // eslint-disable-next-line func-names
+      return res.json().then(function (bodyResponse) {
+        logger.error(
+          "An error occurred while making a HTTP request: ",
+          bodyResponse
+        );
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        return Promise.reject(new Error((bodyResponse.error as Error).message));
+      });
+    }
+
+    return res.json();
+  });
 };
 
 // Fetches information on a login request.

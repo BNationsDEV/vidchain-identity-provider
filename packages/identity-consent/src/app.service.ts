@@ -13,6 +13,9 @@ import * as config from "./config";
 import { DoConsent, DoLogin, LoginCookie } from "./@types/identityProvider";
 
 function processAccessGranted(challenge: string, body: DoLogin, res: Response) {
+  const logger = new Logger("processAccessGranted");
+  logger.debug(`body: ${JSON.stringify(body, null, 2)}`);
+  logger.debug(`challenge: ${challenge}`);
   hydra
     .acceptLoginRequest(challenge, {
       // Subject is an alias for user ID. A subject can be a random string, a UUID, an email address, ....
