@@ -18,7 +18,7 @@
     <input type="hidden" name="challenge" value={{challenge}}>
     <input type="hidden" id="client_name" name="client_name" value={{client_name}}>
     <input type="hidden" id="scope" name="scope" value={{scope}}>
-    <img id="logo" class="logo" src="/static/logo__Vidchain.png"></img>
+    <img id="logo" class="logo" src="/static/validated_white.png"></img>
     <h1 class="subtitle">Authenticate with your VIDchain wallet</h1>
     <h4 class="subtitle">Go to login in your VIDchain mobile app and scan the QR code.</h4>
     <img id="qrImage" class="qrImage"></img>
@@ -121,15 +121,16 @@
   <style scoped>
     .subtitle {
       align-self: center;
-      color: #00bf71;
+      color: white;
     }
 
     .formLogin {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      background: #ffffff;
-      padding: 1rem 1.25rem;
+      background: rgba(21, 26, 53, 1);
+      padding-bottom: 100%;
+      padding-top: 150px;
     }
 
     .logo {
@@ -143,13 +144,13 @@
       cursor: pointer;
       outline: none;
       border: none;
-      background-color: #00bf71;
+      background-color: white;
       height: auto;
       padding: 2%;
       border-radius: 20px;
       font-size: 1.5rem;
       font-weight: 600;
-      color: #ffffff;
+      color: rgba(21, 26, 53, 1);
       background-size: 100% 100%;
       box-shadow: 0 0 0 7px var(--light) inset;
       align-self: center;
@@ -164,7 +165,7 @@
     .remember {
       align-self: center;
       margin-top: 2%;
-      color: #00bf71;
+      color: white;
     }
   </style>
 </body>
