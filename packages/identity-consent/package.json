@@ -30,7 +30,7 @@
   "dependencies": {
     "@nestjs/bull": "^0.3.1",
     "@nestjs/cli": "^7.5.4",
-    "@nestjs/common": "^7.6.4",
+    "@nestjs/common": "^7.6.5",
     "@nestjs/core": "^7.6.4",
     "@nestjs/platform-express": "^7.6.4",
     "@nestjs/platform-socket.io": "^7.6.4",
