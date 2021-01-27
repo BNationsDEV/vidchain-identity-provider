@@ -4,6 +4,7 @@ import crypto from "crypto";
 // importing .env variables
 dotenv.config();
 
+const REMEMBER_FOR_TIME = 3600; // When the session expires, in seconds. Set this to 0 so it will never expire.
 const checkStrVar = (variable: string | undefined, name: string): string => {
   if (!variable) throw new Error(`undefined variable: ${name}`);
   return variable;
@@ -61,4 +62,5 @@ export {
   IDENTITY_PROVIDER_APP,
   API_BASE_URL,
   MOCK_TLS_TERMINATION,
+  REMEMBER_FOR_TIME,
 };

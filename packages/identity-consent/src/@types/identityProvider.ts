@@ -15,6 +15,7 @@ export interface LoginRequestResponse {
   client: {
     client_name: string;
     client_id: string;
+    logo_uri: string;
   };
   requested_scope: string;
 }

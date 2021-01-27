@@ -24,12 +24,8 @@ import {
   SIGNATURE_VALIDATION,
   API_BASE_URL,
 } from "../config";
-import {
-  getUserDid,
-  getJwtNonce,
-  getAuthToken,
-  doPostCall,
-} from "../util/Util";
+import { getUserDid, getJwtNonce } from "../util/Util";
+import { getAuthToken, doPostCall } from "../services/apis";
 import ERRORS from "../util/error";
 import {
   MessageSendSignInResponse,
@@ -110,7 +106,6 @@ export default class SiopController {
       siopResponse,
     };
 
-    // CHECK WHAT TO DO HERE, IF IS FROM WEB FO TO EMIT, OTHERWISE RETURN VALUE
     if (siopResponseJwt.login_challenge) {
       const { did } = siopResponse;
       const body = {
