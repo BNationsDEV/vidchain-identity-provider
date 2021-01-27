@@ -41,9 +41,9 @@ hydra token user \
     --port 9010 \
     --auth-url http://127.0.0.1:9000/oauth2/auth \
     --token-url http://127.0.0.1:9000/oauth2/token \
-    --client-id exampleNow \
-    --client-secret secret \
-    --scope openid,offline
+    --client-id testingCity \
+    --client-secret 123456 \
+    --scope openid,VerifiableIdCredential
 
 # Example Barcelona
 hydra clients create \
