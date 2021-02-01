@@ -1,7 +1,7 @@
 trigger:
   branches:
     include:
-      - main
+      - staging
   paths:
     include:
       - packages/identity-consent
@@ -16,21 +16,22 @@ variables:
   DOCKER_BUILDKIT: 1
   # Image repository
   Repo: 'identity-consent-api'
-  RepoEndpoint: 'k8scrvidchainpro.azurecr.io/identity-consent-api'
+  RepoEndpoint: 'k8scrvidchaindev.azurecr.io/identity-consent-api'
   # Dockerfile
   Dockerfile: 'packages/identity-consent/Dockerfile'
   # Kubernetes YAML
-  k8s: 'packages/identity-consent/k8s/k8s-pro.yml'
+  k8s: 'packages/identity-consent/k8s/k8s-staging.yml'
   # Configmaps
-  configMap: 'packages/identity-consent/k8s/configmap-pro.yml'
+  configMap: 'packages/identity-consent/k8s/configmap-staging.yml'
   # package.json
   packageJson: 'packages/identity-consent/package.json'
   # Kubernetes namespace
-  namespace: 'production'
+  namespace: 'staging'
   # Image tagging: application version - build
   tag: $(Build.BuildNumber)
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
+
 
 stages:
 - stage: 'Build'
@@ -91,7 +92,7 @@ stages:
     displayName: 'Deploy identity-consent'
     pool:
       vmImage: $(vmImageName)
-    environment: 'production'
+    environment: 'staging'
     strategy:
       runOnce:
         deploy:

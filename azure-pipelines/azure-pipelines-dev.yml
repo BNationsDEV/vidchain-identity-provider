@@ -2,6 +2,9 @@ trigger:
   branches:
     include:
       - development
+  paths:
+    include:
+      - packages/identity-consent
 
 pr: none
 
@@ -28,8 +31,7 @@ variables:
   tag: $(Build.BuildNumber)
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
-  # Check if there are changes of the following files
-  checkFiles: '("azure-pipelines/azure-pipelines-dev.yml" "$(configMap)" "$(k8s)" "packages/identity-consent" "packages/hydra")'
+
 
 stages:
 - stage: 'Build'
@@ -49,47 +51,10 @@ stages:
           shortCommit=${commit:0:7}
           echo "##vso[build.updatebuildnumber]$npmVersionString-commit.$shortCommit"
         displayName: 'retrieve $(packageJson) version'
-  - job: CheckChanges
-    displayName: 'Checking changes in identity-consent'
-    pool:
-      vmImage: $(vmImageName)
-    steps:
-    - bash: |
-        declare -a files=$(checkFiles)
-        echo "This script detects if there's any change in:"
-        for f in "${files[@]}"
-        do
-            echo ">>> $f"
-        done
-        echo "********** CHANGES **********"
-        CHANGED_FILES=$(git diff HEAD HEAD~ --name-only)
-        BUILD_REQUIRED=false
-        for f in "${files[@]}" 
-        do 
-            for FILE in $CHANGED_FILES
-            do
-            if [[ $FILE == *$f* ]]; then
-                echo ">>> $FILE >>> CHANGED"
-                BUILD_REQUIRED=true
-                break
-            fi
-            done
-        done
-        if [ $BUILD_REQUIRED = true ]; then
-            echo "Build required."
-            echo "##vso[task.setvariable variable=SOURCE_CODE_CHANGED;isOutput=true]true"
-        else
-            echo "There are no changes that require building a new image."
-            echo "##vso[task.setvariable variable=SOURCE_CODE_CHANGED;isOutput=true]false"
-        fi
-      name: check_changes
-      displayName: 'Check changed files in identity-consent'
   - job: Build       
     displayName: 'Build identity-consent'
     pool:
-      vmImage: $(vmImageName)    
-    dependsOn: CheckChanges      
-    condition: eq(dependencies.CheckChanges.outputs['check_changes.SOURCE_CODE_CHANGED'], 'true')
+      vmImage: $(vmImageName)
     steps:
     - task: Docker@2
       displayName: Login ACR
@@ -125,7 +90,6 @@ stages:
   jobs:
   - deployment: Deploy
     displayName: 'Deploy identity-consent'
-    condition: eq(stageDependencies.Build.CheckChanges.outputs['check_changes.SOURCE_CODE_CHANGED'], 'true')
     pool:
       vmImage: $(vmImageName)
     environment: 'development'
