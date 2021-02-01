@@ -98,6 +98,7 @@ stages:
         deploy:
           steps:
           - checkout: self
+            fetchDepth: 1
           - task: Kubernetes@1
             displayName: Create/update configmap
             inputs:
