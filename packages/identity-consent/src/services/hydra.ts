@@ -66,8 +66,6 @@ const put = async (
     }
     // eslint-disable-next-line func-names
   ).then(async (res) => {
-    // console.log("response put");
-    // console.log(res.status);
     if (res.status < 200 || res.status > 302) {
       // This will handle any errors that aren't network related (network related errors are handled automatically)
       // eslint-disable-next-line func-names

@@ -13,49 +13,87 @@
 </head>
 
 <body>
-  <div id="login-app" class="formLogin">
     <input type="hidden" id="csrf" name="_csrf" value={{csrfToken}}>
     <input type="hidden" name="challenge" value={{challenge}}>
     <input type="hidden" id="client_name" name="client_name" value={{client_name}}>
+    <input type="hidden" id="logo_uri" name="logo_uri" value={{logo_uri}}>
     <input type="hidden" id="scope" name="scope" value={{scope}}>
-    <img id="logo" class="logo" src="/static/validated_white.png"></img>
-    <h1 class="subtitle">Authenticate with your VIDchain wallet</h1>
-    <h3 class="subtitle" id="message"></h3>
-    <h3 class="subtitle" id="listCredentials"></h3>
-    <h4 class="subtitle">Go to login in your VIDchain mobile app and scan the QR code.</h4>
-    <img id="qrImage" class="qrImage"></img>
-    {{!-- <button class="scanButton" v-on:click="sendSIOPClientUriBackend">Continue using Vidchain</button> --}}
-    {{!-- <div class="remember">
-      <input type="checkbox" id="remember" name="remember" v-bind:value="remember" value="1">
-      <label for="remember"><b>Remember me</b></label>
-    </div> --}}
-  </div>
+
+    <div class="leftSide">
+      <img id="logo" class="logo" src="/static/logoHeader.png"></img>
+      <p class="poweredByInMobile">Powered by Validated ID</p>
+      <h1 class="title">Authenticate with your VIDchain wallet</h1>
+      <h3 class="subtitle" id="message"></h3>
+      <div class="listCredentials">
+        <div class="listCredentialsTitle">
+          <img id="imageClient" class="imageClient" src="/static/icon.png"></img>
+          <p class="nameClient" id="nameClient"></p>
+        </div>
+        <hr style="border: 1px solid #D9D5E4;" />
+        <ul style="margin-left: 15%" id="listCredentials"></ul>
+      </div>
+      
+        <div class="footerLeftA">
+          <p class="footerText">You don't have the application yet? <br> Download it from your shop</p>
+        </div>
+        <div class="footerLeftB">
+          <img src="/static/ios.png"></img>
+          <a href="https://play.google.com/store/apps/details?id=com.validatedid.wallet"><img src="/static/android.png"></img></a>
+        </div>
+    </div>
+    <div class="rightSide">
+      <p class="poweredBy">Powered by Validated ID</p>
+      <img id="qrImage" class="qrImage"></img>
+        <div class="footerRight">
+          <img class="imageApp" src="/static/scanApp.png"></img>
+          <p class="footerText">Go to login in your VIDchain mobile<br>app and scan the QR code</p>
+        </div>
+    </div>
+
+ 
   <script>
     const app = new Vue({
       el: '#login-app',
       data: {
-        validationResult: '',
         socket: null,
         clientUriRedirect: '',
         remember: false
       },
       methods: {
-        resetImg() {
-          var img = document.getElementById('qrImage');
-          img.src = '';
-        },
-        resetVars() {
-          this.error = '';
-          this.validationResult = '';
-          this.resetImg();
-        },
 
-        showRequestMessage(){
+        getParameters(){
           let urlParams = new URLSearchParams(window.location.search);
           let scope = decodeURIComponent(document.getElementById('scope').value);
-          let formattedClient =  decodeURIComponent(document.getElementById('client_name').value);
-          document.getElementById('message').innerHTML = `${formattedClient} requests providing the following credentials to login:`;
-          document.getElementById('listCredentials').innerHTML = `${scope.replace("openid,","")}`;
+          let clientName =  decodeURIComponent(document.getElementById('client_name').value);
+          let logoUri =  decodeURIComponent(document.getElementById('logo_uri').value);
+
+          this.renderParameters(scope, clientName, logoUri);
+        },
+
+        renderParameters(scope, clientName, logoUri){
+          document.getElementById('nameClient').innerHTML = `${clientName}`;
+          document.getElementById('message').innerHTML = `${clientName} requests providing the following credentials to login:`;
+          const scopeAsList = scope.split(",");
+          const context = this;
+          scopeAsList.forEach(function(item) { 
+            let liElement = document.createElement("li");
+            liElement.appendChild(document.createTextNode(context.replaceName(item)));
+            document.getElementById("listCredentials").appendChild(liElement);
+          });
+           document.getElementById('imageClient').src = logoUri;
+        },
+
+        startLogin(){
+          let urlParams = new URLSearchParams(window.location.search);
+          let login_challenge = urlParams.get('login_challenge');
+          const data = {
+            clientUriRedirect: this.clientUriRedirect,
+            challenge: login_challenge,
+            client_name: decodeURIComponent(document.getElementById('client_name').value),
+            scope: decodeURIComponent(document.getElementById('scope').value),
+            isMobile: this.isMobileOrTablet()
+          };
+          return data;
         },
 
         displayQr(qrResponse) {
@@ -76,7 +114,6 @@
           let login_challenge = urlParams.get('login_challenge');
           const response = JSON.parse(msg)
           this.resetImg();
-          this.validationResult = `Your Sign-In validation result is: ${response.validationResult}`;
           if (response.validationResult) {
             //Do Post to login
             const did = response.did
@@ -99,23 +136,33 @@
           } else {
             return false
           }
-        }
+        },
+        replaceName(nameScope) {
+          let nameModified = nameScope;
+          if(nameScope === "openid"){
+            nameModified = "did";
+          }
+          // Delete Camel Case: replace capital letter by space
+          nameModified = nameModified.replace(/([A-Z])/g, ' $1').trim();
+          // Replace _ by space too
+          nameModified = nameModified.replace('_', ' ');
+          // Make first character capital letter
+          nameModified = nameModified.charAt(0).toUpperCase() + nameModified.slice(1);
+          return nameModified;
+        },
+        resetImg() {
+          var img = document.getElementById('qrImage');
+          img.src = '';
+        },
+
       },
       created() {
-        this.showRequestMessage();
+        this.getParameters();
         this.socket = io('/', {
           transports: ["websocket"],
         });
-        //Skip the click button functionality (do the request when opens)
-        let urlParams = new URLSearchParams(window.location.search);
-        let login_challenge = urlParams.get('login_challenge');
-        const data = {
-          clientUriRedirect: this.clientUriRedirect,
-          challenge: login_challenge,
-          client_name: decodeURIComponent(document.getElementById('client_name').value),
-          scope: decodeURIComponent(document.getElementById('scope').value),
-          isMobile: this.isMobileOrTablet()
-        };
+        //To skip the click Login button functionality (do the request when opens)
+        const data = this.startLogin();
         this.socket.emit('signIn', data);
 
         this.socket.on('printQR', (qrResponse) => {
@@ -130,47 +177,212 @@
   </script>
 
   <style scoped>
-    .subtitle {
-      align-self: center;
+    html{
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    #header{
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    body{
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .leftSide {
+      float:left; width: 50%; background: rgba(21, 26, 53, 1); height: 100vh
+    }
+    .rightSide {
+      float:right; width: 50%; background: #00BF71;  height: 100vh
+    }
+
+    @media only screen and (max-width: 768px) {
+    .leftSide {
+      width: 100%; background: rgba(21, 26, 53, 1);
+    }
+    .rightSide {
+      visibility: hidden;
+      display: none;
+    }
+    }
+
+    .poweredBy {
+      position: absolute;
+      right: 5%;
+      top: 5%;
       color: white;
     }
 
-    .formLogin {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      background: rgba(21, 26, 53, 1);
-      padding-bottom: 100%;
-      padding-top: 120px;
-    }
-
     .logo {
-      max-width: 300px;
-      margin: 1%;
-      align-self: center;
+      position: absolute;
+      width: 122px;
+      height: 22px;
+      left: 5%;
+      top: 5%;
     }
+    .poweredByInMobile {
+      visibility: hidden;
+      display: none;
+    }
+     @media only screen and (max-width: 768px) {
+       .poweredByInMobile {
+         visibility: visible;
+          display:unset;
+          position: absolute;
+          right: 2%;
+          top: 3%;
+          color: white;
+        }
+     }
 
-    .scanButton {
-      display: block;
-      cursor: pointer;
-      outline: none;
-      border: none;
-      background-color: white;
-      height: auto;
-      padding: 2%;
-      border-radius: 20px;
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: rgba(21, 26, 53, 1);
-      background-size: 100% 100%;
-      box-shadow: 0 0 0 7px var(--light) inset;
-      align-self: center;
-      margin-top: 5%;
+    .title {
+      position: absolute;
+      width: 30%;
+      left: 5%;
+      top: 25%;
+      font-family: TT Norms;
+      font-style: normal;
+      font-weight: 800;
+      font-size: 45px;
+      line-height: 50px;
+      /* or 111% */
+      color: #F2F2F2;
+    }
+    .subtitle {
+      position: absolute;
+      width: 35%;
+      left: 5%;
+      top: 42%;
+      font-family: TT Norms;
+      font-style: normal;
+      font-weight: 800;
+      font-size: 16px;
+      line-height: 25px;
+      /* or 111% */
+      color: #F2F2F2;
+    }
+    
+    .listCredentials {
+      position: absolute;
+      width: 35%;
+      height: 20%;
+      left: 5%;
+      top: 48%;
+      background: #F2F2F2;
+      border-radius: 2px;
+    }
+    @media only screen and (max-width: 768px) {
+       .title{
+        position: absolute;
+        width: 90%;
+        left: 5%;
+        top: 15%;
+        text-align: center;
+       }
+       .subtitle{
+        position: absolute;
+        width: 90%;
+        left: 5%;
+        top: 40%;
+        text-align: center;
+       }
+       .listCredentials {
+          position: absolute;
+          width: 90%;
+          height: 20%;
+          left: 5%;
+          top: 50%;
+          background: #F2F2F2;
+          border-radius: 2px;
+        }
+     }
+    .footerLeftA{
+      position: absolute;
+      left: 5%;
+      bottom: 5%;
+    }
+    .footerLeftB{
+      position: absolute;
+      left: 27%;
+      bottom: 5%;
+    }
+    .footerText{
+      font-family: TT Norms;
+      font-style: normal;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 18px;
+      color: #FFFFFF;
+    }
+    @media only screen and (max-width: 768px) {
+      .footerLeftA{
+        text-align: center;
+        left: 20%;
+        bottom: 15%;
+      }
+      .footerLeftB{
+        position: absolute;
+        left: 15%;
+        bottom: 5%;
+      }
     }
 
     .qrImage {
-      max-width: 300px;
-      align-self: center;
+      position: absolute;
+      left: 65%;
+      top: 30%;
+    }
+    .footerRight{
+      position: absolute;
+      left: 65%;
+      bottom: 5%;
+      display: flex;
+      flex-direction: row;
+      width: 20%;
+    }
+
+    .imageApp {
+      width: 24px;
+      height: 43px;
+      margin-right: 8%;
+      margin-top: 1%;
+    }
+
+    .listCredentialsTitle{
+      display: flex;
+      flex-direction: row;
+      height: 28%;
+      margin-left: 5%;
+    }
+
+    .nameClient {
+      font-family: TT Norms;
+      font-style: normal;
+      font-weight: normal;
+      font-size: 16px;
+      line-height: 18px;
+      /* or 112% */
+      font-feature-settings: 'liga' off;
+      color: #7B788A;
+      margin-left: 5%;
+    }
+    .imageClient {
+      width: 36px;
+      height: 36px;
+      margin-top: 2%;
+      margin-bottom: 1%;
+    }
+    #listCredentials {
+      font-family: TT Norms;
+      font-style: normal;
+      font-weight: normal;
+      font-size: 16px;
+      line-height: 22px;
+      /* identical to box height, or 157% */
+
+      font-feature-settings: 'liga' off;
+
+      color: #7B788A;
     }
 
     .remember {
@@ -178,6 +390,8 @@
       margin-top: 2%;
       color: white;
     }
+
+
   </style>
 </body>
 

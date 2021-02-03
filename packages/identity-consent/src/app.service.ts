@@ -24,7 +24,7 @@ function processAccessGranted(challenge: string, body: DoLogin, res: Response) {
       remember: Boolean(body.remember),
 
       // When the session expires, in seconds. Set this to 0 so it will never expire.
-      remember_for: 3600,
+      remember_for: config.REMEMBER_FOR_TIME,
 
       // Sets which "level" (e.g. 2-factor authentication) of authentication the user has. The value is really arbitrary
       // and optional. In the context of OpenID Connect, a value of 0 indicates the lowest authorization level.
@@ -93,6 +93,7 @@ export default class AppService {
           // eslint-disable-next-line no-underscore-dangle
           csrfToken: (cookies as LoginCookie)._csrf,
           challenge,
+          logo_uri: encodeURIComponent(response.client.logo_uri),
           client_name:
             encodeURIComponent(response.client.client_name) ||
             response.client.client_id,
@@ -219,7 +220,7 @@ export default class AppService {
             // scopes from the same user, without showing the UI, in the future.
             remember: Boolean(body.remember),
             // When this "remember" sesion expires, in seconds. Set this to 0 so it will never expire.
-            remember_for: 3600,
+            remember_for: config.REMEMBER_FOR_TIME,
           })
           .then((responseAccept) => {
             res.send(responseAccept.redirect_to);

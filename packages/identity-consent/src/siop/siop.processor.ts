@@ -29,12 +29,8 @@ import {
   SIGNATURES,
 } from "../config";
 import { UserRequest } from "../@types/events";
-import {
-  doPostCall,
-  getAuthToken,
-  getEnterpriseDID,
-  getVcFromScope,
-} from "../util/Util";
+import { getEnterpriseDID, getVcFromScope } from "../util/Util";
+import { doPostCall, getAuthToken } from "../services/apis";
 import ERRORS from "../util/error";
 import {
   MessageSendQRResponse,
@@ -180,7 +176,7 @@ export default class SiopProcessor {
     }
     const userRequestData = job.data as UserRequest;
 
-    // Append the client name to the result
+    // Append the client name and the logo to the result
     const qrCodeResult = `${result}&client_name=${userRequestData.clientName}`;
 
     // when clientUriRedirect NOT present, print QR to be read from an APP

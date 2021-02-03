@@ -1,7 +1,7 @@
 trigger:
   branches:
     include:
-      - development
+      - staging
   paths:
     include:
       - packages/identity-consent
@@ -20,13 +20,13 @@ variables:
   # Dockerfile
   Dockerfile: 'packages/identity-consent/Dockerfile'
   # Kubernetes YAML
-  k8s: 'packages/identity-consent/k8s/k8s-dev.yml'
+  k8s: 'packages/identity-consent/k8s/k8s-staging.yml'
   # Configmaps
-  configMap: 'packages/identity-consent/k8s/configmap-dev.yml'
+  configMap: 'packages/identity-consent/k8s/configmap-staging.yml'
   # package.json
   packageJson: 'packages/identity-consent/package.json'
   # Kubernetes namespace
-  namespace: 'development'
+  namespace: 'staging'
   # Image tagging: application version - build
   tag: $(Build.BuildNumber)
   # Agent VM image name
@@ -92,7 +92,7 @@ stages:
     displayName: 'Deploy identity-consent'
     pool:
       vmImage: $(vmImageName)
-    environment: 'development'
+    environment: 'staging'
     strategy:
       runOnce:
         deploy:
