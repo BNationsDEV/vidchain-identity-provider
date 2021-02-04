@@ -58,13 +58,11 @@ export default class SiopController {
 
   @Post("responses")
   async validateSIOPResponse(
-    @Body() siopEncodedResponse: string
+    @Body() siopResponseJwt: SiopResponseJwt
   ): Promise<DidAuthTypes.DidAuthValidationResponse> {
     this.logger.log(
       "[RP Backend] Received POST SIOP Response from SIOP client"
     );
-    const bodyDecoded = decodeURI(siopEncodedResponse);
-    const siopResponseJwt = JSON.parse(bodyDecoded) as SiopResponseJwt;
     if (
       !siopResponseJwt ||
       !siopResponseJwt.id_token ||
