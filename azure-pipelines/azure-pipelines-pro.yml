@@ -54,6 +54,7 @@ stages:
     displayName: 'Build identity-consent'
     pool:
       vmImage: $(vmImageName)
+    dependsOn: GetPackageVersion
     steps:
     - task: Docker@2
       displayName: Login ACR
