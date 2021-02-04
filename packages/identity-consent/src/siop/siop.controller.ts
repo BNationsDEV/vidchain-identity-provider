@@ -58,12 +58,18 @@ export default class SiopController {
 
   @Post("responses")
   async validateSIOPResponse(
-    @Body() siopResponseJwt: SiopResponseJwt
+    @Body() siopEncodedResponse: string
   ): Promise<DidAuthTypes.DidAuthValidationResponse> {
     this.logger.log(
       "[RP Backend] Received POST SIOP Response from SIOP client"
     );
-    if (!siopResponseJwt || !siopResponseJwt.jwt) {
+    const bodyDecoded = decodeURI(siopEncodedResponse);
+    const siopResponseJwt = JSON.parse(bodyDecoded) as SiopResponseJwt;
+    if (
+      !siopResponseJwt ||
+      !siopResponseJwt.id_token ||
+      !siopResponseJwt.state
+    ) {
       throw new BadRequestException(DidAuthErrors.BAD_PARAMS);
     }
     const authZToken = await getAuthToken();
@@ -72,21 +78,20 @@ export default class SiopController {
     // then verify nonce and remove it from redis (it can be called once)
     // extract nonce and cliendId from redis (using state as key -> it has to change as now it is using another nonce as key)
     // validate siop response
-    const nonce = await this.getValidNonce(siopResponseJwt.jwt);
+    const nonce = await this.getValidNonce(siopResponseJwt.id_token);
     const clientID = await this.getValidClient(nonce);
 
     const optsVerify: DidAuthTypes.DidAuthVerifyOpts = {
       verificationType: {
         verifyUri: SIGNATURE_VALIDATION,
         authZToken,
-        // !!! TODO: FIX: !!! PATCH change to /api/v1/identifiers
-        didUrlResolver: `${API_BASE_URL}/api/v1/patch-identifiers`,
+        didUrlResolver: `${API_BASE_URL}/api/v1/identifiers`,
       },
       redirectUri: `${BASE_URL}/siop/responses`,
       nonce,
     };
     const validationResponse = await verifyDidAuthResponse(
-      siopResponseJwt.jwt,
+      siopResponseJwt.id_token,
       optsVerify
     );
 
@@ -97,8 +102,8 @@ export default class SiopController {
 
     const siopResponse: SiopResponse = {
       validationResult: validationResponse.signatureValidation,
-      did: getUserDid(siopResponseJwt.jwt),
-      jwt: siopResponseJwt.jwt,
+      did: getUserDid(siopResponseJwt.id_token),
+      jwt: siopResponseJwt.id_token,
     };
 
     const messageSendSignInResponse: MessageSendSignInResponse = {
@@ -112,7 +117,7 @@ export default class SiopController {
         challenge: siopResponseJwt.login_challenge,
         remember: false,
         did,
-        jwt: siopResponseJwt.jwt,
+        jwt: siopResponseJwt.id_token,
       };
       return (await doPostCall(
         body,

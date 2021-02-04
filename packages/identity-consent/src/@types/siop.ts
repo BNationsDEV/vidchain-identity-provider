@@ -29,7 +29,8 @@ export interface MessageSendSignInResponse {
 }
 
 export interface SiopResponseJwt {
-  jwt: string;
+  id_token: string;
+  state: string;
   login_challenge?: string;
 }
 
