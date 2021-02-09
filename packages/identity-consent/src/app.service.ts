@@ -43,7 +43,9 @@ function processAccessGranted(challenge: string, body: DoLogin, res: Response) {
     // This will handle any error that happens when making HTTP calls to hydra
     .catch((error) => {
       throw new BadRequestException(
-        `${ERRORS.HYDRA_LOGIN} : ${(error as Error).message}`
+        `${ERRORS.HYDRA_LOGIN} : ${JSON.stringify(
+          JSON.parse((error as Error).message)
+        )}`
       );
     });
 }
