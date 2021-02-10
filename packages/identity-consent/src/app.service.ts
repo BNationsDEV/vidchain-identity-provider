@@ -102,9 +102,11 @@ export default class AppService {
       })
       // This will handle any error that happens when making HTTP calls to hydra
       .catch((error) => {
-        logger.error(`${ERRORS.HYDRA_LOGIN} : (${(error as Error).message})`);
+        logger.error(
+          `${ERRORS.HYDRA_LOGIN} : ${JSON.stringify((error as Error).message)}`
+        );
         throw new BadRequestException(
-          `${ERRORS.HYDRA_LOGIN} : (${(error as Error).message})`
+          `${ERRORS.HYDRA_LOGIN} : ${JSON.stringify((error as Error).message)}`
         );
       });
   }
