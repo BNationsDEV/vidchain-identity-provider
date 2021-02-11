@@ -140,7 +140,10 @@
         replaceName(nameScope) {
           let nameModified = nameScope;
           if(nameScope === "openid"){
-            nameModified = "did";
+            return  "Your DID";
+          }
+          if(nameScope === "BBVAAccountCredential"){
+            return "Bank Credential";
           }
           // Delete Camel Case: replace capital letter by space
           nameModified = nameModified.replace(/([A-Z])/g, ' $1').trim();
