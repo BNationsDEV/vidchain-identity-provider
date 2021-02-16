@@ -49,26 +49,26 @@ spec:
               configMapKeyRef:
                 name: hydra-configmap
                 key: SERVE_COOKIES_SAME_SITE_MODE
-          - name: CORS_ENABLED
+          - name: SERVE_PUBLIC_CORS_ENABLED
             valueFrom:
               configMapKeyRef:
                 name: hydra-configmap
-                key: CORS_ENABLED
-          - name: CORS_ALLOWED_ORIGINS
+                key: SERVE_PUBLIC_CORS_ENABLED
+          - name: SERVE_PUBLIC_CORS_ALLOWED_ORIGINS
             valueFrom:
               configMapKeyRef:
                 name: hydra-configmap
-                key: CORS_ALLOWED_ORIGINS
-          - name: CORS_DEBUG
+                key: SERVE_PUBLIC_CORS_ALLOWED_ORIGINS
+          - name: SERVE_PUBLIC_CORS_DEBUG
             valueFrom:
               configMapKeyRef:
                 name: hydra-configmap
-                key: CORS_DEBUG
-          - name: HTTPS_ALLOW_TERMINATION_FROM
+                key: SERVE_PUBLIC_CORS_DEBUG
+          - name: SERVE_TLS_ALLOW_TERMINATION_FROM
             valueFrom:
               configMapKeyRef:
                 name: hydra-configmap
-                key: HTTPS_ALLOW_TERMINATION_FROM
+                key: SERVE_TLS_ALLOW_TERMINATION_FROM
           - name: WEBFINGER_OIDC_DISCOVERY_SUPPORTED_SCOPE
             valueFrom:
               configMapKeyRef:
@@ -137,7 +137,6 @@ metadata:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/ssl-passthrough: "true"
-    # nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     nginx.ingress.kubernetes.io/auth-proxy-set-headers: custom-headers
 spec:
   tls:
