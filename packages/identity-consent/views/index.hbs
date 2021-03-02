@@ -80,7 +80,9 @@
             liElement.appendChild(document.createTextNode(context.replaceName(item)));
             document.getElementById("listCredentials").appendChild(liElement);
           });
+          if(logoUri){
            document.getElementById('imageClient').src = logoUri;
+          }
         },
 
         startLogin(){
@@ -280,7 +282,7 @@
     .listCredentials {
       position: absolute;
       width: 35%;
-      height: 20%;
+      height: auto;
       left: 5%;
       top: 48%;
       background: #F2F2F2;
@@ -367,7 +369,6 @@
     .listCredentialsTitle{
       display: flex;
       flex-direction: row;
-      height: 28%;
       margin-left: 5%;
     }
 
