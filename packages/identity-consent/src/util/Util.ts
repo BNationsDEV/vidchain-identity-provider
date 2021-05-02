@@ -37,10 +37,14 @@ function parseUserDid(did: string): string {
 
 function getUserDid(jwt: string): string {
   const payload = jwt_decode(jwt);
-  const didWithSufix = (payload as DidAuthTypes.DidAuthResponsePayload).sub_jwk
-    .kid;
-  if (!didWithSufix) throw new BadRequestException(ERRORS.NO_KID_FOUND);
-  return parseUserDid(didWithSufix);
+  const { did } = payload as DidAuthTypes.DidAuthResponsePayload;
+  if (!did) {
+    const didWithSufix = (payload as DidAuthTypes.DidAuthResponsePayload)
+      .sub_jwk.kid;
+    if (!didWithSufix) throw new BadRequestException(ERRORS.NO_KID_FOUND);
+    return parseUserDid(didWithSufix);
+  }
+  return did;
 }
 
 function isTokenExpired(jwt: string): boolean {
