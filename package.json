@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@validatedid/did-auth": "^2.4.0"
+  }
+}
