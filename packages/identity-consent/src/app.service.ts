@@ -7,6 +7,7 @@ import {
 } from "@nestjs/common";
 import { Response, Request } from "express";
 import axios from "axios";
+import { decodeJWT } from "did-jwt";
 import ERRORS from "./util/error";
 import * as hydra from "./services/hydra";
 import * as config from "./config";
@@ -143,9 +144,7 @@ export default class AppService {
                 // access_token: { foo: 'bar' },
 
                 // This data will be available in the ID token.
-                id_token: {
-                  jwt: response.context.jwt,
-                },
+                id_token: decodeJWT(response.context.jwt).payload,
               },
             })
             .then((responseAccept) => {
@@ -211,9 +210,7 @@ export default class AppService {
 
               // This data will be available in the ID token.
               // id_token: { baz: 'bar' },
-              id_token: {
-                jwt: response.context.jwt,
-              },
+              id_token: decodeJWT(response.context.jwt).payload,
             },
             // ORY Hydra checks if requested audiences are allowed by the client, so we can simply echo this.
             grant_access_token_audience:
