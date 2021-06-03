@@ -118,6 +118,10 @@ spec:
         backend:
           serviceName: identity-consent-api-service
           servicePort: 3000
+      - path: /apple-app-site-association
+        backend:
+          serviceName: identity-consent-api-service
+          servicePort: 3000
       - path: /socket
         backend:
           serviceName: identity-consent-api-service
