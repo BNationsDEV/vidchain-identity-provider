@@ -36,7 +36,7 @@
     "@nestjs/platform-socket.io": "^7.6.15",
     "@nestjs/testing": "^7.6.15",
     "@nestjs/websockets": "^7.6.15",
-    "@validatedid/did-auth": "^2.5.0",
+    "@validatedid/did-auth": "^2.8.0",
     "axios": "^0.21.1",
     "base-58": "0.0.1",
     "base-64": "^1.0.0",
