@@ -4,7 +4,7 @@
     "details": [
       {
         "appID": "T6LZ7FGS8Z.com.vidchain.wallet",
-        "paths": ["/deeplink"]
+        "paths": ["/deep-link/*", "NOT /oauth2/*"]
       }
     ]
   }
