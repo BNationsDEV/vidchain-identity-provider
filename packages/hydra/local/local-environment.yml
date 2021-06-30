@@ -1,0 +1,51 @@
+version: '3.7'
+services:
+  hydra:
+    image: oryd/hydra:latest
+    depends_on:
+      - hydra-migrate
+    ports:
+      - "9000:4444" # Public port
+      - "9001:4445" # Admin port
+    networks:
+      - hydra_network
+    command:
+      serve all --dangerous-force-http
+      #serve all --dangerous-force-http
+    environment:
+      - URLS_SELF_ISSUER=http://127.0.0.1:9001
+      - URLS_CONSENT=http://127.0.0.1:3000/consent
+      - URLS_LOGIN=http://127.0.0.1:3000/login
+      - URLS_LOGOUT=http://127.0.0.1:3000/logout
+      - HYDRA_ADMIN_URL=http://127.0.0.1:4445
+      - CORS_ENABLED=true
+      - CORS_ALLOWED_ORIGINS=*
+      - CORS_DEBUG=true
+      # - HTTPS_ALLOW_TERMINATION_FROM=127.0.0.0/3000,127.0.0.0/3022
+      # - OAUTH2_ERROR_URL. This URL can be used to provide an endpoint which will receive error messages from ORY Hydra that should be displayed to the end user.
+      - DSN=postgres://hydra:secret@postgresd:5432/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+      - SECRETS_SYSTEM=T68zLmRJonSNbRUWRlqOFFJWBLXU7yrn
+    restart: unless-stopped
+  hydra-migrate:
+    image: oryd/hydra:latest
+    environment:
+      - DSN=postgres://hydra:secret@postgresd:5432/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+    networks:
+      - hydra_network
+    command:
+      migrate sql -e --yes
+    restart: on-failure
+  postgresd:
+    image: postgres:9.6
+    ports:
+      - "5432:5432"
+    networks:
+      - hydra_network
+    environment:
+      - POSTGRES_USER=hydra
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=hydra
+networks:
+  hydra_network:
+    driver: bridge
+    name: hydra_oidc_network

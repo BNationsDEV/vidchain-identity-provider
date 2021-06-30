@@ -10,30 +10,42 @@
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js"></script>
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <script src="https://unpkg.com/vue-i18n@8"></script>
+  <script type="text/javascript" src="/static/locals/en.js"></script>
+  <script type="text/javascript" src="/static/locals/es.js"></script>
+  <script type="text/javascript" src="/static/locals/ca.js"></script>
+  <script type="text/javascript" src="/static/locals/fr.js"></script>
 </head>
 
 <body>
-    <input type="hidden" id="csrf" name="_csrf" value={{csrfToken}}>
-    <input type="hidden" name="challenge" value={{challenge}}>
-    <input type="hidden" id="client_name" name="client_name" value={{client_name}}>
-    <input type="hidden" id="logo_uri" name="logo_uri" value={{logo_uri}}>
-    <input type="hidden" id="scope" name="scope" value={{scope}}>
-
+  <input type="hidden" id="csrf" name="_csrf" value={{csrfToken}}>
+  <input type="hidden" name="challenge" value={{challenge}}>
+  <input type="hidden" id="client_name" name="client_name" value={{client_name}}>
+  <input type="hidden" id="logo_uri" name="logo_uri" value={{logo_uri}}>
+  <input type="hidden" id="scope" name="scope" value={{scope}}>
+  <div id='login-app'>
     <div class="leftSide">
       <img id="logo" class="logo" src="/static/logoHeader.png"></img>
-      <p class="poweredByInMobile">Powered by Validated ID</p>
-      <h1 class="title">Authenticate with your VIDchain wallet</h1>
-      <h3 class="subtitle" id="message"></h3>
+      {{!-- TODO: uncomment or delete if choosing lang is it not necessary --}}
+      {{!-- <div class="locale-changer">
+        <select v-model="$i18n.locale">
+          <option v-for="(lang, i) in langs" :key="`Lang${i}`" :value="lang" v-text="lang"></option>
+        </select>
+      </div> --}}
+      <p class="poweredByInMobile" v-text='$t("login.powered")'></p>
+      <h1 class="title" v-text='$t("login.title")'></h1>
+      <h3 class="subtitle" id="message" v-text="clientName +' '+ $t('login.subtitle')"></h3>
       <div class="listCredentials">
         <div class="listCredentialsTitle">
           <img id="imageClient" class="imageClient" src="/static/icon.png"></img>
-          <p class="nameClient" id="nameClient"></p>
+          <p class="nameClient" id="nameClient" v-text="this.clientName"></p>
         </div>
         <hr style="border: 1px solid #D9D5E4;" />
         <ul style="margin-left: 12%" id="listCredentials"></ul>
       </div>
         <div class="footerLeftA">
-          <p class="footerText">You don't have the application yet? <br> Download it from your shop</p>
+          <p class="footerTextLeft" v-text='$t("login.footer_app") +"  "+$t("login.footer_download_id")'></p>
         </div>
         <div class="footerLeftB">
           <a href="https://apps.apple.com/app/id1554340592#?platform=iphone"></a><img src="/static/ios.png"></img></a>
@@ -41,50 +53,78 @@
         </div>
     </div>
     <div class="rightSide">
-      <p class="poweredBy">Powered by Validated ID</p>
+      <p class="poweredBy" v-text='$t("login.powered")'></p>
       <img id="qrImage" class="qrImage"></img>
         <div class="footerRight">
           <img class="imageApp" src="/static/scanApp.png"></img>
-          <p class="footerText">Go to login in your VIDchain mobile<br>app and scan the QR code</p>
+          <p class="footerTextRight" v-text='$t("login.footer_goto_login")'></p>
+
         </div>
     </div>
-
- 
+  </div>
   <script>
+
+    function getBrowserLocale() {
+      lang = "en"
+      navigatorLocale = navigator.language
+      if (!navigatorLocale) {
+        return lang
+      }
+      const trimmedLocale = navigatorLocale.trim().split(/-|_/)[0]
+      return trimmedLocale
+    }
+
+    const messages  = {
+        en: enLang,
+        es: esLang,
+        ca: caLang,
+        fr: frLang,
+    }
+
+    // Create VueI18n instance with options
+    const i18n = new VueI18n({
+      locale: getBrowserLocale(),
+      messages,
+    });
+
     const app = new Vue({
+      
+      i18n,
       el: '#login-app',
       data: {
         socket: null,
         clientUriRedirect: '',
-        remember: false
+        remember: false,
+        langs: Object.keys(messages),
+        subtitle: '',
+        clientName: ''
+
       },
       methods: {
 
-        getParameters(){
+        getParameters() {
           let urlParams = new URLSearchParams(window.location.search);
           let scope = decodeURIComponent(document.getElementById('scope').value);
-          let clientName =  decodeURIComponent(document.getElementById('client_name').value);
           let logoUri =  decodeURIComponent(document.getElementById('logo_uri').value);
 
-          this.renderParameters(scope, clientName, logoUri);
+          this.clientName =  decodeURIComponent(document.getElementById('client_name').value);
+          this.renderParameters(scope, logoUri);
         },
 
-        renderParameters(scope, clientName, logoUri){
-          document.getElementById('nameClient').innerHTML = `${clientName}`;
-          document.getElementById('message').innerHTML = `${clientName} requests providing the following credentials to login:`;
+        renderParameters(scope, logoUri){
           const scopeAsList = scope.split(",");
           const context = this;
-          scopeAsList.forEach(function(item) { 
+          scopeAsList.forEach(function (item) {
             let liElement = document.createElement("li");
             liElement.appendChild(document.createTextNode(context.replaceName(item)));
             document.getElementById("listCredentials").appendChild(liElement);
           });
-          if(logoUri){
-           document.getElementById('imageClient').src = logoUri;
+          if (logoUri) {
+            document.getElementById('imageClient').src = logoUri;
           }
         },
 
-        startLogin(){
+        startLogin() {
           let urlParams = new URLSearchParams(window.location.search);
           let login_challenge = urlParams.get('login_challenge');
           const data = {
@@ -140,10 +180,10 @@
         },
         replaceName(nameScope) {
           let nameModified = nameScope;
-          if(nameScope === "openid"){
-            return  "Your DID";
+          if (nameScope === "openid") {
+            return this.$t('login.did')
           }
-          if(nameScope === "BBVAAccountCredential"){
+          if (nameScope === "BBVAAccountCredential") {
             return "Bank Credential";
           }
           // Delete Camel Case: replace capital letter by space
@@ -157,8 +197,7 @@
         resetImg() {
           var img = document.getElementById('qrImage');
           img.src = '';
-        },
-
+        }
       },
       created() {
         this.getParameters();
@@ -168,7 +207,6 @@
         //To skip the click Login button functionality (do the request when opens)
         const data = this.startLogin();
         this.socket.emit('signIn', data);
-
         this.socket.on('printQR', (qrResponse) => {
           this.displayQr(qrResponse);
         });
@@ -186,39 +224,63 @@
       font-weight: 900;
       src: local('TTNorms'), url(/static/fonts/TTNorms-Regular.otf) format('opentype');
     }
+
     @font-face {
       font-family: 'TTNorms-Bold';
       font-weight: 900;
       src: local('TTNorms-Bold'), url(/static/fonts/TTNorms-Bold.otf) format('opentype');
     }
-    html{
+
+    html {
       margin: 0 !important;
       padding: 0 !important;
     }
-    #header{
-        margin: 0 !important;
-        padding: 0 !important;
+
+    #header {
+      margin: 0 !important;
+      padding: 0 !important;
     }
-    body{
-        margin: 0 !important;
-        padding: 0 !important;
+
+    body {
+      margin: 0 !important;
+      padding: 0 !important;
     }
+
     .leftSide {
-      float:left; width: 50%; background: rgba(21, 26, 53, 1); height: 100vh
+      float: left;
+      width: 50%;
+      background: rgba(21, 26, 53, 1);
+      height: 100vh
     }
+
     .rightSide {
-      float:right; width: 50%; background: #00BF71;  height: 100vh; display: flex;
-  justify-content: center;flex-direction: column;
+      float: right;
+      width: 50%;
+      background: #00BF71;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
     }
 
     @media only screen and (max-width: 768px) {
-    .leftSide {
-      width: 100%; background: rgba(21, 26, 53, 1);
-    }
-    .rightSide {
-      visibility: hidden;
-      display: none;
-    }
+      .leftSide {
+        width: 100%;
+        background: rgba(21, 26, 53, 1);
+      }
+
+      .rightSide {
+        visibility: hidden;
+        display: none;
+      }
+
+      .locale-changer {
+        position: absolute;
+        width: 122px;
+        height: 22px;
+        left: 15%;
+        top: 6%;
+      }
     }
 
     .poweredBy {
@@ -236,20 +298,31 @@
       left: 5%;
       top: 5%;
     }
+
+    .locale-changer {
+      position: absolute;
+      left: 5%;
+      top: 15%;
+    }
+
     .poweredByInMobile {
       visibility: hidden;
       display: none;
+
     }
-     @media only screen and (max-width: 768px) {
-       .poweredByInMobile {
-         visibility: visible;
-          display:unset;
-          position: absolute;
-          right: 2%;
-          top: 3%;
-          color: white;
-        }
-     }
+
+    @media only screen and (max-width: 768px) {
+      .poweredByInMobile {
+        visibility: visible;
+        display: unset;
+        position: absolute;
+        right: 2%;
+        top: 3%;
+        color: white;
+        font-family: 'TTNorms'
+
+      }
+    }
 
     .title {
       position: absolute;
@@ -264,6 +337,7 @@
       color: #F2F2F2;
       font-family: 'TTNorms-Bold'
     }
+
     .subtitle {
       position: absolute;
       width: 35%;
@@ -278,7 +352,7 @@
       color: #F2F2F2;
       font-family: 'TTNorms'
     }
-    
+
     .listCredentials {
       position: absolute;
       width: 35%;
@@ -291,110 +365,130 @@
       margin-top: 2%;
     }
 
-   @media (min-width: 768px) and (max-width: 1024px) {
-       .title {
-      position: absolute;
-      width: 40%;
-      left: 5%;
-      top: 10%;
+    @media (min-width: 768px) and (max-width: 1024px) {
+      .title {
+        position: absolute;
+        width: 40%;
+        left: 5%;
+        top: 10%;
+      }
+
+      .subtitle {
+        position: absolute;
+        width: 45%;
+        left: 5%;
+        top: 40%;
+      }
+
+      .listCredentials {
+        position: absolute;
+        width: 35%;
+        height: auto;
+        left: 5%;
+        top: 48%;
+      }
     }
-    .subtitle {
-      position: absolute;
-      width: 45%;
-      left: 5%;
-      top: 40%;
-    }
-    
-    .listCredentials {
-      position: absolute;
-      width: 35%;
-      height: auto;
-      left: 5%;
-      top: 48%;
-    }
-  }
 
     @media only screen and (min-height: 640px) and (max-width: 768px) {
-       .title{
+      .title {
         position: absolute;
         width: 90%;
         left: 5%;
         top: 15%;
         text-align: center;
-       }
-       .subtitle{
+      }
+
+      .subtitle {
         position: absolute;
         width: 90%;
         left: 5%;
         top: 40%;
         text-align: center;
-       }
-       .listCredentials {
-          position: absolute;
-          width: 90%;
-          height: auto;
-          left: 5%;
-          top: 50%;
-          background: #F2F2F2;
-          border-radius: 2px;
-        }
-     }
+      }
 
-    @media only screen and (max-height: 640px) and (max-width: 768px)  {
-       .title{
+      .listCredentials {
+        position: absolute;
+        width: 90%;
+        height: auto;
+        left: 5%;
+        top: 50%;
+        background: #F2F2F2;
+        border-radius: 2px;
+      }
+    }
+
+    @media only screen and (max-height: 640px) and (max-width: 768px) {
+      .title {
         position: absolute;
         width: 96%;
         left: 2%;
         top: 12%;
         text-align: center;
         font-size: 40px;
-       }
-       .subtitle{
+      }
+
+      .subtitle {
         position: absolute;
         width: 96%;
         left: 2%;
         top: 40%;
         text-align: center;
         font-size: 14px;
-       }
-       .listCredentials {
-          position: absolute;
-          width: 92%;
-          height: auto;
-          left: 4%;
-          top: 52%;
-          background: #F2F2F2;
-          border-radius: 2px;
-        }
-     }
+      }
 
-    .footerLeftA{
+      .listCredentials {
+        position: absolute;
+        width: 92%;
+        height: auto;
+        left: 4%;
+        top: 52%;
+        background: #F2F2F2;
+        border-radius: 2px;
+      }
+    }
+
+    .footerLeftA {
       position: absolute;
       left: 5%;
       bottom: 5%;
     }
-    .footerLeftB{
+
+    .footerLeftB {
       position: absolute;
       left: 27%;
       bottom: 5%;
     }
-    .footerText{
+    .footerTextLeft{
       font-family: 'TTNorms';
       font-style: normal;
       font-weight: 500;
       font-size: 14px;
       line-height: 18px;
       color: #FFFFFF;
+      width: 60%;
+      margin: auto;
+      text-align: center;
+    }
+    .footerTextRight{
+      font-family: 'TTNorms';
+      font-style: normal;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 18px;
+      color: #FFFFFF;
+      width: 60%;
+      text-align: center;
     }
 
-     @media (min-width: 768px) and (max-width: 1024px) {
+    @media (min-width: 768px) and (max-width: 1024px) {
 
-       .footerLeftA{
+      .footerLeftA {
         position: absolute;
         left: 1%;
         bottom: 2%;
       }
-      .footerLeftB{
+
+      .footerLeftB {
         position: absolute;
         left: 24%;
         bottom: 2%;
@@ -402,20 +496,21 @@
     }
 
     @media only screen and (max-width: 768px) {
-      
-      .footerLeftA{
+
+      .footerLeftA {
         position: absolute;
-        bottom: 8%;
+        bottom: 10%;
         left: 10%;
-        width:80%;
+        width: 80%;
         text-align: center;
-        
+
       }
-      .footerLeftB{
+
+      .footerLeftB {
         position: absolute;
         bottom: 1%;
         left: 10%;
-        width:80%;
+        width: 80%;
         text-align: center;
       }
     }
@@ -424,11 +519,12 @@
       display: block;
       margin: auto;
     }
-    .footerRight{
+
+    .footerRight {
       position: absolute;
       left: 65%;
       bottom: 5%;
-      display:flex;
+      display: flex;
       flex-direction: row;
       width: 25%;
     }
@@ -439,13 +535,14 @@
       margin-right: 8%;
       margin-top: 3%;
     }
+
     @media (min-width: 768px) and (max-width: 1024px) {
-       .imageApp {
-          margin-top: 8%;
-        }
+      .imageApp {
+        margin-top: 8%;
+      }
     }
 
-    .listCredentialsTitle{
+    .listCredentialsTitle {
       display: flex;
       flex-direction: row;
       margin-left: 5%;
@@ -458,18 +555,20 @@
       font-size: 16px;
       line-height: 18px;
       /* or 112% */
-      font-feature-settings: 'liga' off;
+      font-feature-settings: 'liga'off;
       color: #7B788A;
       margin-left: 5%;
       margin-top: 4%;
       vertical-align: middle;
     }
+
     .imageClient {
       width: 36px;
       height: 36px;
       margin-top: 2%;
       vertical-align: middle;
     }
+
     #listCredentials {
       font-family: 'TTNorms';
       font-style: normal;
@@ -478,7 +577,7 @@
       line-height: 22px;
       /* identical to box height, or 157% */
 
-      font-feature-settings: 'liga' off;
+      font-feature-settings: 'liga'off;
 
       color: #7B788A;
     }
@@ -488,8 +587,6 @@
       margin-top: 2%;
       color: white;
     }
-
-
   </style>
 </body>
 
