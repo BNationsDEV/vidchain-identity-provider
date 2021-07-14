@@ -14,11 +14,15 @@ import * as config from "./config";
 import { DoConsent, DoLogin, LoginCookie } from "./@types/identityProvider";
 
 function processAccessGranted(challenge: string, body: DoLogin, res: Response) {
+  const decodedJwt = decodeJWT(body.jwt as string);
+
   hydra
     .acceptLoginRequest(challenge, {
       // Subject is an alias for user ID. A subject can be a random string, a UUID, an email address, ....
       // In our case DID
-      subject: body.did,
+      subject: body.did, // 1
+
+      email: decodedJwt.payload.email, // if scope contains email && body.jwt contains email body.email vs body.jwt.email
 
       // This tells hydra to remember the browser and automatically authenticate the user in future requests. This will
       // set the "skip" parameter in the other route to true on subsequent requests!
@@ -34,7 +38,7 @@ function processAccessGranted(challenge: string, body: DoLogin, res: Response) {
       // consent request under the "context" field. This is useful in scenarios where login and consent endpoints share
       // data.
       context: {
-        jwt: body.jwt,
+        jwt: body.jwt, // 2
       },
     })
     .then((response) => {
