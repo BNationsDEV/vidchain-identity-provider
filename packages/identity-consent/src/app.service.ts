@@ -22,7 +22,7 @@ function processAccessGranted(challenge: string, body: DoLogin, res: Response) {
       // In our case DID
       subject: body.did, // 1
 
-      email: decodedJwt.payload.email, // if scope contains email && body.jwt contains email body.email vs body.jwt.email
+      email: decodedJwt.payload.email || "test@test.com", // if scope contains email && body.jwt contains email body.email vs body.jwt.email
 
       // This tells hydra to remember the browser and automatically authenticate the user in future requests. This will
       // set the "skip" parameter in the other route to true on subsequent requests!
