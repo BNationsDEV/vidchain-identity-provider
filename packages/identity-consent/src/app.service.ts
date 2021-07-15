@@ -197,6 +197,7 @@ export default class AppService {
     hydra
       .getConsentRequest(challenge)
       .then(async (response) => {
+        const { payload } = decodeJWT(response.context.jwt);
         return hydra
           .acceptConsentRequest(challenge, {
             // We can grant all scopes that have been requested - hydra already checked for us that no additional scopes
@@ -210,7 +211,16 @@ export default class AppService {
 
               // This data will be available in the ID token.
               // id_token: { baz: 'bar' },
-              id_token: decodeJWT(response.context.jwt).payload,
+              id_token:
+                response.requested_scope.includes("EmailCredential") ||
+                response.requested_scope.includes("VidGoogleCredential")
+                  ? {
+                      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                      email: payload.vp.verifiableCredential[0]
+                        .credentialSubject.email as string,
+                      ...payload,
+                    }
+                  : decodeJWT(response.context.jwt).payload,
             },
             // ORY Hydra checks if requested audiences are allowed by the client, so we can simply echo this.
             grant_access_token_audience:
