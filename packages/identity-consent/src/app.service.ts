@@ -20,8 +20,7 @@ function processAccessGranted(challenge: string, body: DoLogin, res: Response) {
     .acceptLoginRequest(challenge, {
       // Subject is an alias for user ID. A subject can be a random string, a UUID, an email address, ....
       // In our case DID
-      subject: body.did, // 1
-      // if scope contains email && body.jwt contains email body.email vs body.jwt.email
+      subject: body.did,
 
       // This tells hydra to remember the browser and automatically authenticate the user in future requests. This will
       // set the "skip" parameter in the other route to true on subsequent requests!
@@ -37,8 +36,7 @@ function processAccessGranted(challenge: string, body: DoLogin, res: Response) {
       // consent request under the "context" field. This is useful in scenarios where login and consent endpoints share
       // data.
       context: {
-        jwt: body.jwt, // 2
-        email: (decodedJwt.payload.email as string) || "test@test.com",
+        jwt: body.jwt,
       },
     })
     .then((response) => {
@@ -148,6 +146,7 @@ export default class AppService {
                 // access_token: { foo: 'bar' },
 
                 // This data will be available in the ID token.
+                email: "test check",
                 id_token: decodeJWT(response.context.jwt).payload,
               },
             })
@@ -214,7 +213,10 @@ export default class AppService {
 
               // This data will be available in the ID token.
               // id_token: { baz: 'bar' },
-              id_token: decodeJWT(response.context.jwt).payload,
+              id_token: {
+                email: "test do",
+                ...decodeJWT(response.context.jwt).payload,
+              },
             },
             // ORY Hydra checks if requested audiences are allowed by the client, so we can simply echo this.
             grant_access_token_audience:
