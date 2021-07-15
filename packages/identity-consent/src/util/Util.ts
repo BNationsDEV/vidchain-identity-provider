@@ -10,8 +10,8 @@ function getVcFromScope(inputScope: string): OidcClaimRequest {
   const scopeArray: string[] = inputScope.split(",");
   const claim: OidcClaimRequest = {};
   scopeArray.forEach((value) => {
-    // Skip the first two scopes. Ex: offline openid VerifiableIdCredential
-    if (value !== "openid" && value !== "offline") {
+    // Skip the standard  scopes. Ex: offline openid email VerifiableIdCredential
+    if (value !== "openid" && value !== "offline" && value !== "email") {
       const oidcClaim: OidcSsi.OidcClaimJson = {
         essential: true,
       };
