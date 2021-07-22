@@ -146,7 +146,6 @@ export default class AppService {
                 // access_token: { foo: 'bar' },
 
                 // This data will be available in the ID token.
-                email: "test check",
                 id_token: decodeJWT(response.context.jwt).payload,
               },
             })
