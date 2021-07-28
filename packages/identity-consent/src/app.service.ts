@@ -200,6 +200,19 @@ export default class AppService {
       .getConsentRequest(challenge)
       .then(async (response) => {
         const { payload } = decodeJWT(response.context.jwt);
+        const debug =
+          response.requested_scope.includes("EmailCredential") ||
+          response.requested_scope.includes("VidGoogleCredential")
+            ? {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                email: payload.vp.verifiableCredential[0].credentialSubject
+                  .email as string,
+                ...payload,
+              }
+            : decodeJWT(response.context.jwt).payload;
+        console.log("***********");
+        console.log(debug);
+        console.log("___________");
         return hydra
           .acceptConsentRequest(challenge, {
             // We can grant all scopes that have been requested - hydra already checked for us that no additional scopes
